@@ -1,3 +1,5 @@
+import { useI18n } from '../i18n';
+
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -5,28 +7,30 @@ interface PaginationProps {
 }
 
 export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+  const { t } = useI18n();
+
   if (totalPages <= 1) return null;
 
   return (
-    <nav className="pagination" aria-label="Pagination">
+    <nav className="pagination" aria-label={t('common.search')}>
       <button
         className="btn btn-page"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        aria-label="Page précédente"
+        aria-label={t('pagination.previousAria')}
       >
-        ← Précédent
+        {t('pagination.previous')}
       </button>
       <span className="pagination-info" aria-current="page">
-        Page {currentPage} / {totalPages}
+        {t('pagination.pageInfo', { current: currentPage, total: totalPages })}
       </span>
       <button
         className="btn btn-page"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        aria-label="Page suivante"
+        aria-label={t('pagination.nextAria')}
       >
-        Suivant →
+        {t('pagination.next')}
       </button>
     </nav>
   );

@@ -17,6 +17,7 @@ import {
   YotoMiniPreview,
   LoadingState,
 } from '../components';
+import { useI18n } from '../i18n';
 
 const CATEGORY_LABELS: Record<string, string> = {
   objets: 'Objets',
@@ -48,6 +49,7 @@ export function CategoryIconsPage({
 }) {
   const { category: categoryParam } = useParams<{ category: string }>();
   const location = useLocation();
+  const { t } = useI18n();
 
   // Data loading
   const {
@@ -171,14 +173,14 @@ export function CategoryIconsPage({
     return (
       <section className="category-page" aria-labelledby="category-title">
         <header className="category-header">
-          <Link to="/categories" className="back-link" aria-label="Retour aux catégories">
+          <Link to="/categories" className="back-link" aria-label={t('common.back')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
-            Catégories
+            {t('categories.backToCategories')}
           </Link>
-          <h1 id="category-title">Catégorie introuvable</h1>
-          <p className="category-intro">La catégorie demandée n'existe pas.</p>
+          <h1 id="category-title">{t('categories.notFound')}</h1>
+          <p className="category-intro">{t('categories.notFoundMessage')}</p>
         </header>
       </section>
     );
@@ -191,14 +193,14 @@ export function CategoryIconsPage({
   return (
     <>
       <div className="category-page-header">
-        <Link to="/categories" className="back-link" aria-label="Retour aux catégories">
+        <Link to="/categories" className="back-link" aria-label={t('common.back')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Toutes les catégories
+          {t('categories.allCategoriesLink')}
         </Link>
       </div>
-      <SearchBar query={query} onChange={handleSearchChange} autoFocus={!query} placeholder={`Rechercher dans ${categoryLabel}…`} />
+      <SearchBar query={query} onChange={handleSearchChange} autoFocus={!query} placeholder={t('search.placeholderCategory', { category: categoryLabel })} />
 
       <Filters
         category={currentCategory}

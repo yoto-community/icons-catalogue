@@ -39,7 +39,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json,woff2}'],
-        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15 MB to include combined-icons.json
+        maximumFileSizeToCacheInBytes: 25 * 1024 * 1024, // 25 MB to include combined-icons.json (~21 MB)
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

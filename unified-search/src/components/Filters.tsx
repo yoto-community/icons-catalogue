@@ -1,5 +1,6 @@
 import type { ChangeEvent } from 'react';
 import type { SortOption, SummaryData } from '../types';
+import { useI18n } from '../i18n';
 
 interface CategoryFilterProps {
   value: string;
@@ -9,16 +10,18 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ value, onChange, categories, summary }: CategoryFilterProps) {
+  const { t } = useI18n();
+
   return (
     <div className="filter-group">
-      <label htmlFor="category-filter" className="sr-only">Catégorie</label>
+      <label htmlFor="category-filter" className="sr-only">{t('filters.categoryLabel')}</label>
       <select
         id="category-filter"
         value={value}
         onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-        aria-label="Filtrer par catégorie"
+        aria-label={t('filters.categoryAria')}
       >
-        <option value="">Toutes les catégories</option>
+        <option value="">{t('filters.allCategories')}</option>
         {categories.map(cat => (
           <option key={cat} value={cat}>
             {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -37,18 +40,20 @@ interface SubcategoryFilterProps {
 }
 
 export function SubcategoryFilter({ value, onChange, subcategories }: SubcategoryFilterProps) {
+  const { t } = useI18n();
+
   if (subcategories.length === 0) return null;
 
   return (
     <div className="filter-group">
-      <label htmlFor="subcategory-filter" className="sr-only">Sous-catégorie</label>
+      <label htmlFor="subcategory-filter" className="sr-only">{t('filters.subcategoryLabel')}</label>
       <select
         id="subcategory-filter"
         value={value}
         onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-        aria-label="Filtrer par sous-catégorie"
+        aria-label={t('filters.subcategoryAria')}
       >
-        <option value="">Toutes les sous-catégories</option>
+        <option value="">{t('filters.allSubcategories')}</option>
         {subcategories.map(subcat => (
           <option key={subcat} value={subcat}>
             {subcat.charAt(0).toUpperCase() + subcat.slice(1)}
@@ -65,18 +70,20 @@ interface SortFilterProps {
 }
 
 export function SortFilter({ value, onChange }: SortFilterProps) {
+  const { t } = useI18n();
+
   return (
     <div className="filter-group">
-      <label htmlFor="sort-filter" className="sr-only">Trier par</label>
+      <label htmlFor="sort-filter" className="sr-only">{t('filters.sortLabel')}</label>
       <select
         id="sort-filter"
         value={value}
         onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(e.target.value as SortOption)}
-        aria-label="Trier les résultats"
+        aria-label={t('filters.sortAria')}
       >
-        <option value="downloads">Téléchargements (desc)</option>
-        <option value="title">Titre (A-Z)</option>
-        <option value="date">Plus récentes</option>
+        <option value="downloads">{t('common.downloadsDesc')}</option>
+        <option value="title">{t('common.titleAZ')}</option>
+        <option value="date">{t('common.newest')}</option>
       </select>
     </div>
   );
@@ -88,6 +95,8 @@ interface ResetFiltersProps {
 }
 
 export function ResetFilters({ hasActiveFilters, onClick }: ResetFiltersProps) {
+  const { t } = useI18n();
+
   if (!hasActiveFilters) return null;
 
   return (
@@ -95,9 +104,9 @@ export function ResetFilters({ hasActiveFilters, onClick }: ResetFiltersProps) {
       type="button"
       className="btn btn-reset"
       onClick={onClick}
-      aria-label="Réinitialiser tous les filtres"
+      aria-label={t('filters.resetAria')}
     >
-      Réinitialiser
+      {t('filters.resetLabel')}
     </button>
   );
 }

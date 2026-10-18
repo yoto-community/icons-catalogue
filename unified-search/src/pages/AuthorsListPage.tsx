@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import type { SummaryData } from '../types';
+import { useI18n } from '../i18n';
 
 interface AuthorsListPageProps {
   summary: SummaryData | null;
@@ -7,13 +8,14 @@ interface AuthorsListPageProps {
 
 export function AuthorsListPage({ summary }: AuthorsListPageProps) {
   const location = useLocation();
+  const { t } = useI18n();
 
   if (!summary?.byArtist) {
     return (
       <section className="authors-page" aria-labelledby="authors-title">
         <header className="authors-header">
-          <h1 id="authors-title">Auteurs</h1>
-          <p className="authors-intro">Chargement des auteurs…</p>
+          <h1 id="authors-title">{t('authors.title')}</h1>
+          <p className="authors-intro">{t('authors.loading')}</p>
         </header>
       </section>
     );
@@ -29,9 +31,9 @@ export function AuthorsListPage({ summary }: AuthorsListPageProps) {
   return (
     <section className="authors-page" aria-labelledby="authors-title">
       <header className="authors-header">
-        <h1 id="authors-title">Auteurs</h1>
+        <h1 id="authors-title">{t('authors.title')}</h1>
         <p className="authors-intro">
-          {totalAuthors} auteur{totalAuthors > 1 ? 's' : ''} — {totalIcons.toLocaleString('fr-FR')} icône{totalIcons > 1 ? 's' : ''} au total
+          {t('authors.intro', { count: totalAuthors, total: totalIcons })}
         </p>
       </header>
 
@@ -56,7 +58,7 @@ export function AuthorsListPage({ summary }: AuthorsListPageProps) {
                 </div>
                 <div className="author-info">
                   <h2 className="author-name">{artist}</h2>
-                  <span className="author-count" aria-label={`${countNum} icônes`}>
+                  <span className="author-count" aria-label={t('common.iconsCount', { count: countNum })}>
                     {countNum.toLocaleString('fr-FR')} icône{countNum > 1 ? 's' : ''}
                   </span>
                 </div>
@@ -71,7 +73,7 @@ export function AuthorsListPage({ summary }: AuthorsListPageProps) {
 
       {sortedAuthors.length === 0 && (
         <div className="authors-empty">
-          <p>Aucun auteur disponible pour le moment.</p>
+          <p>{t('authors.empty')}</p>
         </div>
       )}
     </section>

@@ -1521,6 +1521,12 @@ a:focus-visible {
 /* ===== Yoto Mini Preview Panel ===== */
 
 /* ===== Header Navigation ===== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .header-nav {
   margin: 0;
 }
@@ -1531,6 +1537,60 @@ a:focus-visible {
   gap: var(--space-1);
   list-style: none;
   flex-wrap: wrap;
+}
+
+/* Language Switcher */
+.language-switcher {
+  flex-shrink: 0;
+}
+
+.language-select {
+  padding: var(--space-2) var(--space-3);
+  padding-right: var(--space-8);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  min-width: 120px;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-focus);
+}
+
+.language-select:hover {
+  border-color: #ccc;
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .nav-list {
+    width: 100%;
+    justify-content: center;
+    order: 2;
+  }
+  
+  .header-brand {
+    order: 1;
+  }
+  
+  .language-switcher {
+    order: 3;
+  }
 }
 
 .nav-link {

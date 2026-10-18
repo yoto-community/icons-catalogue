@@ -1,8 +1,43 @@
 <!DOCTYPE html>
-<html lang="fr"><head><meta charset="UTF-8"><title>Test Index Yoto Icons</title></head><body>
-<h1>Index Yoto Icons - Test</h1>
-<p>Index combiné de <strong>27399</strong> icônes</p>
+<html lang="fr"><head><meta charset="UTF-8"><title>API Yoto Icons - Test</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+  .stat { display: inline-block; background: #f5f5f5; padding: 0.5rem 1rem; margin: 0.25rem; border-radius: 4px; }
+  .stat strong { color: #333; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #eee; }
+  th { background: #fafafa; }
+</style></head><body>
+<h1>API Yoto Icons - Test</h1>
+<p>Catalogue de <strong>27399</strong> icônes 16×16</p>
+<div>
+  <span class="stat">Sources: yotopixels: 1314, yotoicons: 25566, yoto-official: 519</span>
+  <span class="stat">Catégories: 12</span>
+  <span class="stat">Artistes: 1987</span>
+</div>
+<h2>Répartition par source</h2>
+<table>
+  <tr><th>Source</th><th>Nombre</th></tr>
+  <tr><td>yotopixels</td><td>1314</td></tr><tr><td>yotoicons</td><td>25566</td></tr><tr><td>yoto-official</td><td>519</td></tr>
+</table>
+<h2>Répartition par catégorie</h2>
+<table>
+  <tr><th>Catégorie</th><th>Nombre</th></tr>
+  <tr><td>objets</td><td>26893</td></tr><tr><td>animaux</td><td>222</td></tr><tr><td>nature</td><td>84</td></tr><tr><td>personnages</td><td>50</td></tr><tr><td>transport</td><td>42</td></tr><tr><td>batiments</td><td>25</td></tr><tr><td>musique</td><td>21</td></tr><tr><td>nourriture</td><td>20</td></tr><tr><td>emotions</td><td>17</td></tr><tr><td>fetes</td><td>15</td></tr><tr><td>activites</td><td>9</td></tr><tr><td>formes</td><td>1</td></tr>
+</table>
+<h2>Top 10 tags</h2>
+<table>
+  <tr><th>Tag</th><th>Nombre</th></tr>
+  <tr><td>icon</td><td>25577</td></tr><tr><td>animal</td><td>166</td></tr><tr><td>px</td><td>102</td></tr><tr><td>dog</td><td>68</td></tr><tr><td>roald dahl</td><td>54</td></tr><tr><td>puppy</td><td>47</td></tr><tr><td>encanto</td><td>42</td></tr><tr><td>madrigal</td><td>42</td></tr><tr><td>moana</td><td>36</td></tr><tr><td>paw patrol</td><td>35</td></tr>
+</table>
+<h2>Endpoints API</h2>
 <ul>
-<li><strong>icon</strong>: 25577 icônes</li><li><strong>animal</strong>: 166 icônes</li><li><strong>px</strong>: 102 icônes</li><li><strong>dog</strong>: 68 icônes</li><li><strong>roald dahl</strong>: 54 icônes</li>
+  <li><code>GET /dist/index.json</code> - Manifeste</li>
+  <li><code>GET /dist/icons.json</code> - Catalogue complet</li>
+  <li><code>GET /dist/icons/{id}.json</code> - Métadonnées d'une icône</li>
+  <li><code>GET /dist/icons-by-source/{source}.json</code> - Icônes par source</li>
+  <li><code>GET /dist/icons-by-category/{category}.json</code> - Icônes par catégorie</li>
+  <li><code>GET /dist/search-index.json</code> - Index Lunr</li>
+  <li><code>GET /dist/summary.json</code> - Statistiques</li>
 </ul>
 </body></html>

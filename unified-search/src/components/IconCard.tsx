@@ -2,6 +2,7 @@ import { type MouseEvent } from 'react';
 import type { Icon } from '../types';
 import { normalizeUrl, getSourceBadge } from '../utils/iconUtils';
 import { FavoriteButton } from './FavoriteButton';
+import { useI18n } from '../i18n';
 
 interface IconCardProps {
   icon: Icon;
@@ -10,6 +11,8 @@ interface IconCardProps {
 }
 
 export function IconCard({ icon, onOpenDetail, onPreview }: IconCardProps) {
+  const { t } = useI18n();
+
   return (
     <article className="icon-card" role="listitem">
       <div className="icon-card-content">
@@ -17,7 +20,7 @@ export function IconCard({ icon, onOpenDetail, onPreview }: IconCardProps) {
           type="button"
           className="icon-link"
           onClick={() => onOpenDetail(icon)}
-          aria-label={`Voir les détails de ${icon.title} (${icon.downloads} téléchargements)`}
+          aria-label={t('iconCard.detailsAria', { title: icon.title, downloads: icon.downloads })}
         >
           <div className="icon-preview">
             <img
@@ -43,7 +46,7 @@ export function IconCard({ icon, onOpenDetail, onPreview }: IconCardProps) {
             <h3 className="icon-title">{icon.title}</h3>
             <div className="icon-meta">
               <span className="icon-artist">@{icon.artist}</span>
-              <span className="icon-downloads" aria-label={`${icon.downloads} téléchargements`}>
+              <span className="icon-downloads" aria-label={t('common.downloads', { count: icon.downloads })}>
                 <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
                   <path fill="currentColor" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm3.78-10.22L8 10.77 4.22 7l.78-.78L8 9.22l3-3 .78.78z" />
                 </svg>
@@ -65,8 +68,8 @@ export function IconCard({ icon, onOpenDetail, onPreview }: IconCardProps) {
             type="button"
             className="icon-preview-btn"
             onClick={e => onPreview(icon, e)}
-            aria-label={`Aperçu sur Yoto Mini : ${icon.title}`}
-            title="Aperçu sur Yoto Mini"
+            aria-label={t('iconCard.previewAria', { title: icon.title })}
+            title={t('iconCard.previewTitle')}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />

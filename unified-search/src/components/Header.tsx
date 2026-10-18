@@ -1,21 +1,24 @@
 import { useFavorites } from '../context/FavoritesContext';
 import { Link, useLocation } from 'react-router-dom';
+import { useI18n } from '../i18n';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface NavItem {
   path: string;
-  label: string;
+  labelKey: string;
   count?: number;
 }
 
 export function Header() {
   const { favorites } = useFavorites();
   const location = useLocation();
+  const { t } = useI18n();
 
   const navItems: NavItem[] = [
-    { path: '/', label: 'Catalogue' },
-    { path: '/categories', label: 'Catégories' },
-    { path: '/authors', label: 'Auteurs' },
-    { path: '/favorites', label: 'Favoris', count: favorites.size },
+    { path: '/', labelKey: 'header.navCatalogue' },
+    { path: '/categories', labelKey: 'header.navCategories' },
+    { path: '/authors', labelKey: 'header.navAuthors' },
+    { path: '/favorites', labelKey: 'header.navFavorites', count: favorites.size },
   ];
 
   return (
@@ -24,29 +27,32 @@ export function Header() {
         <div className="header-brand">
           <h1 className="logo">
             <span className="logo-icon" aria-hidden="true">🔍</span>
-            Yoto Icons Catalogue
+            {t('header.appName')}
           </h1>
         </div>
-        <nav className="header-nav" aria-label="Navigation principale">
-          <ul className="nav-list">
-            {navItems.map(item => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`nav-link ${location.pathname === item.path ? 'is-active' : ''}`}
-                  aria-current={location.pathname === item.path ? 'page' : undefined}
-                >
-                  {item.label}
-                  {item.count !== undefined && item.count > 0 && (
-                    <span className="nav-count" aria-label={`${item.count} favori${item.count > 1 ? 's' : ''}`}>
-                      {item.count}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="header-actions">
+          <nav className="header-nav" aria-label={t('common.search')}>
+            <ul className="nav-list">
+              {navItems.map(item => (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={`nav-link ${location.pathname === item.path ? 'is-active' : ''}`}
+                    aria-current={location.pathname === item.path ? 'page' : undefined}
+                  >
+                    {t(item.labelKey)}
+                    {item.count !== undefined && item.count > 0 && (
+                      <span className="nav-count" aria-label={t('header.favoritesCount', { count: item.count })}>
+                        {item.count}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <LanguageSwitcher />
+        </div>
       </div>
     </header>
   );

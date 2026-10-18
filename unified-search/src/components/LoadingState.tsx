@@ -1,4 +1,8 @@
+import { useI18n } from '../i18n';
+
 export function LoadingState() {
+  const { t } = useI18n();
+
   return (
     <div className="app loading">
       <header className="header">
@@ -12,8 +16,8 @@ export function LoadingState() {
       <main className="main">
         <div className="loading-state" aria-live="polite">
           <div className="spinner" aria-hidden="true" />
-          <p>Chargement de l'index des icônes…</p>
-          <p className="loading-hint">Première visite ? L'index (~50KB) se charge une seule fois.</p>
+          <p>{t('loading.indexLoading')}</p>
+          <p className="loading-hint">{t('loading.firstVisitHint')}</p>
         </div>
       </main>
     </div>

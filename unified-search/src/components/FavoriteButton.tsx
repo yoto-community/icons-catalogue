@@ -1,4 +1,5 @@
 import { useFavorites } from '../context/FavoritesContext';
+import { useI18n } from '../i18n';
 
 interface FavoriteButtonProps {
   id: string;
@@ -9,6 +10,7 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ id, size = 'normal', variant = 'icon', onToggle }: FavoriteButtonProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { t } = useI18n();
   const favorite = isFavorite(id);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -23,8 +25,8 @@ export function FavoriteButton({ id, size = 'normal', variant = 'icon', onToggle
       className={`favorite-btn favorite-btn--${size} favorite-btn--${variant} ${favorite ? 'is-favorite' : ''}`}
       onClick={handleClick}
       aria-pressed={favorite}
-      aria-label={favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-      title={favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+      aria-label={favorite ? t('favoriteButton.removeAria') : t('favoriteButton.addAria')}
+      title={favorite ? t('favoriteButton.removeTitle') : t('favoriteButton.addTitle')}
     >
       {/* Outline heart */}
       <svg
@@ -58,7 +60,7 @@ export function FavoriteButton({ id, size = 'normal', variant = 'icon', onToggle
           strokeWidth="2"
         />
       </svg>
-      {variant === 'icon-text' && <span className="favorite-text">{favorite ? 'Retirer' : 'Favori'}</span>}
+      {variant === 'icon-text' && <span className="favorite-text">{favorite ? t('favoriteButton.removeText') : t('favoriteButton.favoriteText')}</span>}
     </button>
   );
 }

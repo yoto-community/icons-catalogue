@@ -50,7 +50,7 @@ jobs:
 
       - name: Commit data changes
         run: |
-          git add data/ unified-search/public/
+          git add data/ dist/ unified-search/public/
           if ! git diff --staged --quiet; then
             git commit -m "chore: update icons data ($(date -u +'%Y-%m-%d')) [skip ci]"
             git push

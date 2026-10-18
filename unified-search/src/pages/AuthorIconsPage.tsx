@@ -17,6 +17,7 @@ import {
   YotoMiniPreview,
   LoadingState,
 } from '../components';
+import { useI18n } from '../i18n';
 
 export function AuthorIconsPage({
   onOpenDetail,
@@ -33,6 +34,7 @@ export function AuthorIconsPage({
 }) {
   const { artist: artistParam } = useParams<{ artist: string }>();
   const location = useLocation();
+  const { t } = useI18n();
 
   // Data loading
   const {
@@ -175,14 +177,14 @@ export function AuthorIconsPage({
     return (
       <section className="author-page" aria-labelledby="author-title">
         <header className="author-header">
-          <Link to="/authors" className="back-link" aria-label="Retour aux auteurs">
+          <Link to="/authors" className="back-link" aria-label={t('common.back')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
-            Auteurs
+            {t('authors.backToAuthors')}
           </Link>
-          <h1 id="author-title">Auteur introuvable</h1>
-          <p className="author-intro">L'auteur demandé n'existe pas.</p>
+          <h1 id="author-title">{t('authors.notFound')}</h1>
+          <p className="author-intro">{t('authors.notFoundMessage')}</p>
         </header>
       </section>
     );
@@ -191,14 +193,14 @@ export function AuthorIconsPage({
   return (
     <>
       <div className="author-page-header">
-        <Link to="/authors" className="back-link" aria-label="Retour aux auteurs">
+        <Link to="/authors" className="back-link" aria-label={t('common.back')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Tous les auteurs
+          {t('authors.allAuthorsLink')}
         </Link>
       </div>
-      <SearchBar query={query} onChange={handleSearchChange} autoFocus={!query} placeholder={`Rechercher dans ${currentArtist}…`} />
+      <SearchBar query={query} onChange={handleSearchChange} autoFocus={!query} placeholder={t('search.placeholderAuthor', { artist: currentArtist })} />
 
       <Filters
         category={category}

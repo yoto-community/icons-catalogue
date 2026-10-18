@@ -2,9 +2,11 @@ import { useFavorites } from '../context/FavoritesContext';
 import { IconsGrid } from '../components/IconsGrid';
 import { EmptyState } from '../components/EmptyState';
 import type { Icon } from '../types';
+import { useI18n } from '../i18n';
 
 export function FavoritesPage({ allIcons }: { allIcons: Icon[] }) {
   const { favorites } = useFavorites();
+  const { t } = useI18n();
   const favoriteIds = Array.from(favorites);
   const favoriteIcons = allIcons.filter(icon => favoriteIds.includes(icon.id));
 
@@ -22,9 +24,9 @@ export function FavoritesPage({ allIcons }: { allIcons: Icon[] }) {
     return (
       <section className="favorites-page" aria-labelledby="favorites-title">
         <header className="favorites-header">
-          <h1 id="favorites-title">Mes favoris</h1>
+          <h1 id="favorites-title">{t('favorites.title')}</h1>
           <p className="favorites-intro">
-            Vos icônes préférées, sauvegardées localement dans votre navigateur.
+            {t('favorites.emptyIntro')}
           </p>
         </header>
         <EmptyState
@@ -40,10 +42,9 @@ export function FavoritesPage({ allIcons }: { allIcons: Icon[] }) {
   return (
     <section className="favorites-page" aria-labelledby="favorites-title">
       <header className="favorites-header">
-        <h1 id="favorites-title">Mes favoris</h1>
+        <h1 id="favorites-title">{t('favorites.title')}</h1>
         <p className="favorites-intro">
-          {favoriteIcons.length} icône{favoriteIcons.length > 1 ? 's' : ''} favorite{favoriteIcons.length > 1 ? 's' : ''} —
-          sauvegardées localement dans votre navigateur, synchronisées entre onglets.
+          {t('favorites.intro', { count: favoriteIcons.length })}
         </p>
       </header>
 

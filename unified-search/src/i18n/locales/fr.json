@@ -1,0 +1,177 @@
+{
+  "common": {
+    "search": "Rechercher",
+    "loading": "Chargement…",
+    "error": "Erreur",
+    "retry": "Réessayer",
+    "close": "Fermer",
+    "download": "Télécharger",
+    "preview": "Aperçu",
+    "favorite": "Favori",
+    "removeFavorite": "Retirer des favoris",
+    "addFavorite": "Ajouter aux favoris",
+    "reset": "Réinitialiser",
+    "resetFilters": "Réinitialiser les filtres",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page",
+    "of": "sur",
+    "icons": "icônes",
+    "icon": "icône",
+    "total": "Total",
+    "by": "par",
+    "viewSource": "Voir la source",
+    "viewOnYoto": "Voir sur Yoto",
+    "viewOnYotopixels": "Voir sur Yotopixels",
+    "viewOnYotoicons": "Voir sur Yotoicons",
+    "license": "Licence",
+    "addedOn": "Ajoutée le",
+    "tags": "Tags",
+    "category": "Catégorie",
+    "subcategory": "Sous-catégorie",
+    "downloads": "Téléchargements",
+    "artist": "Auteur",
+    "title": "Titre",
+    "noResults": "Aucun résultat",
+    "back": "Retour",
+    "all": "Toutes",
+    "allCategories": "Toutes les catégories",
+    "allSubcategories": "Toutes les sous-catégories",
+    "sortBy": "Trier par",
+    "downloadsDesc": "Téléchargements (desc)",
+    "titleAZ": "Titre (A-Z)",
+    "newest": "Plus récentes",
+    "source": "Source"
+  },
+  "header": {
+    "appName": "Yoto Icons Catalogue",
+    "navCatalogue": "Catalogue",
+    "navCategories": "Catégories",
+    "navAuthors": "Auteurs",
+    "navFavorites": "Favoris",
+    "favoritesCount": "{{count}} favori{{count > 1 ? 's' : ''}}"
+  },
+  "search": {
+    "placeholder": "Rechercher par mot-clé (moon, share, heart, étoile…)",
+    "placeholderCategory": "Rechercher dans {{category}}…",
+    "placeholderAuthor": "Rechercher dans {{artist}}…",
+    "hint": "Raccourci : <kbd>/</kbd> pour focus · <kbd>Échap</kbd> pour effacer · Résultats en temps réel",
+    "label": "Rechercher une icône"
+  },
+  "filters": {
+    "categoryLabel": "Catégorie",
+    "subcategoryLabel": "Sous-catégorie",
+    "sortLabel": "Trier par",
+    "resetLabel": "Réinitialiser",
+    "resetAria": "Réinitialiser tous les filtres",
+    "categoryAria": "Filtrer par catégorie",
+    "subcategoryAria": "Filtrer par sous-catégorie",
+    "sortAria": "Trier les résultats",
+    "allCategories": "Toutes les catégories",
+    "allSubcategories": "Toutes les sous-catégories"
+  },
+  "stats": {
+    "iconsCount": "{{count}} icône{{count > 1 ? 's' : ''}}",
+    "queryPrefix": " pour « {{query}} »",
+    "categoryPrefix": " · Catégorie: {{category}}",
+    "subcategoryPrefix": " · {{subcategory}}",
+    "sources": "{{yotopixels}} yotopixels + {{yotoicons}} yotoicons + {{yotoOfficial}} yoto-officiel"
+  },
+  "emptyState": {
+    "noIconsFound": "Aucune icône trouvée",
+    "noResultsForQuery": "Aucun résultat pour « {{query}} ». Essayez avec d'autres mots-clés.",
+    "noIconsMatchFilters": "Aucune icône ne correspond aux filtres sélectionnés.",
+    "resetFilters": "Réinitialiser les filtres"
+  },
+  "modal": {
+    "closeAria": "Fermer les détails",
+    "downloadAria": "Télécharger {{title}}",
+    "viewSourceAria": "Voir la source",
+    "viewOnYotoAria": "Voir sur Yoto",
+    "viewOnYotopixelsAria": "Voir sur Yotopixels",
+    "viewOnYotoiconsAria": "Voir sur Yotoicons",
+    "byArtist": "par <strong>@{{artist}}</strong>",
+    "downloads": "Téléchargements",
+    "addedOn": "Ajoutée le",
+    "tags": "Tags"
+  },
+  "pagination": {
+    "previousAria": "Page précédente",
+    "nextAria": "Page suivante",
+    "pageInfo": "Page {{current}} / {{total}}",
+    "previous": "← Précédent",
+    "next": "Suivant →"
+  },
+  "footer": {
+    "updatedWeekly": "Données mises à jour automatiquement chaque semaine",
+    "sources": "Sources:",
+    "github": "GitHub"
+  },
+  "loading": {
+    "indexLoading": "Chargement de l'index des icônes…",
+    "firstVisitHint": "Première visite ? L'index (~50KB) se charge une seule fois."
+  },
+  "categories": {
+    "title": "Catégories",
+    "loading": "Chargement des catégories…",
+    "intro": "{{count}} catégor{{count > 1 ? 'ies' : 'ie'}} — {{total}} icône{{total > 1 ? 's' : ''}} au total",
+    "empty": "Aucune catégorie disponible pour le moment.",
+    "notFound": "Catégorie introuvable",
+    "notFoundMessage": "La catégorie demandée n'existe pas.",
+    "backToCategories": "Catégories",
+    "allCategoriesLink": "Toutes les catégories"
+  },
+  "authors": {
+    "title": "Auteurs",
+    "loading": "Chargement des auteurs…",
+    "intro": "{{count}} auteur{{count > 1 ? 's' : ''}} — {{total}} icône{{total > 1 ? 's' : ''}} au total",
+    "empty": "Aucun auteur disponible pour le moment.",
+    "notFound": "Auteur introuvable",
+    "notFoundMessage": "L'auteur demandé n'existe pas.",
+    "backToAuthors": "Auteurs",
+    "allAuthorsLink": "Tous les auteurs"
+  },
+  "favorites": {
+    "title": "Mes favoris",
+    "intro": "{{count}} icône{{count > 1 ? 's' : ''}} favorite{{count > 1 ? 's' : ''}} — sauvegardées localement dans votre navigateur, synchronisées entre onglets.",
+    "emptyIntro": "Vos icônes préférées, sauvegardées localement dans votre navigateur."
+  },
+  "yotoMini": {
+    "title": "Aperçu sur Yoto Mini",
+    "emptyText": "Cliquez sur l'icône 👁️ d'une carte pour voir l'aperçu",
+    "ariaLabel": "Aperçu sur Yoto Mini"
+  },
+  "iconCard": {
+    "detailsAria": "Voir les détails de {{title}} ({{downloads}} téléchargements)",
+    "previewAria": "Aperçu sur Yoto Mini : {{title}}",
+    "previewTitle": "Aperçu sur Yoto Mini"
+  },
+  "favoriteButton": {
+    "addAria": "Ajouter aux favoris",
+    "removeAria": "Retirer des favoris",
+    "addTitle": "Ajouter aux favoris",
+    "removeTitle": "Retirer des favoris",
+    "favoriteText": "Favori",
+    "removeText": "Retirer"
+  },
+  "language": {
+    "label": "Langue",
+    "french": "Français",
+    "english": "English",
+    "ariaLabel": "Changer de langue"
+  },
+  "categoryLabels": {
+    "objets": "Objets",
+    "nature": "Nature",
+    "animaux": "Animaux",
+    "musique": "Musique",
+    "personnages": "Personnages",
+    "fetes": "Fêtes",
+    "transport": "Transport",
+    "activites": "Activités",
+    "emotions": "Émotions",
+    "nourriture": "Nourriture",
+    "batiments": "Bâtiments",
+    "formes": "Formes"
+  }
+}

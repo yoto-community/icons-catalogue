@@ -11,3 +11,4 @@ export * from './IconDetailModal';
 export * from './Footer';
 export * from './LoadingState';
 export * from './FavoriteButton';
+export * from './LanguageSwitcher';

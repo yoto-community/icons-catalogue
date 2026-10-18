@@ -1,17 +1,19 @@
 import type { Icon } from '../types';
 import { normalizeUrl, getSourceLabel } from '../utils/iconUtils';
+import { useI18n } from '../i18n';
 
 interface YotoMiniPreviewProps {
   previewedIcon: Icon | null;
 }
 
 export function YotoMiniPreview({ previewedIcon }: YotoMiniPreviewProps) {
+  const { t } = useI18n();
   const YOTO_MINI_IMAGE = 'https://yoto.dev/_astro/yoto-mini-with-icon.BYN5569U_13wwuI.webp';
 
   return (
-    <aside className="yoto-mini-preview" aria-label="Aperçu sur Yoto Mini">
+    <aside className="yoto-mini-preview" aria-label={t('yotoMini.ariaLabel')}>
       <div className="yoto-mini-preview-inner">
-        <h3 className="yoto-mini-preview-title">Aperçu sur Yoto Mini</h3>
+        <h3 className="yoto-mini-preview-title">{t('yotoMini.title')}</h3>
         {previewedIcon ? (
           <div className="yoto-mini-device">
             <div className="yoto-mini-screen">
@@ -33,7 +35,7 @@ export function YotoMiniPreview({ previewedIcon }: YotoMiniPreviewProps) {
         ) : (
           <div className="yoto-mini-empty">
             <img src={YOTO_MINI_IMAGE} alt="Yoto Mini" className="yoto-mini-image" />
-            <p className="yoto-mini-empty-text">Cliquez sur l'icône 👁️ d'une carte pour voir l'aperçu</p>
+            <p className="yoto-mini-empty-text">{t('yotoMini.emptyText')}</p>
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { useI18n } from '../i18n';
 
 interface SearchBarProps {
   query: string;
@@ -8,17 +9,19 @@ interface SearchBarProps {
 }
 
 export function SearchBar({ query, onChange, autoFocus = false, placeholder }: SearchBarProps) {
+  const { t } = useI18n();
+
   return (
     <section className="search-section" aria-labelledby="search-title">
       <div className="search-wrapper">
-        <label htmlFor="search-input" className="sr-only">Rechercher une icône</label>
+        <label htmlFor="search-input" className="sr-only">{t('search.label')}</label>
         <div className="search-input-wrapper">
           <input
             id="search-input"
             type="search"
             value={query}
             onChange={onChange}
-            placeholder={placeholder || "Rechercher par mot-clé (moon, share, heart, étoile…)"}
+            placeholder={placeholder || t('search.placeholder')}
             autoComplete="off"
             aria-describedby="search-hint"
             autoFocus={autoFocus}
@@ -26,7 +29,7 @@ export function SearchBar({ query, onChange, autoFocus = false, placeholder }: S
           <kbd className="search-shortcut" aria-hidden="true">/</kbd>
         </div>
         <p id="search-hint" className="search-hint">
-          Raccourci : <kbd>/</kbd> pour focus · <kbd>Échap</kbd> pour effacer · Résultats en temps réel
+          {t('search.hint')}
         </p>
       </div>
     </section>

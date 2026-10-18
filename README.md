@@ -10,13 +10,28 @@ icons-catalogue/
 │   ├── yotopixels-icons.json       # Données brutes yotopixels (~1 300 icônes)
 │   ├── yotoicons-icons.json        # Données brutes yotoicons (~25 500 icônes)
 │   ├── yoto-official-icons.json    # Données brutes icônes officielles Yoto (~500 icônes)
-│   ├── combined-icons.json         # Fusion simplifiée pour le front (copie)
-│   └── summary-combined.json       # Statistiques globales (copie)
+├── dist/                           # API statique (style podcast-catalogue)
+│   ├── index.json                  # Manifeste : shards, counts, sources, catégories
+│   ├── icons.json                  # Catalogue complet (toutes les icônes)
+│   ├── summary.json                # Statistiques globales
+│   ├── search-index.json           # Index Lunr.js sérialisé
+│   ├── icons/                      # Métadonnées individuelles par icône
+│   │   └── {id}.json
+│   ├── icons-by-source/            # Shards par source
+│   │   ├── yotopixels.json
+│   │   ├── yotoicons.json
+│   │   └── yoto-official.json
+│   ├── icons-by-category/          # Shards par catégorie
+│   │   ├── objets.json
+│   │   ├── animaux.json
+│   │   └── ...
+│   └── test-index.html             # Page de test
 ├── scripts/
 │   ├── yotopixels-scraper.js       # Scraper yotopixels.com (API SvelteKit)
 │   ├── yotoicons-scraper.js        # Scraper yotoicons.com (pagination complète)
 │   ├── yoto-official-scraper.js    # Scraper icônes officielles Yoto (bundle JS)
-│   └── build-combined.js           # Build index Lunr + fusion des 3 sources
+│   ├── build-combined.js           # Build index Lunr + fusion (legacy unified-search)
+│   └── build-api.js                # Build API dist/ (nouveau)
 ├── unified-search/                 # Frontend React (Vite + TypeScript + PWA)
 │   ├── src/
 │   │   ├── components/             # Composants UI (Grid, Filters, Modal, etc.)
@@ -25,14 +40,14 @@ icons-catalogue/
 │   │   ├── types/                  # Types TypeScript
 │   │   ├── utils/                  # Utilitaires
 │   │   └── constants/              # Constantes
-│   ├── public/                     # Assets statiques (copiés au build)
+│   ├── public/                     # Assets statiques (copiés depuis dist/ au build)
 │   ├── dist/                       # Build production (GitHub Pages)
 │   ├── index.html
 │   ├── package.json
 │   ├── tsconfig.json
 │   ├── vite.config.ts              # Config Vite + PWA (Workbox)
 │   └── README.md
-└── .github/workflows/              # À créer pour automatisation
+└── .github/workflows/              # Automatisation (scraping + deploy)
 ```
 
 ## Installation
@@ -59,10 +74,13 @@ pnpm run scrape:yotoicons
 # Scraper icônes officielles Yoto
 pnpm run scrape:yoto-official
 
-# Build complet (3 scrapers + index Lunr)
+# Build API complète (3 scrapers + dist/ + unified-search sync)
 pnpm run update:all
 
-# Build de l'index uniquement (si données déjà présentes)
+# Build API uniquement (dist/ + sync unified-search)
+pnpm run build:api
+
+# Build index legacy (unified-search seulement)
 pnpm run build:index
 ```
 
@@ -243,7 +261,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/ unified-search/public/
+          git add data/ dist/ unified-search/public/
           git diff --staged --quiet || git commit -m "chore: update icons data [skip ci]"
 
       - name: Deploy to GitHub Pages
@@ -258,10 +276,123 @@ Puis activer GitHub Pages sur la branche `gh-pages` (créée par le workflow).
 
 ### Option 2 : Workflows séparés
 
-1. **`.github/workflows/update-icons.yml`** : Scraping hebdomadaire (commit data)
+1. **`.github/workflows/update-icons.yml`** : Scraping hebdomadaire (commit data + dist/)
 2. **`.github/workflows/deploy.yml`** : Build + deploy frontend (sur push `main`)
 
 URL finale : `https://username.github.io/icons-catalogue/unified-search/` → redirigé vers `https://username.github.io/icons-catalogue/` par le PWA scope.
+
+## API Statique (dist/)
+
+L'API est 100% statique, servie via GitHub Pages. Aucun backend requis.
+
+### Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /dist/index.json` | Manifeste complet : shards, compteurs, sources, catégories |
+| `GET /dist/icons.json` | Catalogue complet (toutes les icônes, format simplifié) |
+| `GET /dist/icons/{id}.json` | Métadonnées complètes d'une icône |
+| `GET /dist/icons-by-source/{source}.json` | Icônes d'une source (`yotopixels`, `yotoicons`, `yoto-official`) |
+| `GET /dist/icons-by-category/{category}.json` | Icônes d'une catégorie (`objets`, `animaux`, `nature`, etc.) |
+| `GET /dist/search-index.json` | Index Lunr.js sérialisé pour recherche full-text côté client |
+| `GET /dist/summary.json` | Statistiques globales (counts, top tags, top artistes) |
+
+### Exemples d'utilisation
+
+**Lister toutes les icônes (paginé côté client) :**
+```bash
+curl https://username.github.io/icons-catalogue/dist/icons.json
+```
+
+**Récupérer une icône spécifique :**
+```bash
+curl https://username.github.io/icons-catalogue/dist/icons/yi-allisonhopes-2706.json
+```
+
+**Filtrer par source (yotoicons) :**
+```bash
+curl https://username.github.io/icons-catalogue/dist/icons-by-source/yotoicons.json
+```
+
+**Filtrer par catégorie (animaux) :**
+```bash
+curl https://username.github.io/icons-catalogue/dist/icons-by-category/animaux.json
+```
+
+**Recherche full-text côté client (avec Lunr.js) :**
+```javascript
+import lunr from 'lunr';
+
+const response = await fetch('/dist/search-index.json');
+const index = lunr.Index.load(await response.json());
+
+const results = index.search('moon night');
+const icons = results.map(r => r.ref); // IDs des icônes correspondantes
+```
+
+**Charger les statistiques :**
+```bash
+curl https://username.github.io/icons-catalogue/dist/summary.json
+```
+
+### Structure du manifeste (`index.json`)
+
+```json
+{
+  "schemaVersion": 2,
+  "catalogVersion": "2026.10.18-1",
+  "updatedAt": "2026-10-18T18:11:39.406Z",
+  "counts": {
+    "total": 27399,
+    "bySource": { "yotopixels": 1314, "yotoicons": 25566, "yoto-official": 519 },
+    "byCategory": { "objets": 26893, "animaux": 222, ... }
+  },
+  "sources": [{ "id": "yotopixels", "count": 1314 }, ...],
+  "categories": [{ "id": "objets", "count": 26893 }, ...],
+  "shards": [
+    { "path": "icons.json", "type": "full", "count": 27399, "bytes": 20877136, "sha256": "..." },
+    { "path": "icons-by-source/yotoicons.json", "type": "source", "source": "yotoicons", "count": 25566, ... },
+    { "path": "icons-by-category/objets.json", "type": "category", "category": "objets", "count": 26893, ... }
+  ],
+  "searchIndex": { "path": "search-index.json", "bytes": 29439371, "sha256": "..." },
+  "summary": { "path": "summary.json", "bytes": 3253, "sha256": "..." }
+}
+```
+
+### Schéma d'une icône individuelle (`icons/{id}.json`)
+
+```json
+{
+  "id": "yi-allisonhopes-2706",
+  "source": "yotoicons",
+  "tags": ["icon"],
+  "artist": "@allisonhopes",
+  "title": "icon-2706",
+  "preview_image": "https://www.yotoicons.com/static/uploads/2706.png",
+  "download_url": "https://www.yotoicons.com/download/2706",
+  "category": "objets",
+  "subcategory": "autre",
+  "downloads": 0,
+  "date_added": "2026-10-18T13:42:41.079Z",
+  "license": "CC-BY-NC",
+  "metadata": {
+    "numeric_id": "2706",
+    "detail_url": "https://www.yotoicons.com/icon/2706",
+    "color_palette": ["#1a1a2e", "#16213e", "#e94560", "#ffa3a3"],
+    "dominant_colors": ["#e94560", "#ffa3a3", "#4a90e2"]
+  }
+}
+```
+
+### Intégration dans une application
+
+L'API est conçue pour être consommée par n'importe quel client (React, Vue, vanilla JS, mobile, etc.) :
+
+1. **Découverte** : `GET /dist/index.json` → liste les shards disponibles
+2. **Chargement paresseux** : Chargez seulement les shards nécessaires (par source ou catégorie)
+3. **Recherche** : Utilisez `search-index.json` avec Lunr.js côté client
+4. **Détail** : `GET /dist/icons/{id}.json` pour les métadonnées complètes
+5. **Statistiques** : `GET /dist/summary.json` pour les compteurs et tops
 
 ## Fonctionnalités de recherche (détail technique)
 

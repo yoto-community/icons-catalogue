@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import type { SummaryData } from '../types';
+import { useI18n } from '../i18n';
 
 interface CategoriesListPageProps {
   summary: SummaryData | null;
@@ -37,13 +38,14 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 export function CategoriesListPage({ summary }: CategoriesListPageProps) {
   const location = useLocation();
+  const { t } = useI18n();
 
   if (!summary?.byCategory) {
     return (
       <section className="categories-page" aria-labelledby="categories-title">
         <header className="categories-header">
-          <h1 id="categories-title">Catégories</h1>
-          <p className="categories-intro">Chargement des catégories…</p>
+          <h1 id="categories-title">{t('categories.title')}</h1>
+          <p className="categories-intro">{t('categories.loading')}</p>
         </header>
       </section>
     );
@@ -59,9 +61,9 @@ export function CategoriesListPage({ summary }: CategoriesListPageProps) {
   return (
     <section className="categories-page" aria-labelledby="categories-title">
       <header className="categories-header">
-        <h1 id="categories-title">Catégories</h1>
+        <h1 id="categories-title">{t('categories.title')}</h1>
         <p className="categories-intro">
-          {totalCategories} catégor{totalCategories > 1 ? 'ies' : 'ie'} — {totalIcons.toLocaleString('fr-FR')} icône{totalIcons > 1 ? 's' : ''} au total
+          {t('categories.intro', { count: totalCategories, total: totalIcons })}
         </p>
       </header>
 
@@ -85,7 +87,7 @@ export function CategoriesListPage({ summary }: CategoriesListPageProps) {
                 <div className="category-icon" aria-hidden="true">{icon}</div>
                 <div className="category-info">
                   <h2 className="category-name">{label}</h2>
-                  <span className="category-count" aria-label={`${count} icônes`}>
+                  <span className="category-count" aria-label={t('common.iconsCount', { count })}>
                     {count.toLocaleString('fr-FR')} icône{count > 1 ? 's' : ''}
                   </span>
                 </div>
@@ -100,7 +102,7 @@ export function CategoriesListPage({ summary }: CategoriesListPageProps) {
 
       {sortedCategories.length === 0 && (
         <div className="categories-empty">
-          <p>Aucune catégorie disponible pour le moment.</p>
+          <p>{t('categories.empty')}</p>
         </div>
       )}
     </section>
