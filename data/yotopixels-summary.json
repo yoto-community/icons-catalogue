@@ -1,0 +1,15 @@
+{
+  "total": 1314,
+  "byCategory": {
+    "objets": 1156,
+    "nature": 13,
+    "animaux": 145
+  },
+  "byArtist": {
+    "sylvain": 1,
+    "CozyFrog9012": 13,
+    "MerryButton6219": 1,
+    "GooseGang": 1,
+    "YotoPixels": 1298
+  }
+}
