@@ -31,17 +31,17 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        working-directory: icons-catalogue/unified-search
+        working-directory: unified-search
         run: pnpm install --frozen-lockfile
 
       - name: Build unified-search
-        working-directory: icons-catalogue/unified-search
+        working-directory: unified-search
         run: pnpm run build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: icons-catalogue/unified-search/dist
+          path: unified-search/dist
 
   deploy:
     needs: build

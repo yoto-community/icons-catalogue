@@ -27,15 +27,12 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        working-directory: icons-catalogue
         run: pnpm install --frozen-lockfile
 
       - name: Run full update (scrape + build index)
-        working-directory: icons-catalogue
         run: pnpm run update:all
 
       - name: Copy built data to unified-search/public
-        working-directory: icons-catalogue
         run: |
           cp data/combined-icons.json unified-search/public/combined-icons.json
           cp data/summary-combined.json unified-search/public/summary-combined.json
@@ -44,7 +41,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add icons-catalogue/data/ icons-catalogue/unified-search/public/
+          git add data/ unified-search/public/
           if ! git diff --cached --quiet; then
             git commit -m "chore: weekly icons update ($(date -u +'%Y-%m-%d'))"
             git push
