@@ -1,44 +1,53 @@
-name: Update Yoto Icons Index
+name: Weekly Icons Update
 
 on:
   schedule:
-    # Tous les lundis à 4h du matin UTC
-    - cron: '0 4 * * 1'
-  workflow_dispatch:  # Permettre l'exécution manuelle
+    - cron: '0 4 * * 1'  # Tous les lundis à 4h UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  build-index:
+  update:
     runs-on: ubuntu-latest
     steps:
-      - name: ⏳ Setup Node.js
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: 20
+          cache: pnpm
 
-      - name: 📂 Checkout repository
-        uses: actions/checkout@v4
-
-      - name: 📦 Install dependencies
+      - name: Install dependencies
+        working-directory: icons-catalogue
         run: pnpm install --frozen-lockfile
 
-      - name: 🚀 Scrape yotopixels
-        run: pnpm run scrape:yotopixels
+      - name: Run full update (scrape + build index)
+        working-directory: icons-catalogue
+        run: pnpm run update:all
 
-      - name: 🚀 Scrape yotoicons
-        run: pnpm run scrape:yotoicons
+      - name: Copy built data to unified-search/public
+        working-directory: icons-catalogue
+        run: |
+          cp data/combined-icons.json unified-search/public/combined-icons.json
+          cp data/summary-combined.json unified-search/public/summary-combined.json
 
-      - name: 🔨 Build combined index
-        run: pnpm run build:index
-
-      - name: 📤 Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "🔄 Auto-update Yoto icons index ($(date +'%Y-%m-%d'))"
-          file_pattern: |
-            data/yotopixels-icons.json
-            data/yotoicons-icons.json
-            unified-search/*
-            data/summary-combined.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add icons-catalogue/data/ icons-catalogue/unified-search/public/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: weekly icons update ($(date -u +'%Y-%m-%d'))"
+            git push
+          else
+            echo "No changes to commit"
+          fi
