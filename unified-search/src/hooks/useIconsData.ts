@@ -84,9 +84,13 @@ export function useIconsData(): UseIconsDataReturn {
         // Charger le résumé
         try {
           const summaryResponse = await fetch(SUMMARY_URL);
+          if (!summaryResponse.ok) throw new Error(`Failed to load summary: ${summaryResponse.status}`);
           const summaryData = await summaryResponse.json();
           setSummary(summaryData);
-        } catch {}
+          console.log('[useIconsData] Summary loaded:', Object.keys(summaryData.counts || {}));
+        } catch (err) {
+          console.warn('[useIconsData] Failed to load summary:', err);
+        }
 
         console.log(`🔍 Index chargé : ${iconsData.length} icônes`);
       } catch (err) {

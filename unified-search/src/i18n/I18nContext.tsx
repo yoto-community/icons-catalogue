@@ -1,5 +1,9 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 
+// Import locale files directly (bundled with app via Vite)
+import enTranslations from '../i18n/locales/en.json';
+import frTranslations from '../i18n/locales/fr.json';
+
 type Locale = 'fr' | 'en';
 
 interface Translations {
@@ -25,22 +29,42 @@ const translationsCache: Record<Locale, Translations> = {
 // Get base URL from Vite
 const BASE_URL = import.meta.env.BASE_URL || '/';
 
+// Imported translations (bundled with app)
+const importedTranslations: Record<Locale, Translations> = {
+  en: enTranslations,
+  fr: frTranslations,
+};
+
 // Load translations dynamically
 async function loadTranslations(locale: Locale): Promise<Translations> {
   if (Object.keys(translationsCache[locale]).length > 0) {
     return translationsCache[locale];
   }
 
+  // Try fetching from public folder first
   try {
-    const response = await fetch(`${BASE_URL}locales/${locale}.json`);
-    if (!response.ok) throw new Error(`Failed to load ${locale} translations`);
+    const url = `${BASE_URL}locales/${locale}.json`;
+    console.log(`[i18n] Loading translations from: ${url}`);
+    const response = await fetch(url);
+    console.log(`[i18n] Response status: ${response.status}`);
+    if (!response.ok) throw new Error(`Failed to load ${locale} translations: ${response.status}`);
     const translations = await response.json();
+    console.log(`[i18n] Loaded translations keys:`, Object.keys(translations));
     translationsCache[locale] = translations;
     return translations;
-  } catch (error) {
-    console.error(`Failed to load translations for ${locale}:`, error);
-    return {};
+  } catch (fetchError) {
+    console.warn(`[i18n] Fetch failed, trying imported translations:`, fetchError);
   }
+
+  // Fallback to imported translations (bundled with app)
+  if (Object.keys(importedTranslations[locale]).length > 0) {
+    console.log(`[i18n] Using imported translations for ${locale}`);
+    translationsCache[locale] = importedTranslations[locale];
+    return importedTranslations[locale];
+  }
+
+  console.error(`Failed to load translations for ${locale}: no translations available`);
+  return {};
 }
 
 // Deep get value from nested object using dot notation
