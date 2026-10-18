@@ -1,0 +1,44 @@
+name: Update Yoto Icons Index
+
+on:
+  schedule:
+    # Tous les lundis à 4h du matin UTC
+    - cron: '0 4 * * 1'
+  workflow_dispatch:  # Permettre l'exécution manuelle
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⏳ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🚀 Scrape yotopixels
+        run: pnpm run scrape:yotopixels
+
+      - name: 🚀 Scrape yotoicons
+        run: pnpm run scrape:yotoicons
+
+      - name: 🔨 Build combined index
+        run: pnpm run build:index
+
+      - name: 📤 Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🔄 Auto-update Yoto icons index ($(date +'%Y-%m-%d'))"
+          file_pattern: |
+            data/yotopixels-icons.json
+            data/yotoicons-icons.json
+            unified-search/*
+            data/summary-combined.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

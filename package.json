@@ -1,0 +1,33 @@
+{
+  "name": "yoto-icons-catalogue",
+  "version": "1.0.0",
+  "description": "Catalogue d'icônes 16×16 Yoto - Scraping, indexation et recherche cross-source",
+  "main": "scripts/build-combined.js",
+  "type": "module",
+  "scripts": {
+    "scrape:yotopixels": "node scripts/yotopixels-scraper.js",
+    "scrape:yotoicons": "node scripts/yotoicons-scraper.js",
+    "scrape:yoto-official": "node scripts/yoto-official-scraper.js",
+    "build:index": "node scripts/build-combined.js",
+    "update:all": "npm run scrape:yotopixels && npm run scrape:yotoicons && npm run scrape:yoto-official && npm run build:index",
+    "test": "node -e \"console.log('Test OK')\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yoto-community/icons-catalogue.git"
+  },
+  "keywords": [
+    "yoto",
+    "icons",
+    "16x16",
+    "scraping",
+    "github-pages"
+  ],
+  "author": "Sylvain",
+  "license": "MIT",
+  "dependencies": {
+    "lunr": "^2.3.9",
+    "node-fetch": "^3.3.2",
+    "cheerio": "^1.0.0-rc.12"
+  }
+}
