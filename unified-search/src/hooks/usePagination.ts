@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { ICONS_PER_PAGE } from '../constants';
 
 interface UsePaginationProps<T> {
@@ -23,13 +23,21 @@ export function usePagination<T>({
   const [totalPages, setTotalPages] = useState(1);
   const [totalFiltered, setTotalFiltered] = useState(0);
 
-  const paginatedIcons = useMemo(() => {
+  // Update totalPages and totalFiltered when filteredIcons changes
+  useEffect(() => {
     const total = filteredIcons.length;
-    setTotalPages(Math.max(1, Math.ceil(total / ICONS_PER_PAGE)));
     setTotalFiltered(total);
+    setTotalPages(Math.max(1, Math.ceil(total / ICONS_PER_PAGE)));
+  }, [filteredIcons]);
 
-    if (currentPage > totalPages) setCurrentPage(1);
+  // Reset currentPage if it exceeds totalPages
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
 
+  const paginatedIcons = useMemo(() => {
     const start = (currentPage - 1) * ICONS_PER_PAGE;
     return filteredIcons.slice(start, start + ICONS_PER_PAGE);
   }, [filteredIcons, currentPage]);

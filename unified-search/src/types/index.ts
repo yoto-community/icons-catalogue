@@ -22,6 +22,7 @@ export interface Icon {
 export interface SummaryData {
   total: number;
   byCategory: Record<string, number>;
+  byArtist: Record<string, number>;
   bySource?: {
     yotopixels: number;
     yotoicons: number;

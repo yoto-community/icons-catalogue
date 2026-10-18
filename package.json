@@ -10,7 +10,7 @@
     "scrape:yotoicons": "node scripts/yotoicons-scraper.js",
     "scrape:yoto-official": "node scripts/yoto-official-scraper.js",
     "build:index": "node scripts/build-combined.js",
-    "update:all": "npm run scrape:yotopixels && npm run scrape:yotoicons && npm run scrape:yoto-official && npm run build:index",
+    "update:all": "pnpm run scrape:yotopixels && pnpm run scrape:yotoicons && pnpm run scrape:yoto-official && pnpm run build:index",
     "test": "node -e \"console.log('Test OK')\""
   },
   "repository": {

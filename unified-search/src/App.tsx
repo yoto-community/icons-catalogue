@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import type { Icon, SortOption } from './types';
 import {
@@ -22,7 +22,7 @@ import {
   Footer,
   LoadingState,
 } from './components';
-import { FavoritesPage } from './pages/FavoritesPage';
+import { FavoritesPage, CategoriesListPage, CategoryIconsPage, AuthorsListPage, AuthorIconsPage } from './pages';
 import { normalizeUrl } from './utils/iconUtils';
 
 function CataloguePage({
@@ -32,6 +32,7 @@ function CataloguePage({
   isLoading,
   categories,
   subcategories,
+  subcategoriesByCategory,
   summary,
   onOpenDetail,
   onCloseDetail,
@@ -45,6 +46,7 @@ function CataloguePage({
   isLoading: boolean;
   categories: string[];
   subcategories: string[];
+  subcategoriesByCategory: Record<string, string[]>;
   summary: any;
   onOpenDetail: (icon: Icon) => void;
   onCloseDetail: () => void;
@@ -57,6 +59,12 @@ function CataloguePage({
   const [category, setCategory] = useState('');
   const [subcategory, setSubcategory] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('downloads');
+
+  // Filtrer les sous-catégories selon la catégorie sélectionnée
+  const filteredSubcategories = useMemo(() => {
+    if (!category) return subcategories;
+    return subcategoriesByCategory[category] || [];
+  }, [category, subcategories, subcategoriesByCategory]);
 
   // Filtered icons
   const filteredIcons = useFilteredIcons({
@@ -159,7 +167,7 @@ function CataloguePage({
         subcategory={subcategory}
         sortBy={sortBy}
         categories={categories}
-        subcategories={subcategories}
+        subcategories={filteredSubcategories}
         summary={summary ?? undefined}
         hasActiveFilters={hasActiveFilters}
         onCategoryChange={handleCategoryChange}
@@ -217,6 +225,7 @@ function App() {
     isLoading,
     categories,
     subcategories,
+    subcategoriesByCategory,
     summary,
   } = useIconsData();
 
@@ -290,6 +299,7 @@ function App() {
                 isLoading={isLoading}
                 categories={categories}
                 subcategories={subcategories}
+                subcategoriesByCategory={subcategoriesByCategory}
                 summary={summary}
                 onOpenDetail={openIconDetail}
                 onCloseDetail={closeIconDetail}
@@ -302,6 +312,42 @@ function App() {
           <Route
             path="/favorites"
             element={<FavoritesPage allIcons={icons} />}
+          />
+          <Route
+            path="/categories"
+            element={
+              <CategoriesListPage summary={summary} />
+            }
+          />
+          <Route
+            path="/categories/:category"
+            element={
+              <CategoryIconsPage
+                onOpenDetail={openIconDetail}
+                onCloseDetail={closeIconDetail}
+                onPreview={handlePreview}
+                selectedIcon={selectedIcon}
+                previewedIcon={previewedIcon}
+              />
+            }
+          />
+          <Route
+            path="/authors"
+            element={
+              <AuthorsListPage summary={summary} />
+            }
+          />
+          <Route
+            path="/authors/:artist"
+            element={
+              <AuthorIconsPage
+                onOpenDetail={openIconDetail}
+                onCloseDetail={closeIconDetail}
+                onPreview={handlePreview}
+                selectedIcon={selectedIcon}
+                previewedIcon={previewedIcon}
+              />
+            }
           />
         </Routes>
       </main>

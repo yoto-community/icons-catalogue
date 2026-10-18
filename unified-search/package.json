@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Recherche unifiée d'icônes 16×16 Yoto — yotopixels + yotoicons",
+  "description": "Recherche unifiée d'icônes 16×16 Yoto — yotopixels + yotoicons + yoto-official",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && npm run copy-data",

@@ -15,7 +15,7 @@ export default defineConfig({
       manifest: {
         name: 'Yoto Icons Catalogue',
         short_name: 'Yoto Icons',
-        description: 'Catalogue unifié d\'icônes 16×16 pour Yoto Player — Recherche dans yotopixels et yotoicons',
+        description: 'Catalogue unifié d\'icônes 16×16 pour Yoto Player — Recherche dans yotopixels, yotoicons et yoto-official',
         theme_color: '#e94560',
         background_color: '#f8f9fa',
         display: 'standalone',

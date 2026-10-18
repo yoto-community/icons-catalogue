@@ -10,6 +10,7 @@ interface UseIconsDataReturn {
   isLoading: boolean;
   categories: string[];
   subcategories: string[];
+  subcategoriesByCategory: Record<string, string[]>;
   summary: SummaryData | null;
 }
 
@@ -20,6 +21,7 @@ export function useIconsData(): UseIconsDataReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
   const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [subcategoriesByCategory, setSubcategoriesByCategory] = useState<Record<string, string[]>>({});
   const [summary, setSummary] = useState<SummaryData | null>(null);
 
   useEffect(() => {
@@ -61,6 +63,24 @@ export function useIconsData(): UseIconsDataReturn {
         setCategories(cats);
         setSubcategories(subcats);
 
+        // Construire le mapping catégorie -> sous-catégories
+        const catToSubcats: Record<string, string[]> = {};
+        iconsData.forEach(icon => {
+          if (icon.subcategory) {
+            if (!catToSubcats[icon.category]) {
+              catToSubcats[icon.category] = [];
+            }
+            if (!catToSubcats[icon.category].includes(icon.subcategory)) {
+              catToSubcats[icon.category].push(icon.subcategory);
+            }
+          }
+        });
+        // Trier les sous-catégories pour chaque catégorie
+        Object.keys(catToSubcats).forEach(cat => {
+          catToSubcats[cat].sort();
+        });
+        setSubcategoriesByCategory(catToSubcats);
+
         // Charger le résumé
         try {
           const summaryResponse = await fetch(SUMMARY_URL);
@@ -85,6 +105,7 @@ export function useIconsData(): UseIconsDataReturn {
     isLoading,
     categories,
     subcategories,
+    subcategoriesByCategory,
     summary,
   };
 }

@@ -4,9 +4,10 @@ interface SearchBarProps {
   query: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   autoFocus?: boolean;
+  placeholder?: string;
 }
 
-export function SearchBar({ query, onChange, autoFocus = false }: SearchBarProps) {
+export function SearchBar({ query, onChange, autoFocus = false, placeholder }: SearchBarProps) {
   return (
     <section className="search-section" aria-labelledby="search-title">
       <div className="search-wrapper">
@@ -17,7 +18,7 @@ export function SearchBar({ query, onChange, autoFocus = false }: SearchBarProps
             type="search"
             value={query}
             onChange={onChange}
-            placeholder="Rechercher par mot-clé (moon, share, heart, étoile…)"
+            placeholder={placeholder || "Rechercher par mot-clé (moon, share, heart, étoile…)"}
             autoComplete="off"
             aria-describedby="search-hint"
             autoFocus={autoFocus}

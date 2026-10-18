@@ -114,6 +114,7 @@ interface FiltersProps {
   onSubcategoryChange: (value: string) => void;
   onSortChange: (value: SortOption) => void;
   onReset: () => void;
+  hideCategoryFilter?: boolean;
 }
 
 export function Filters({
@@ -128,16 +129,19 @@ export function Filters({
   onSubcategoryChange,
   onSortChange,
   onReset,
+  hideCategoryFilter = false,
 }: FiltersProps) {
   return (
     <section className="filters-section" aria-labelledby="filters-title">
       <div className="filters">
-        <CategoryFilter
-          value={category}
-          onChange={onCategoryChange}
-          categories={categories}
-          summary={summary ?? undefined}
-        />
+        {!hideCategoryFilter && (
+          <CategoryFilter
+            value={category}
+            onChange={onCategoryChange}
+            categories={categories}
+            summary={summary ?? undefined}
+          />
+        )}
         <SubcategoryFilter
           value={subcategory}
           onChange={onSubcategoryChange}

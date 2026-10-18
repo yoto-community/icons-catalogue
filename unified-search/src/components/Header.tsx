@@ -13,6 +13,8 @@ export function Header() {
 
   const navItems: NavItem[] = [
     { path: '/', label: 'Catalogue' },
+    { path: '/categories', label: 'Catégories' },
+    { path: '/authors', label: 'Auteurs' },
     { path: '/favorites', label: 'Favoris', count: favorites.size },
   ];
 
