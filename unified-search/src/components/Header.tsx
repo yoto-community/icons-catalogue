@@ -19,6 +19,12 @@ export function Header() {
   return (
     <header className="header">
       <div className="header-content">
+        <div className="header-brand">
+          <h1 className="logo">
+            <span className="logo-icon" aria-hidden="true">🔍</span>
+            Yoto Icons Catalogue
+          </h1>
+        </div>
         <nav className="header-nav" aria-label="Navigation principale">
           <ul className="nav-list">
             {navItems.map(item => (
@@ -39,13 +45,6 @@ export function Header() {
             ))}
           </ul>
         </nav>
-        <div className="header-brand">
-          <h1 className="logo">
-            <span className="logo-icon" aria-hidden="true">🔍</span>
-            Yoto Icons Catalogue
-          </h1>
-          <p className="subtitle">Recherche unifiée dans yotopixels + yotoicons</p>
-        </div>
       </div>
     </header>
   );
