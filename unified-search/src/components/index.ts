@@ -10,5 +10,6 @@ export * from './YotoMiniPreview';
 export * from './IconDetailModal';
 export * from './Footer';
 export * from './LoadingState';
+export * from './BackgroundColorSelector';
 export * from './FavoriteButton';
 export * from './LanguageSwitcher';

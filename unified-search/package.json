@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && npm run copy-data",
-    "copy-data": "cp public/combined-icons.json public/summary-combined.json dist/ && cp -r public/icons dist/",
+    "copy-data": "cp public/icons.json public/summary.json dist/ && cp -r public/icons dist/",
     "preview": "vite preview",
     "check": "tsc --noEmit"
   },

@@ -41,7 +41,8 @@
     "downloadsDesc": "Téléchargements (desc)",
     "titleAZ": "Titre (A-Z)",
     "newest": "Plus récentes",
-    "source": "Source"
+    "source": "Source",
+    "iconsCount": "{{count}} icône{{count > 1 ? 's' : ''}}"
   },
   "header": {
     "appName": "Yoto Icons Catalogue",
@@ -49,6 +50,8 @@
     "navCategories": "Catégories",
     "navAuthors": "Auteurs",
     "navFavorites": "Favoris",
+    "navDevelopers": "Développeurs",
+    "navCommunity": "Communauté",
     "favoritesCount": "{{count}} favori{{count > 1 ? 's' : ''}}"
   },
   "search": {
@@ -68,7 +71,13 @@
     "subcategoryAria": "Filtrer par sous-catégorie",
     "sortAria": "Trier les résultats",
     "allCategories": "Toutes les catégories",
-    "allSubcategories": "Toutes les sous-catégories"
+    "allSubcategories": "Toutes les sous-catégories",
+    "backgroundColorLabel": "Arrière-plan",
+    "backgroundColorAria": "Choisir la couleur d'arrière-plan",
+    "backgroundColorDefault": "Par défaut",
+    "backgroundColorOption1": "#1a1a2e",
+    "backgroundColorOption2": "#16213e",
+    "backgroundColorOption3": "#e94560"
   },
   "stats": {
     "iconsCount": "{{count}} icône{{count > 1 ? 's' : ''}}",
@@ -90,7 +99,7 @@
     "viewOnYotoAria": "Voir sur Yoto",
     "viewOnYotopixelsAria": "Voir sur Yotopixels",
     "viewOnYotoiconsAria": "Voir sur Yotoicons",
-    "byArtist": "par <strong>@{{artist}}</strong>",
+    "byArtist": "par {{artist}}",
     "downloads": "Téléchargements",
     "addedOn": "Ajoutée le",
     "tags": "Tags"
@@ -173,5 +182,44 @@
     "nourriture": "Nourriture",
     "batiments": "Bâtiments",
     "formes": "Formes"
+  },
+  "dev": {
+    "title": "Documentation Développeurs",
+    "description": "Documentation de l'API et des endpoints pour intégrer les icônes Yoto dans vos applications.",
+    "quickstartTitle": "Démarrage rapide",
+    "quickstartContent": "Les icônes sont accessibles via des fichiers JSON statiques servis depuis GitHub Pages. Aucune clé API n'est requise.",
+    "endpointsTitle": "Endpoints disponibles",
+    "endpointsIntro": "Tous les endpoints sont servis via HTTPS avec CORS activé (Access-Control-Allow-Origin: *).",
+    "endpointSummaryDesc": "Résumé global du catalogue (comptages, sources, catégories).",
+    "endpointSummaryFilesDesc": "Manifestes détaillés par catégorie et par source.",
+    "endpointSearchIndexDesc": "Index Lunr.js pré-généré pour la recherche full-text côté client.",
+    "endpointCombinedDesc": "Toutes les icônes fusionnées en un seul fichier (utile pour synchronisation complète).",
+    "corsNote": "CORS activé pour tous les origins. ",
+    "methodsNote": "Seules les méthodes GET sont supportées.",
+    "schemasTitle": "Schémas de données",
+    "schemaIconDesc": "Une icône contient : id, source, title, artist, tags, category, subcategory, downloads, preview_image, download_url, date_added, license, metadata.",
+    "schemaSummaryDesc": "Le résumé contient les comptages totaux, par source, par catégorie, et la liste des auteurs avec leurs compteurs.",
+    "codeExamplesTitle": "Exemples de code",
+    "codeExamplesContent": "Exemple JavaScript pour récupérer et afficher une icône :\n\n```javascript\nconst res = await fetch('https://yoto-community.github.io/icons-catalogue/dist/summary.json');\nconst data = await res.json();\nconsole.log(data.totalIcons); // nombre total d'icônes\n```",
+    "performanceTitle": "Performance",
+    "performanceContent": "Les fichiers sont servis via GitHub Pages (CDN mondial). L'index de recherche (~50 KB) est mis en cache navigateur. Utilisez l'index Lunr pour la recherche locale sans requête réseau.",
+    "versioningTitle": "Versioning et stabilité",
+    "versioningContent": "Les URLs des endpoints sont stables. Les champs existants ne sont jamais supprimés, seuls de nouveaux champs peuvent être ajoutés.",
+    "stabilityContent": "L'API suit le versioning sémantique implicite : les changements cassants incrémenteraient l'URL (ex: /v2/).",
+    "licenceTitle": "Licence et attribution",
+    "licenceContent": "Les icônes proviennent de trois sources avec leurs licences respectives : YotoPixels (CC-BY-SA), YotoIcons (CC-BY-NC), Yoto Official (Yoto).",
+    "attributionLabel": "Attribution requise",
+    "attributionContent": "Pour YotoPixels et YotoIcons, créditez l'auteur (@pseudo) et la source. Pour Yoto Official, créditez Yoto.",
+    "contentsLabel": "Contenu des données",
+    "contentsContent": "Les données incluent métadonnées, palette de couleurs, URLs de prévisualisation et téléchargement. Pas de données personnelles.",
+    "resourcesTitle": "Ressources utiles",
+    "resourceApiSource": "Code source de l'API",
+    "resourceApiSourceDesc": "Endpoints Astro/Node générant les fichiers JSON statiques.",
+    "resourceTypes": "Types TypeScript",
+    "resourceTypesDesc": "Définitions d'interfaces Icon, IconSummary, IconMetadata, etc.",
+    "resourceReportBug": "Signaler un bug",
+    "resourceReportBugDesc": "Ouvrez une issue GitHub pour tout problème de données ou d'API.",
+    "resourceLiveManifest": "Manifest live (summary.json)",
+    "resourceLiveSearchIndex": "Index de recherche live (search-index.json)"
   }
 }

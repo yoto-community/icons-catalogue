@@ -10,7 +10,7 @@ export function AuthorsListPage({ summary }: AuthorsListPageProps) {
   const location = useLocation();
   const { t } = useI18n();
 
-  if (!summary?.byArtist) {
+  if (!summary?.counts?.byArtist) {
     return (
       <section className="authors-page" aria-labelledby="authors-title">
         <header className="authors-header">
@@ -22,7 +22,7 @@ export function AuthorsListPage({ summary }: AuthorsListPageProps) {
   }
 
   // Trier les auteurs par nombre d'icônes (décroissant)
-  const sortedAuthors = Object.entries(summary.byArtist)
+  const sortedAuthors = Object.entries(summary.counts.byArtist)
     .sort(([, a], [, b]) => (b as number) - (a as number));
 
   const totalIcons = summary.total || 0;

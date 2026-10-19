@@ -6,8 +6,9 @@ import { I18nProvider } from './i18n';
 import App from './App';
 import './styles.css';
 
-// Base path from vite.config.ts
-const BASENAME = '/icons-catalogue/';
+// Use Vite's BASE_URL which is automatically set from vite.config.ts base option
+// In dev: "/" (Vite serves at root), in prod: "/icons-catalogue/" (from base config)
+const BASENAME = import.meta.env.BASE_URL || '/';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

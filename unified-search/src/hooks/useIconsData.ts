@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import lunr from 'lunr';
 import type { Icon, SummaryData } from '../types';
-import { INDEX_URL, SUMMARY_URL } from '../constants';
+import { INDEX_URL } from '../constants';
+import { apiClient } from '../api/client';
 
 interface UseIconsDataReturn {
   icons: Icon[];
@@ -83,16 +84,14 @@ export function useIconsData(): UseIconsDataReturn {
 
         // Charger le résumé
         try {
-          const summaryResponse = await fetch(SUMMARY_URL);
-          if (!summaryResponse.ok) throw new Error(`Failed to load summary: ${summaryResponse.status}`);
-          const summaryData = await summaryResponse.json();
+          const summaryData = await apiClient.getSummary();
           setSummary(summaryData);
-          console.log('[useIconsData] Summary loaded:', Object.keys(summaryData.counts || {}));
+          
         } catch (err) {
           console.warn('[useIconsData] Failed to load summary:', err);
         }
 
-        console.log(`🔍 Index chargé : ${iconsData.length} icônes`);
+        
       } catch (err) {
         console.error('Erreur chargement index :', err);
       } finally {

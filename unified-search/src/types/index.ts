@@ -19,15 +19,21 @@ export interface Icon {
   };
 }
 
-export interface SummaryData {
-  total: number;
+export interface SummaryCounts {
+  bySource: Record<string, number>;
   byCategory: Record<string, number>;
   byArtist: Record<string, number>;
-  bySource?: {
-    yotopixels: number;
-    yotoicons: number;
-    'yoto-official': number;
-  };
+  bySubcategory: Record<string, number>;
+  topTags: Record<string, number>;
+  topArtists: Record<string, number>;
+}
+
+export interface SummaryData {
+  schemaVersion: number;
+  catalogVersion: string;
+  updatedAt: string;
+  total: number;
+  counts: SummaryCounts;
 }
 
 export type SortOption = 'downloads' | 'title' | 'date';
@@ -38,4 +44,5 @@ export interface FilterState {
   subcategory: string;
   sortBy: SortOption;
   currentPage: number;
+  backgroundColor?: string;
 }

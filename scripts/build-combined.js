@@ -78,7 +78,7 @@ const simplifiedIndex = allIcons.map(icon => ({
 }));
 
 fs.writeFileSync(
-  path.join(OUTPUT_DIR, 'combined-icons.json'),
+  path.join(OUTPUT_DIR, 'icons.json'),
   JSON.stringify(simplifiedIndex, null, 2)
 );
 
@@ -108,7 +108,7 @@ combinedSummary.topTagsSorted = Object.entries(combinedSummary.topTags)
   .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
 
 fs.writeFileSync(
-  path.join(OUTPUT_DIR, 'summary-combined.json'),
+  path.join(OUTPUT_DIR, 'summary.json'),
   JSON.stringify(combinedSummary, null, 2)
 );
 
@@ -116,7 +116,7 @@ console.log('✅ Index combiné créé avec succès !');
 console.log(`   - Total icônes: ${combinedSummary.total}`);
 console.log(`   - Sources: yotopixels (${combinedSummary.bySource.yotopixels}) + yotoicons (${combinedSummary.bySource.yotoicons}) + yoto-official (${combinedSummary.bySource['yoto-official']})`);
 console.log('   - Index Lunr généré: lunr-index.bin');
-console.log('   - Résumé: summary-combined.json');
+console.log('   - Résumé: summary.json');
 
 const testHtml = `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"><title>Test Index Yoto Icons</title></head><body>

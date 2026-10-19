@@ -5,9 +5,10 @@ interface IconsGridProps {
   icons: Icon[];
   onOpenDetail: (icon: Icon) => void;
   onPreview: (icon: Icon, e: React.MouseEvent) => void;
+  backgroundColor?: string;
 }
 
-export function IconsGrid({ icons, onOpenDetail, onPreview }: IconsGridProps) {
+export function IconsGrid({ icons, onOpenDetail, onPreview, backgroundColor }: IconsGridProps) {
   return (
     <div className="icons-grid" role="list">
       {icons.map(icon => (
@@ -16,6 +17,7 @@ export function IconsGrid({ icons, onOpenDetail, onPreview }: IconsGridProps) {
           icon={icon}
           onOpenDetail={onOpenDetail}
           onPreview={onPreview}
+          backgroundColor={backgroundColor}
         />
       ))}
     </div>

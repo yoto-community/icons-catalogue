@@ -21,8 +21,9 @@ import {
   IconDetailModal,
   Footer,
   LoadingState,
+  BackgroundColorSelector,
 } from './components';
-import { FavoritesPage, CategoriesListPage, CategoryIconsPage, AuthorsListPage, AuthorIconsPage } from './pages';
+import { FavoritesPage, CategoriesListPage, CategoryIconsPage, AuthorsListPage, AuthorIconsPage, DevelopersPage } from './pages';
 import { normalizeUrl } from './utils/iconUtils';
 
 function CataloguePage({
@@ -59,6 +60,13 @@ function CataloguePage({
   const [category, setCategory] = useState('');
   const [subcategory, setSubcategory] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('downloads');
+  const [backgroundColor, setBackgroundColor] = useState<string | undefined>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('yoto-icons-background-color');
+      return saved === 'default' ? undefined : saved || undefined;
+    }
+    return undefined;
+  });
 
   // Filtrer les sous-catégories selon la catégorie sélectionnée
   const filteredSubcategories = useMemo(() => {
@@ -125,6 +133,22 @@ function CataloguePage({
     performSearch();
   }, [performSearch]);
 
+  const handleBackgroundColorChange = useCallback((value: string | undefined) => {
+    setBackgroundColor(value);
+    performSearch();
+  }, [performSearch]);
+
+  // Persist background color to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (backgroundColor) {
+        localStorage.setItem('yoto-icons-background-color', backgroundColor);
+      } else {
+        localStorage.setItem('yoto-icons-background-color', 'default');
+      }
+    }
+  }, [backgroundColor]);
+
   const handleReset = useCallback(() => {
     setQuery('');
     setCategory('');
@@ -174,6 +198,7 @@ function CataloguePage({
         onSubcategoryChange={handleSubcategoryChange}
         onSortChange={handleSortChange}
         onReset={handleReset}
+        hideCategoryFilter={false}
       />
 
       <StatsBar
@@ -199,6 +224,7 @@ function CataloguePage({
                 icons={paginatedIcons}
                 onOpenDetail={onOpenDetail}
                 onPreview={onPreview}
+                backgroundColor={backgroundColor}
               />
             )}
 
@@ -209,7 +235,14 @@ function CataloguePage({
             />
           </div>
 
-          <YotoMiniPreview previewedIcon={previewedIcon} />
+          <aside className="results-sidebar">
+            <BackgroundColorSelector
+              backgroundColor={backgroundColor}
+              onChange={handleBackgroundColorChange}
+            />
+
+            <YotoMiniPreview previewedIcon={previewedIcon} />
+          </aside>
         </div>
       </section>
     </>
@@ -283,6 +316,24 @@ function App() {
     };
   }, [openIconDetail]);
 
+  // Wait for data to be fully loaded before rendering routes
+  if (!isIndexLoaded) {
+    return (
+      <div className="app">
+        <Header />
+        <main className="main">
+          <Routes />
+        </main>
+        <Footer />
+        <IconDetailModal
+          icon={selectedIcon}
+          onClose={closeIconDetail}
+          onDownload={handleDownload}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <Header />
@@ -348,6 +399,10 @@ function App() {
                 previewedIcon={previewedIcon}
               />
             }
+          />
+        <Route
+            path="/developers"
+            element={<DevelopersPage />}
           />
         </Routes>
       </main>

@@ -20,12 +20,12 @@ export function StatsBar({ totalFiltered, query, category, subcategory, summary 
         {category && <span className="stats-filter">{t('stats.categoryPrefix', { category })}</span>}
         {subcategory && <span className="stats-filter">{t('stats.subcategoryPrefix', { subcategory })}</span>}
       </span>
-      {summary?.bySource && (
+      {summary?.counts?.bySource && (
         <span className="stats-sources">
           {t('stats.sources', {
-            yotopixels: summary.bySource.yotopixels ?? 0,
-            yotoicons: summary.bySource.yotoicons ?? 0,
-            yotoOfficial: summary.bySource['yoto-official'] ?? 0,
+            yotopixels: summary.counts.bySource.yotopixels ?? 0,
+            yotoicons: summary.counts.bySource.yotoicons ?? 0,
+            yotoOfficial: summary.counts.bySource['yoto-official'] ?? 0,
           })}
         </span>
       )}

@@ -144,7 +144,7 @@ Application React 18 + TypeScript + Vite 5 avec PWA (Workbox).
 - **Mini-preview** : Survol latéral au clic droit / icône 🔍
 - **Responsive** : mobile-first, grille adaptative (1-5 colonnes)
 - **Accessibilité** : ARIA, focus visible, navigation clavier
-- **PWA** : Installation, cache offline (Workbox, 15 Mo max pour combined-icons.json)
+- **PWA** : Installation, cache offline (Workbox, 15 Mo max pour icons.json)
 
 ### Développement
 
@@ -167,8 +167,8 @@ pnpm run build
 ```
 unified-search/
 ├── public/
-│   ├── combined-icons.json      # Données icônes (copié au build depuis ../data)
-│   ├── summary-combined.json    # Stats globales (copié au build depuis ../data)
+│   ├── icons.json      # Données icônes (copié au build depuis ../data)
+│   ├── summary.json    # Stats globales (copié au build depuis ../data)
 │   └── favicon.svg
 ├── src/
 │   ├── main.tsx                 # Point d'entrée + React Router
@@ -407,7 +407,7 @@ L'API est conçue pour être consommée par n'importe quel client (React, Vue, v
 - Si la structure HTML/JS change, mettre à jour les sélecteurs dans `scripts/*.js`
 - L'index Lunr est sérialisé en JSON pour chargement côté client (`lunr-index.bin`)
 - Le frontend rebuild aussi l'index côté client au démarrage (pour flexibilité)
-- PWA Workbox cache `combined-icons.json` (jusqu'à 15 Mo) + assets statiques
+- PWA Workbox cache `icons.json` (jusqu'à 15 Mo) + assets statiques
 - Icônes officielles Yoto : pas de compteur de téléchargements (fixé à 0)
 
 ## Données actuelles (dernier build)

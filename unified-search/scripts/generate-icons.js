@@ -17,7 +17,7 @@ async function generateIcons() {
       .resize(size, size, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
       .png()
       .toFile(outPath);
-    console.log(`✓ Generated ${outPath}`);
+    
   }
 
   // Also generate a maskable version for 512
@@ -25,7 +25,7 @@ async function generateIcons() {
     .resize(512, 512, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
     .png()
     .toFile(path.join(outDir, 'icon-512-maskable.png'));
-  console.log('✓ Generated maskable icon');
+  
 }
 
 generateIcons().catch(console.error);

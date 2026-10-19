@@ -228,6 +228,7 @@ const summary = {
   counts: {
     bySource,
     byCategory,
+    byArtist,      // <-- Added: now included at top level for Authors page
     bySubcategory,
     topTags,
     topArtists
@@ -297,7 +298,7 @@ ensureDir(UNIFIED_SEARCH_PUBLIC);
 // Copier les fichiers principaux
 fs.copyFileSync(
   path.join(DIST_DIR, 'icons.json'),
-  path.join(UNIFIED_SEARCH_PUBLIC, 'combined-icons.json')
+  path.join(UNIFIED_SEARCH_PUBLIC, 'icons.json')
 );
 fs.copyFileSync(
   path.join(DIST_DIR, 'search-index.json'),
@@ -305,7 +306,7 @@ fs.copyFileSync(
 );
 fs.copyFileSync(
   path.join(DIST_DIR, 'summary.json'),
-  path.join(UNIFIED_SEARCH_PUBLIC, 'summary-combined.json')
+  path.join(UNIFIED_SEARCH_PUBLIC, 'summary.json')
 );
 
 // 13. Générer un fichier de test HTML

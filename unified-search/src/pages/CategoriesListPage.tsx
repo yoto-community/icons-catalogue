@@ -40,7 +40,7 @@ export function CategoriesListPage({ summary }: CategoriesListPageProps) {
   const location = useLocation();
   const { t } = useI18n();
 
-  if (!summary?.byCategory) {
+  if (!summary?.counts?.byCategory) {
     return (
       <section className="categories-page" aria-labelledby="categories-title">
         <header className="categories-header">
@@ -52,8 +52,8 @@ export function CategoriesListPage({ summary }: CategoriesListPageProps) {
   }
 
   // Trier les catégories par nombre d'icônes (décroissant)
-  const sortedCategories = Object.entries(summary.byCategory)
-    .sort(([, a], [, b]) => b - a);
+  const sortedCategories = Object.entries(summary.counts.byCategory)
+    .sort(([, a], [, b]) => (b as number) - (a as number));
 
   const totalIcons = summary.total || 0;
   const totalCategories = sortedCategories.length;

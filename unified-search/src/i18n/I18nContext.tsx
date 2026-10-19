@@ -15,7 +15,6 @@ interface I18nContextType {
   setLocale: (locale: Locale) => void;
   t: (key: string, params?: Record<string, string | number>) => string;
   tRich: (key: string, params?: Record<string, string | number>) => ReactNode;
-  isLoading: boolean;
 }
 
 const I18nContext = createContext<I18nContextType | null>(null);
@@ -44,12 +43,12 @@ async function loadTranslations(locale: Locale): Promise<Translations> {
   // Try fetching from public folder first
   try {
     const url = `${BASE_URL}locales/${locale}.json`;
-    console.log(`[i18n] Loading translations from: ${url}`);
+    
     const response = await fetch(url);
-    console.log(`[i18n] Response status: ${response.status}`);
+    
     if (!response.ok) throw new Error(`Failed to load ${locale} translations: ${response.status}`);
     const translations = await response.json();
-    console.log(`[i18n] Loaded translations keys:`, Object.keys(translations));
+    
     translationsCache[locale] = translations;
     return translations;
   } catch (fetchError) {
@@ -58,12 +57,12 @@ async function loadTranslations(locale: Locale): Promise<Translations> {
 
   // Fallback to imported translations (bundled with app)
   if (Object.keys(importedTranslations[locale]).length > 0) {
-    console.log(`[i18n] Using imported translations for ${locale}`);
+    
     translationsCache[locale] = importedTranslations[locale];
     return importedTranslations[locale];
   }
 
-  console.error(`Failed to load translations for ${locale}: no translations available`);
+  
   return {};
 }
 
@@ -143,19 +142,18 @@ export function I18nProvider({ children, defaultLocale = 'fr' }: { children: Rea
     return defaultLocale;
   });
   
-  const [translations, setTranslations] = useState<Translations>(() => translationsCache[locale] || {});
-  const [isLoading, setIsLoading] = useState(false);
+  const [translations, setTranslations] = useState<Translations>(() => importedTranslations[locale] || {});
 
-  // Load translations when locale changes
+  // Load translations when locale changes (fetch from public to get latest, but we already have imported as fallback)
   useEffect(() => {
     let mounted = true;
     
     async function load() {
-      setIsLoading(true);
+      // We already have imported translations, so no need to show loading
+      // Just fetch in background to update cache if newer version available
       const loaded = await loadTranslations(locale);
       if (mounted) {
         setTranslations(loaded);
-        setIsLoading(false);
       }
     }
     
@@ -201,7 +199,7 @@ export function I18nProvider({ children, defaultLocale = 'fr' }: { children: Rea
   }, [translations]);
 
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t, tRich, isLoading }}>
+    <I18nContext.Provider value={{ locale, setLocale, t, tRich }}>
       {children}
     </I18nContext.Provider>
   );

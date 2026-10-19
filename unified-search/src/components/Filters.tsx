@@ -25,7 +25,7 @@ export function CategoryFilter({ value, onChange, categories, summary }: Categor
         {categories.map(cat => (
           <option key={cat} value={cat}>
             {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            {summary?.byCategory?.[cat] && ` (${summary.byCategory[cat]})`}
+            {summary?.counts?.byCategory?.[cat] && ` (${summary.counts.byCategory[cat]})`}
           </option>
         ))}
       </select>

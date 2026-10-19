@@ -41,7 +41,8 @@
     "downloadsDesc": "Downloads (desc)",
     "titleAZ": "Title (A-Z)",
     "newest": "Newest",
-    "source": "Source"
+    "source": "Source",
+    "iconsCount": "{{count}} icon{{count > 1 ? 's' : ''}}"
   },
   "header": {
     "appName": "Yoto Icons Catalogue",
@@ -49,6 +50,8 @@
     "navCategories": "Categories",
     "navAuthors": "Authors",
     "navFavorites": "Favorites",
+    "navDevelopers": "Developers",
+    "navCommunity": "Community",
     "favoritesCount": "{{count}} favorite{{count > 1 ? 's' : ''}}"
   },
   "search": {
@@ -68,7 +71,13 @@
     "subcategoryAria": "Filter by subcategory",
     "sortAria": "Sort results",
     "allCategories": "All categories",
-    "allSubcategories": "All subcategories"
+    "allSubcategories": "All subcategories",
+    "backgroundColorLabel": "Background",
+    "backgroundColorAria": "Choose background color",
+    "backgroundColorDefault": "Default",
+    "backgroundColorOption1": "#1a1a2e",
+    "backgroundColorOption2": "#16213e",
+    "backgroundColorOption3": "#e94560"
   },
   "stats": {
     "iconsCount": "{{count}} icon{{count > 1 ? 's' : ''}}",
@@ -90,7 +99,7 @@
     "viewOnYotoAria": "View on Yoto",
     "viewOnYotopixelsAria": "View on Yotopixels",
     "viewOnYotoiconsAria": "View on Yotoicons",
-    "byArtist": "by <strong>@{{artist}}</strong>",
+    "byArtist": "by {{artist}}",
     "downloads": "Downloads",
     "addedOn": "Added on",
     "tags": "Tags"
@@ -173,5 +182,44 @@
     "nourriture": "Food",
     "batiments": "Buildings",
     "formes": "Shapes"
+  },
+  "dev": {
+    "title": "Developer Documentation",
+    "description": "API and endpoint documentation to integrate Yoto icons into your applications.",
+    "quickstartTitle": "Quick Start",
+    "quickstartContent": "Icons are accessible via static JSON files served from GitHub Pages. No API key required.",
+    "endpointsTitle": "Available Endpoints",
+    "endpointsIntro": "All endpoints are served via HTTPS with CORS enabled (Access-Control-Allow-Origin: *).",
+    "endpointSummaryDesc": "Global catalogue summary (counts, sources, categories).",
+    "endpointSummaryFilesDesc": "Detailed manifests by category and by source.",
+    "endpointSearchIndexDesc": "Pre-generated Lunr.js index for client-side full-text search.",
+    "endpointCombinedDesc": "All icons merged into a single file (useful for full sync).",
+    "corsNote": "CORS enabled for all origins. ",
+    "methodsNote": "Only GET methods are supported.",
+    "schemasTitle": "Data Schemas",
+    "schemaIconDesc": "An icon contains: id, source, title, artist, tags, category, subcategory, downloads, preview_image, download_url, date_added, license, metadata.",
+    "schemaSummaryDesc": "The summary contains total counts, by source, by category, and the list of authors with their counters.",
+    "codeExamplesTitle": "Code Examples",
+    "codeExamplesContent": "JavaScript example to fetch and display an icon:\n\n```javascript\nconst res = await fetch('https://yoto-community.github.io/icons-catalogue/dist/summary.json');\nconst data = await res.json();\nconsole.log(data.totalIcons); // total icon count\n```",
+    "performanceTitle": "Performance",
+    "performanceContent": "Files are served via GitHub Pages (global CDN). The search index (~50 KB) is browser-cached. Use the Lunr index for local search without network requests.",
+    "versioningTitle": "Versioning & Stability",
+    "versioningContent": "Endpoint URLs are stable. Existing fields are never removed; only new fields may be added.",
+    "stabilityContent": "The API follows implicit semantic versioning: breaking changes would increment the URL (e.g., /v2/).",
+    "licenceTitle": "License & Attribution",
+    "licenceContent": "Icons come from three sources with their respective licenses: YotoPixels (CC-BY-SA), YotoIcons (CC-BY-NC), Yoto Official (Yoto).",
+    "attributionLabel": "Attribution Required",
+    "attributionContent": "For YotoPixels and YotoIcons, credit the author (@handle) and the source. For Yoto Official, credit Yoto.",
+    "contentsLabel": "Data Contents",
+    "contentsContent": "Data includes metadata, color palette, preview and download URLs. No personal data.",
+    "resourcesTitle": "Useful Resources",
+    "resourceApiSource": "API Source Code",
+    "resourceApiSourceDesc": "Astro/Node endpoints generating static JSON files.",
+    "resourceTypes": "TypeScript Types",
+    "resourceTypesDesc": "Interface definitions for Icon, IconSummary, IconMetadata, etc.",
+    "resourceReportBug": "Report a Bug",
+    "resourceReportBugDesc": "Open a GitHub issue for any data or API problem.",
+    "resourceLiveManifest": "Live Manifest (summary.json)",
+    "resourceLiveSearchIndex": "Live Search Index (search-index.json)"
   }
 }

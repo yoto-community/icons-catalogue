@@ -48,8 +48,8 @@ pnpm run build
 ```
 unified-search/
 ├── public/
-│   ├── combined-icons.json      # Données icônes (copié depuis ../data au build)
-│   ├── summary-combined.json    # Stats globales (copié depuis ../data au build)
+│   ├── icons.json      # Données icônes (copié depuis ../data au build)
+│   ├── summary.json    # Stats globales (copié depuis ../data au build)
 │   └── favicon.svg
 ├── src/
 │   ├── main.tsx                 # Point d'entrée + React Router + PWA register
@@ -126,8 +126,8 @@ Le PWA scope est `/icons-catalogue/` et start_url `/icons-catalogue/`.
 
 L'application charge deux fichiers JSON au démarrage (depuis `public/`) :
 
-1. `combined-icons.json` — Tableau d'icônes normalisées (~27 400 entrées)
-2. `summary-combined.json` — Statistiques globales
+1. `icons.json` — Tableau d'icônes normalisées (~27 400 entrées)
+2. `summary.json` — Statistiques globales
 
 ### Format d'une icône
 
@@ -171,7 +171,7 @@ L'application charge deux fichiers JSON au démarrage (depuis `public/`) :
 ## Architecture des hooks
 
 ### `useIconsData` — Chargement initial
-- Fetch `combined-icons.json` + `summary-combined.json`
+- Fetch `icons.json` + `summary.json`
 - Construit l'index Lunr côté client (champs: id, tags^10, artist, title, category, subcategory)
 - Extrait catégories/sous-catégories uniques + mapping cat→subcats
 - Retourne : `icons`, `index`, `isIndexLoaded`, `isLoading`, `categories`, `subcategories`, `subcategoriesByCategory`, `summary`
@@ -234,8 +234,8 @@ L'application charge deux fichiers JSON au démarrage (depuis `public/`) :
 ```typescript
 export const ICONS_PER_PAGE = 48;
 export const DEBOUNCE_MS = 80;
-export const INDEX_URL = '/icons-catalogue/combined-icons.json';
-export const SUMMARY_URL = '/icons-catalogue/summary-combined.json';
+export const INDEX_URL = '/icons-catalogue/icons.json';
+export const SUMMARY_URL = '/icons-catalogue/summary.json';
 ```
 
 ## Dépendances principales
@@ -257,7 +257,7 @@ export const SUMMARY_URL = '/icons-catalogue/summary-combined.json';
 Configuré via `vite-plugin-pwa` + Workbox :
 
 - **Manifest** : name, icons (72→512px), shortcuts (Favoris), scope `/icons-catalogue/`
-- **Cache** : `combined-icons.json` (max 15 Mo), assets statiques, fonts Google
+- **Cache** : `icons.json` (max 15 Mo), assets statiques, fonts Google
 - **Stratégie** : `CacheFirst` pour assets, `NetworkFirst` pour données
 - **Auto-update** : `registerType: 'autoUpdate'` + refresh prompt
 
@@ -296,13 +296,13 @@ Aucune requise. L'application est 100% statique.
 
 ## Dépannage
 
-### "Failed to fetch combined-icons.json"
+### "Failed to fetch icons.json"
 - Vérifier que `pnpm run build:index` a été lancé à la racine
 - Les fichiers sont copiés dans `unified-search/public/` par `build-combined.js`
 
 ### Index Lunr non chargé
 - Vérifier la console pour erreurs de fetch
-- L'index est reconstruit côté client à partir de `combined-icons.json`
+- L'index est reconstruit côté client à partir de `icons.json`
 
 ### PWA ne s'installe pas
 - Servir en HTTPS (requis pour PWA)

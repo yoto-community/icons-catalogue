@@ -1,4 +1,5 @@
 import { type MouseEvent } from 'react';
+import { Link } from 'react-router-dom';
 import type { Icon } from '../types';
 import { normalizeUrl, getSourceBadge } from '../utils/iconUtils';
 import { FavoriteButton } from './FavoriteButton';
@@ -8,9 +9,11 @@ interface IconCardProps {
   icon: Icon;
   onOpenDetail: (icon: Icon) => void;
   onPreview: (icon: Icon, e: MouseEvent) => void;
+  // Optional background color override (from color palette selector)
+  backgroundColor?: string;
 }
 
-export function IconCard({ icon, onOpenDetail, onPreview }: IconCardProps) {
+export function IconCard({ icon, onOpenDetail, onPreview, backgroundColor }: IconCardProps) {
   const { t } = useI18n();
 
   return (
@@ -29,6 +32,7 @@ export function IconCard({ icon, onOpenDetail, onPreview }: IconCardProps) {
               loading="lazy"
               width="64"
               height="64"
+              style={{ backgroundColor: backgroundColor || 'transparent' }}
               onError={e => {
                 const target = e.currentTarget;
                 if (!target.dataset.fallback) {
@@ -38,6 +42,7 @@ export function IconCard({ icon, onOpenDetail, onPreview }: IconCardProps) {
                 }
               }}
             />
+            
             <div className="icon-source-badge" data-source={icon.source}>
               {getSourceBadge(icon.source)}
             </div>
@@ -45,7 +50,17 @@ export function IconCard({ icon, onOpenDetail, onPreview }: IconCardProps) {
           <div className="icon-info">
             <h3 className="icon-title">{icon.title}</h3>
             <div className="icon-meta">
-              <span className="icon-artist">@{icon.artist}</span>
+              <Link
+                to={`/authors/${encodeURIComponent(icon.artist)}`}
+                className="icon-artist"
+                aria-label={t('common.artist', { artist: icon.artist })}
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                {icon.artist}
+              </Link>
               <span className="icon-downloads" aria-label={t('common.downloads', { count: icon.downloads })}>
                 <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
                   <path fill="currentColor" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm3.78-10.22L8 10.77 4.22 7l.78-.78L8 9.22l3-3 .78.78z" />
