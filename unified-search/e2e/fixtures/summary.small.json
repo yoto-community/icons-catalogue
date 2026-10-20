@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "e2e-fixture",
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "total": 60,
+  "counts": {
+    "bySource": {
+      "yotoicons": 32,
+      "yotopixels": 18,
+      "yoto-official": 10
+    },
+    "byCategory": {
+      "nature": 32,
+      "animaux": 18,
+      "transport": 10
+    },
+    "byArtist": {},
+    "bySubcategory": {},
+    "topTags": {
+      "moon": 12,
+      "plant": 10,
+      "animal": 18
+    },
+    "topArtists": {}
+  }
+}

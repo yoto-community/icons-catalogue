@@ -14,9 +14,7 @@ export function DevelopersPage() {
     <section className="dev-page" aria-labelledby="dev-title">
       <header className="dev-header">
         <h1 id="dev-title">{t('dev.title')}</h1>
-        <p className="dev-description">
-          {t('dev.description')}
-        </p>
+        <p className="dev-description">{t('dev.description')}</p>
       </header>
 
       <section className="dev__section">
@@ -69,8 +67,12 @@ export function DevelopersPage() {
       <section className="dev__section">
         <h2>{t('dev.licenceTitle')}</h2>
         <p>{t('dev.licenceContent')}</p>
-        <p><strong>{t('dev.attributionLabel')}:</strong> {t('dev.attributionContent')}</p>
-        <p><strong>{t('dev.contentsLabel')}:</strong> {t('dev.contentsContent')}</p>
+        <p>
+          <strong>{t('dev.attributionLabel')}:</strong> {t('dev.attributionContent')}
+        </p>
+        <p>
+          <strong>{t('dev.contentsLabel')}:</strong> {t('dev.contentsContent')}
+        </p>
       </section>
 
       <section className="dev__section">
@@ -95,14 +97,10 @@ export function DevelopersPage() {
             &mdash; {t('dev.resourceReportBugDesc')}
           </li>
           <li>
-            <a href="/icons-catalogue/dist/summary.json">
-              {t('dev.resourceLiveManifest')}
-            </a>
+            <a href="/icons-catalogue/dist/summary.json">{t('dev.resourceLiveManifest')}</a>
           </li>
           <li>
-            <a href="/icons-catalogue/dist/search-index.json">
-              {t('dev.resourceLiveSearchIndex')}
-            </a>
+            <a href="/icons-catalogue/dist/search-index.json">{t('dev.resourceLiveSearchIndex')}</a>
           </li>
         </ul>
       </section>

@@ -106,8 +106,7 @@
   },
   "dev": {
     "title": "Développeurs — Yoto Icons Catalogue",
-    "description":
-      "Documentation de l'API publique : points d'entrée de données, schémas et exemples de code. Toutes les endpoints sont publiques, gratuites et sans clé d'API.",
+    "description": "Documentation de l'API publique : points d'entrée de données, schémas et exemples de code. Toutes les endpoints sont publiques, gratuites et sans clé d'API.",
     "method": "Méthode",
     "endpoint": "Endpoint",
     "description": "Description",

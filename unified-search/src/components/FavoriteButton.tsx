@@ -8,7 +8,12 @@ interface FavoriteButtonProps {
   onToggle?: (isFavorite: boolean) => void;
 }
 
-export function FavoriteButton({ id, size = 'normal', variant = 'icon', onToggle }: FavoriteButtonProps) {
+export function FavoriteButton({
+  id,
+  size = 'normal',
+  variant = 'icon',
+  onToggle,
+}: FavoriteButtonProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { t } = useI18n();
   const favorite = isFavorite(id);
@@ -60,7 +65,11 @@ export function FavoriteButton({ id, size = 'normal', variant = 'icon', onToggle
           strokeWidth="2"
         />
       </svg>
-      {variant === 'icon-text' && <span className="favorite-text">{favorite ? t('favoriteButton.removeText') : t('favoriteButton.favoriteText')}</span>}
+      {variant === 'icon-text' && (
+        <span className="favorite-text">
+          {favorite ? t('favoriteButton.removeText') : t('favoriteButton.favoriteText')}
+        </span>
+      )}
     </button>
   );
 }

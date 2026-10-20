@@ -11,7 +11,7 @@ interface IconsGridProps {
 export function IconsGrid({ icons, onOpenDetail, onPreview, backgroundColor }: IconsGridProps) {
   return (
     <div className="icons-grid" role="list">
-      {icons.map(icon => (
+      {icons.map((icon) => (
         <IconCard
           key={icon.id}
           icon={icon}

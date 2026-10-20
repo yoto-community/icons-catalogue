@@ -1,6 +1,7 @@
 import type { ChangeEvent } from 'react';
 import type { SortOption, SummaryData } from '../types';
 import { useI18n } from '../i18n';
+import { toSortOption } from '../utils/urlParams';
 
 interface CategoryFilterProps {
   value: string;
@@ -14,7 +15,9 @@ export function CategoryFilter({ value, onChange, categories, summary }: Categor
 
   return (
     <div className="filter-group">
-      <label htmlFor="category-filter" className="sr-only">{t('filters.categoryLabel')}</label>
+      <label htmlFor="category-filter" className="sr-only">
+        {t('filters.categoryLabel')}
+      </label>
       <select
         id="category-filter"
         value={value}
@@ -22,7 +25,7 @@ export function CategoryFilter({ value, onChange, categories, summary }: Categor
         aria-label={t('filters.categoryAria')}
       >
         <option value="">{t('filters.allCategories')}</option>
-        {categories.map(cat => (
+        {categories.map((cat) => (
           <option key={cat} value={cat}>
             {cat.charAt(0).toUpperCase() + cat.slice(1)}
             {summary?.counts?.byCategory?.[cat] && ` (${summary.counts.byCategory[cat]})`}
@@ -46,7 +49,9 @@ export function SubcategoryFilter({ value, onChange, subcategories }: Subcategor
 
   return (
     <div className="filter-group">
-      <label htmlFor="subcategory-filter" className="sr-only">{t('filters.subcategoryLabel')}</label>
+      <label htmlFor="subcategory-filter" className="sr-only">
+        {t('filters.subcategoryLabel')}
+      </label>
       <select
         id="subcategory-filter"
         value={value}
@@ -54,7 +59,7 @@ export function SubcategoryFilter({ value, onChange, subcategories }: Subcategor
         aria-label={t('filters.subcategoryAria')}
       >
         <option value="">{t('filters.allSubcategories')}</option>
-        {subcategories.map(subcat => (
+        {subcategories.map((subcat) => (
           <option key={subcat} value={subcat}>
             {subcat.charAt(0).toUpperCase() + subcat.slice(1)}
           </option>
@@ -74,11 +79,13 @@ export function SortFilter({ value, onChange }: SortFilterProps) {
 
   return (
     <div className="filter-group">
-      <label htmlFor="sort-filter" className="sr-only">{t('filters.sortLabel')}</label>
+      <label htmlFor="sort-filter" className="sr-only">
+        {t('filters.sortLabel')}
+      </label>
       <select
         id="sort-filter"
         value={value}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(e.target.value as SortOption)}
+        onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(toSortOption(e.target.value))}
         aria-label={t('filters.sortAria')}
       >
         <option value="downloads">{t('common.downloadsDesc')}</option>

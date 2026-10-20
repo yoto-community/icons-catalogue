@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import type { SortOption } from '../types';
 
-interface UseUrlSyncProps {
+export interface UseUrlSyncProps {
   query: string;
   category: string;
   subcategory: string;
@@ -9,13 +9,7 @@ interface UseUrlSyncProps {
   currentPage: number;
 }
 
-export function useUrlSync({
-  query,
-  category,
-  subcategory,
-  sortBy,
-  currentPage,
-}: UseUrlSyncProps) {
+export function useUrlSync({ query, category, subcategory, sortBy, currentPage }: UseUrlSyncProps) {
   const syncUrl = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
     if (query.trim()) params.set('q', query.trim());

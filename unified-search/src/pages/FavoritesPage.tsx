@@ -8,7 +8,7 @@ export function FavoritesPage({ allIcons }: { allIcons: Icon[] }) {
   const { favorites } = useFavorites();
   const { t } = useI18n();
   const favoriteIds = Array.from(favorites);
-  const favoriteIcons = allIcons.filter(icon => favoriteIds.includes(icon.id));
+  const favoriteIcons = allIcons.filter((icon) => favoriteIds.includes(icon.id));
 
   const handleOpenDetail = (icon: Icon) => {
     // This will be overridden by the parent App component
@@ -25,16 +25,9 @@ export function FavoritesPage({ allIcons }: { allIcons: Icon[] }) {
       <section className="favorites-page" aria-labelledby="favorites-title">
         <header className="favorites-header">
           <h1 id="favorites-title">{t('favorites.title')}</h1>
-          <p className="favorites-intro">
-            {t('favorites.emptyIntro')}
-          </p>
+          <p className="favorites-intro">{t('favorites.emptyIntro')}</p>
         </header>
-        <EmptyState
-          query=""
-          hasActiveFilters={false}
-          onReset={() => {}}
-          isLoading={false}
-        />
+        <EmptyState query="" hasActiveFilters={false} onReset={() => {}} isLoading={false} />
       </section>
     );
   }
@@ -43,9 +36,7 @@ export function FavoritesPage({ allIcons }: { allIcons: Icon[] }) {
     <section className="favorites-page" aria-labelledby="favorites-title">
       <header className="favorites-header">
         <h1 id="favorites-title">{t('favorites.title')}</h1>
-        <p className="favorites-intro">
-          {t('favorites.intro', { count: favoriteIcons.length })}
-        </p>
+        <p className="favorites-intro">{t('favorites.intro', { count: favoriteIcons.length })}</p>
       </header>
 
       <div className="favorites-grid-wrapper">

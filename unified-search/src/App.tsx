@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import type { Icon, SortOption } from './types';
+import { useIconsData } from './context/IconsDataContext';
 import {
-  useIconsData,
   useFilteredIcons,
   usePagination,
   useUrlSync,
@@ -23,38 +23,43 @@ import {
   LoadingState,
   BackgroundColorSelector,
 } from './components';
-import { FavoritesPage, CategoriesListPage, CategoryIconsPage, AuthorsListPage, AuthorIconsPage, DevelopersPage } from './pages';
+import {
+  FavoritesPage,
+  CategoriesListPage,
+  CategoryIconsPage,
+  AuthorsListPage,
+  AuthorIconsPage,
+  DevelopersPage,
+} from './pages';
 import { normalizeUrl } from './utils/iconUtils';
+import { toSortOption, toPageNumber } from './utils/urlParams';
+import { onWindowCustomEvent } from './utils/windowEvents';
 
 function CataloguePage({
-  icons,
-  index,
-  isIndexLoaded,
-  isLoading,
-  categories,
-  subcategories,
-  subcategoriesByCategory,
-  summary,
   onOpenDetail,
   onCloseDetail,
   onPreview,
   selectedIcon,
   previewedIcon,
 }: {
-  icons: Icon[];
-  index: any;
-  isIndexLoaded: boolean;
-  isLoading: boolean;
-  categories: string[];
-  subcategories: string[];
-  subcategoriesByCategory: Record<string, string[]>;
-  summary: any;
   onOpenDetail: (icon: Icon) => void;
   onCloseDetail: () => void;
   onPreview: (icon: Icon, e: React.MouseEvent) => void;
   selectedIcon: Icon | null;
   previewedIcon: Icon | null;
 }) {
+  // Données partagées via contexte (chargées une seule fois pour toute l'app)
+  const {
+    icons,
+    searchEngine,
+    isLoading,
+    isSearchReady,
+    categories,
+    subcategories,
+    subcategoriesByCategory,
+    summary,
+  } = useIconsData();
+
   // Filter state
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
@@ -77,7 +82,7 @@ function CataloguePage({
   // Filtered icons
   const filteredIcons = useFilteredIcons({
     icons,
-    index,
+    searchEngine,
     query,
     category,
     subcategory,
@@ -117,26 +122,38 @@ function CataloguePage({
   };
 
   // Filter handlers
-  const handleCategoryChange = useCallback((value: string) => {
-    setCategory(value);
-    setSubcategory(''); // Reset subcategory when category changes
-    performSearch();
-  }, [performSearch]);
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      setCategory(value);
+      setSubcategory(''); // Reset subcategory when category changes
+      performSearch();
+    },
+    [performSearch]
+  );
 
-  const handleSubcategoryChange = useCallback((value: string) => {
-    setSubcategory(value);
-    performSearch();
-  }, [performSearch]);
+  const handleSubcategoryChange = useCallback(
+    (value: string) => {
+      setSubcategory(value);
+      performSearch();
+    },
+    [performSearch]
+  );
 
-  const handleSortChange = useCallback((value: SortOption) => {
-    setSortBy(value);
-    performSearch();
-  }, [performSearch]);
+  const handleSortChange = useCallback(
+    (value: SortOption) => {
+      setSortBy(value);
+      performSearch();
+    },
+    [performSearch]
+  );
 
-  const handleBackgroundColorChange = useCallback((value: string | undefined) => {
-    setBackgroundColor(value);
-    performSearch();
-  }, [performSearch]);
+  const handleBackgroundColorChange = useCallback(
+    (value: string | undefined) => {
+      setBackgroundColor(value);
+      performSearch();
+    },
+    [performSearch]
+  );
 
   // Persist background color to localStorage
   useEffect(() => {
@@ -161,8 +178,6 @@ function CataloguePage({
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    query,
-    performSearch,
     selectedIcon,
     closeIconDetail: onCloseDetail,
   });
@@ -173,8 +188,8 @@ function CataloguePage({
     if (params.get('q')) setQuery(params.get('q')!);
     if (params.get('cat')) setCategory(params.get('cat')!);
     if (params.get('subcat')) setSubcategory(params.get('subcat')!);
-    if (params.get('sort')) setSortBy(params.get('sort') as SortOption);
-    if (params.get('page')) setCurrentPage(Math.max(1, Number(params.get('page'))));
+    if (params.get('sort')) setSortBy(toSortOption(params.get('sort')));
+    if (params.get('page')) setCurrentPage(toPageNumber(params.get('page')));
   }, [setCurrentPage]);
 
   // Loading state
@@ -209,7 +224,7 @@ function CataloguePage({
         summary={summary ?? undefined}
       />
 
-      <section className="results-section" aria-live="polite" aria-busy={!isIndexLoaded}>
+      <section className="results-section" aria-live="polite" aria-busy={!isSearchReady}>
         <div className="results-layout">
           <div className="icons-grid-wrapper">
             {paginatedIcons.length === 0 ? (
@@ -250,17 +265,10 @@ function CataloguePage({
 }
 
 function App() {
-  // Data loading
-  const {
-    icons,
-    index,
-    isIndexLoaded,
-    isLoading,
-    categories,
-    subcategories,
-    subcategoriesByCategory,
-    summary,
-  } = useIconsData();
+  // Données partagées (chargées UNE fois par IconsDataProvider).
+  // Le rendu n'attend plus la construction de l'index Lunr (~1,5 s) :
+  // celle-ci se fait désormais dans un Web Worker, en arrière-plan.
+  const { icons, summary } = useIconsData();
 
   // Modal state
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
@@ -299,41 +307,21 @@ function App() {
 
   // Handle global events from FavoritesPage
   useEffect(() => {
-    const handleOpenDetail = (e: CustomEvent<Icon>) => {
-      openIconDetail(e.detail);
-    };
-
-    const handlePreviewEvent = (e: CustomEvent<Icon>) => {
-      setPreviewedIcon(e.detail);
-    };
-
-    window.addEventListener('icon-open-detail', handleOpenDetail as EventListener);
-    window.addEventListener('icon-preview', handlePreviewEvent as EventListener);
+    const unsubscribeOpenDetail = onWindowCustomEvent<Icon>('icon-open-detail', (e) =>
+      openIconDetail(e.detail)
+    );
+    const unsubscribePreview = onWindowCustomEvent<Icon>('icon-preview', (e) =>
+      setPreviewedIcon(e.detail)
+    );
 
     return () => {
-      window.removeEventListener('icon-open-detail', handleOpenDetail as EventListener);
-      window.removeEventListener('icon-preview', handlePreviewEvent as EventListener);
+      unsubscribeOpenDetail();
+      unsubscribePreview();
     };
   }, [openIconDetail]);
 
-  // Wait for data to be fully loaded before rendering routes
-  if (!isIndexLoaded) {
-    return (
-      <div className="app">
-        <Header />
-        <main className="main">
-          <Routes />
-        </main>
-        <Footer />
-        <IconDetailModal
-          icon={selectedIcon}
-          onClose={closeIconDetail}
-          onDownload={handleDownload}
-        />
-      </div>
-    );
-  }
-
+  // Les icônes peuvent encore être en cours de chargement : les pages
+  // gèrent elles-mêmes leur état vide/chargement (LoadingState).
   return (
     <div className="app">
       <Header />
@@ -344,14 +332,6 @@ function App() {
             path="/"
             element={
               <CataloguePage
-                icons={icons}
-                index={index}
-                isIndexLoaded={isIndexLoaded}
-                isLoading={isLoading}
-                categories={categories}
-                subcategories={subcategories}
-                subcategoriesByCategory={subcategoriesByCategory}
-                summary={summary}
                 onOpenDetail={openIconDetail}
                 onCloseDetail={closeIconDetail}
                 onPreview={handlePreview}
@@ -360,16 +340,8 @@ function App() {
               />
             }
           />
-          <Route
-            path="/favorites"
-            element={<FavoritesPage allIcons={icons} />}
-          />
-          <Route
-            path="/categories"
-            element={
-              <CategoriesListPage summary={summary} />
-            }
-          />
+          <Route path="/favorites" element={<FavoritesPage allIcons={icons} />} />
+          <Route path="/categories" element={<CategoriesListPage summary={summary} />} />
           <Route
             path="/categories/:category"
             element={
@@ -382,12 +354,7 @@ function App() {
               />
             }
           />
-          <Route
-            path="/authors"
-            element={
-              <AuthorsListPage summary={summary} />
-            }
-          />
+          <Route path="/authors" element={<AuthorsListPage summary={summary} />} />
           <Route
             path="/authors/:artist"
             element={
@@ -400,20 +367,13 @@ function App() {
               />
             }
           />
-        <Route
-            path="/developers"
-            element={<DevelopersPage />}
-          />
+          <Route path="/developers" element={<DevelopersPage />} />
         </Routes>
       </main>
 
       <Footer />
 
-      <IconDetailModal
-        icon={selectedIcon}
-        onClose={closeIconDetail}
-        onDownload={handleDownload}
-      />
+      <IconDetailModal icon={selectedIcon} onClose={closeIconDetail} onDownload={handleDownload} />
     </div>
   );
 }

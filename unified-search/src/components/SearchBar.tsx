@@ -14,7 +14,9 @@ export function SearchBar({ query, onChange, autoFocus = false, placeholder }: S
   return (
     <section className="search-section" aria-labelledby="search-title">
       <div className="search-wrapper">
-        <label htmlFor="search-input" className="sr-only">{t('search.label')}</label>
+        <label htmlFor="search-input" className="sr-only">
+          {t('search.label')}
+        </label>
         <div className="search-input-wrapper">
           <input
             id="search-input"
@@ -26,7 +28,9 @@ export function SearchBar({ query, onChange, autoFocus = false, placeholder }: S
             aria-describedby="search-hint"
             autoFocus={autoFocus}
           />
-          <kbd className="search-shortcut" aria-hidden="true">/</kbd>
+          <kbd className="search-shortcut" aria-hidden="true">
+            /
+          </kbd>
         </div>
         <p id="search-hint" className="search-hint">
           {t('search.hint')}

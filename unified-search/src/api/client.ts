@@ -9,24 +9,31 @@ export const ENDPOINTS = {
   apiSummary: `${API_BASE}/api/summary.json`,
 } as const;
 
-export interface ApiError extends Error {
-  status?: number;
-  response?: Response;
-}
+/**
+ * Erreur typée levée par l'API client. Classe (et non interface + cast)
+ * pour conserver un `instanceof` fiable côté appelant.
+ */
+export class ApiError extends Error {
+  readonly status?: number;
+  readonly response?: Response;
 
-function createApiError(message: string, response: Response): ApiError {
-  const error = new Error(message) as ApiError;
-  error.status = response.status;
-  error.response = response;
-  return error;
+  constructor(message: string, response: Response) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = response.status;
+    this.response = response;
+  }
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
-    throw createApiError(`Failed to fetch ${url}: ${response.status} ${response.statusText}`, response);
+    throw new ApiError(
+      `Failed to fetch ${url}: ${response.status} ${response.statusText}`,
+      response
+    );
   }
-  return response.json() as Promise<T>;
+  return (await response.json()) as T;
 }
 
 export const apiClient = {

@@ -1,4 +1,13 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+  useRef,
+} from 'react';
+import { onWindowCustomEvent, emitWindowCustomEvent } from '../utils/windowEvents';
 
 const FAV_KEY = 'yoto-icons-favorites';
 
@@ -41,7 +50,9 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     if (isLoaded && isLocalChange.current) {
       localStorage.setItem(FAV_KEY, JSON.stringify([...favorites]));
       // Dispatch custom event for cross-tab sync
-      window.dispatchEvent(new CustomEvent('yoto-favorites-change', { detail: { favorites: [...favorites] } }));
+      emitWindowCustomEvent<{ favorites: string[] }>('yoto-favorites-change', {
+        favorites: [...favorites],
+      });
     }
     // Reset flag after the effect runs
     isLocalChange.current = false;
@@ -74,33 +85,39 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     };
 
     window.addEventListener('storage', handleStorage);
-    window.addEventListener('yoto-favorites-change', handleCustomEvent as EventListener);
+    const unsubscribeCustomEvent = onWindowCustomEvent<{ favorites: string[] }>(
+      'yoto-favorites-change',
+      handleCustomEvent
+    );
 
     return () => {
       window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('yoto-favorites-change', handleCustomEvent as EventListener);
+      unsubscribeCustomEvent();
     };
   }, []);
 
   const isFavorite = useCallback((id: string) => favorites.has(id), [favorites]);
 
-  const toggleFavorite = useCallback((id: string): boolean => {
-    isLocalChange.current = true;
-    setFavorites(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
+  const toggleFavorite = useCallback(
+    (id: string): boolean => {
+      isLocalChange.current = true;
+      setFavorites((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) {
+          next.delete(id);
+          return next;
+        }
+        next.add(id);
         return next;
-      }
-      next.add(id);
-      return next;
-    });
-    return !favorites.has(id);
-  }, [favorites]);
+      });
+      return !favorites.has(id);
+    },
+    [favorites]
+  );
 
   const addFavorite = useCallback((id: string) => {
     isLocalChange.current = true;
-    setFavorites(prev => {
+    setFavorites((prev) => {
       if (prev.has(id)) return prev;
       const next = new Set(prev);
       next.add(id);
@@ -110,7 +127,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
   const removeFavorite = useCallback((id: string) => {
     isLocalChange.current = true;
-    setFavorites(prev => {
+    setFavorites((prev) => {
       if (!prev.has(id)) return prev;
       const next = new Set(prev);
       next.delete(id);

@@ -1,54 +1,80 @@
-import { useMemo } from 'react';
-import lunr from 'lunr';
+import { useEffect, useMemo, useState } from 'react';
 import type { Icon, SortOption } from '../types';
+import type { SearchEngine } from '../searchEngine';
 
 interface UseFilteredIconsProps {
   icons: Icon[];
-  index: lunr.Index | null;
+  searchEngine: SearchEngine | null;
   query: string;
   category: string;
   subcategory: string;
   sortBy: SortOption;
 }
 
+/**
+ * Filtre et trie les icônes selon la recherche textuelle et les filtres.
+ *
+ * La recherche Lunr est désormais asynchrone (index construit dans un Web
+ * Worker) : les IDs correspondants sont stockés en état et réappliqués au
+ * filtre. Tant que la requête est en vol, le filtre texte précédent est
+ * conservé pour éviter un clignotement de la grille.
+ */
 export function useFilteredIcons({
   icons,
-  index,
+  searchEngine,
   query,
   category,
   subcategory,
   sortBy,
 }: UseFilteredIconsProps): Icon[] {
-  return useMemo(() => {
-    if (!icons.length) return [];
+  const trimmedQuery = query.trim();
+  const [matchingIds, setMatchingIds] = useState<Set<string> | null>(null);
 
+  useEffect(() => {
+    // Requête vide : pas de filtre texte.
+    if (!trimmedQuery || !searchEngine) {
+      setMatchingIds(null);
+      return;
+    }
+
+    let cancelled = false;
+    searchEngine
+      .search(trimmedQuery)
+      .then((ids) => {
+        if (!cancelled) setMatchingIds(new Set(ids));
+      })
+      .catch(() => {
+        if (!cancelled) setMatchingIds(new Set());
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [trimmedQuery, searchEngine]);
+
+  return useMemo(() => {
     let result = icons;
 
-    // Filtre par recherche textuelle (Lunr)
-    if (query.trim() && index) {
-      const results = index.search(query);
-      const matchingIds = new Set(results.map((r: { ref: string }) => r.ref));
-      result = result.filter(icon => matchingIds.has(icon.id));
+    // Filtre par recherche textuelle (résultats asynchrones du worker)
+    if (trimmedQuery && matchingIds) {
+      result = result.filter((icon) => matchingIds.has(icon.id));
     }
 
-    // Filtre par catégorie
     if (category) {
-      result = result.filter(icon => icon.category === category);
+      result = result.filter((icon) => icon.category === category);
     }
 
-    // Filtre par sous-catégorie
     if (subcategory) {
-      result = result.filter(icon => icon.subcategory === subcategory);
+      result = result.filter((icon) => icon.subcategory === subcategory);
     }
 
-    // Tri
-    result.sort((a, b) => {
+    // Tri sur une copie : ne jamais muter le tableau `icons` du contexte.
+    return [...result].sort((a, b) => {
       if (sortBy === 'downloads') return (b.downloads || 0) - (a.downloads || 0);
       if (sortBy === 'title') return a.title.localeCompare(b.title);
-      if (sortBy === 'date') return new Date(b.date_added).getTime() - new Date(a.date_added).getTime();
+      if (sortBy === 'date')
+        return new Date(b.date_added).getTime() - new Date(a.date_added).getTime();
       return 0;
     });
-
-    return result;
-  }, [icons, index, query, category, subcategory, sortBy]);
+  }, [icons, trimmedQuery, matchingIds, category, subcategory, sortBy]);
 }

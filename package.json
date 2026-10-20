@@ -12,7 +12,7 @@
     "build:index": "node scripts/build-combined.js",
     "build:api": "node scripts/build-api.js",
     "update:all": "pnpm run scrape:yotopixels && pnpm run scrape:yotoicons && pnpm run scrape:yoto-official && pnpm run build:api",
-    "test": "node -e \"console.log('Test OK')\""
+    "test": "node --test scripts/lib/"
   },
   "repository": {
     "type": "git",

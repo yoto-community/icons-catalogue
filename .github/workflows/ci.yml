@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, typecheck & tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: unified-search
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: unified-search/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: ESLint
+        run: pnpm run lint
+
+      - name: Format check (Prettier)
+        run: pnpm run format:check
+
+      - name: Typecheck (tsc --noEmit)
+        run: pnpm run check
+
+      - name: Unit tests (Vitest + seuils de couverture)
+        run: pnpm run test:coverage
+
+      - name: Production build
+        run: pnpm run build
+
+      - name: Bundle size budget
+        run: pnpm run check:bundle
+
+  # Les scripts Node (scrapers + build API) ne sont pas couverts par Vitest
+  # (frontend) : on valide au moins leur syntaxe avant déploiement.
+  scripts-syntax:
+    name: Validate scraper scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Syntax check (node --check)
+        run: |
+          for f in scripts/*.js scripts/lib/*.js; do
+            [ -e "$f" ] || continue
+            node --check "$f" && echo "OK: $f"
+          done
+
+      - name: Scraper lib unit tests (node:test)
+        run: pnpm run test
+
+  # E2E : le flux de recherche dans un vrai Chromium contre la build de
+  # production (Web Worker Lunr réel, données interceptées via fixture).
+  # Complète les tests unitaires, qui simulent le worker.
+  e2e:
+    name: E2E search flow (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: unified-search
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: unified-search/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('unified-search/pnpm-lock.yaml') }}
+
+      - name: Install Chromium (+ dépendances système)
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E (build de production + vite preview inclus)
+        run: pnpm run test:e2e

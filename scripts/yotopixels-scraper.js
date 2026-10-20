@@ -4,11 +4,12 @@
  * 55 pages max (55 × 24 = ~1320 icônes)
  */
 
-import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { fetchWithRetry } from './lib/rateLimiter.js';
+import { inferTags } from './lib/inferTags.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -59,31 +60,39 @@ async function scrapeYotopixels() {
   console.log(`✅ ${allIcons.length} icônes yotopixels extraites au total`);
 
   // Convertir au format commun
-  return allIcons.map(icon => ({
-    id: `yt-${icon.id}`,
-    source: 'yotopixels',
-    tags: icon.tags || [],
-    artist: icon.creator?.public_alias || icon.creator?.id || 'anonymous',
-    title: icon.title || 'Sans titre',
-    preview_image: icon.image_url,
-    download_url: icon.image_url,
-    category: inferCategory(icon.title, icon.tags),
-    subcategory: inferSubcategory(icon.title, icon.tags),
-    downloads: icon.download_count || 0,
-    date_added: icon.created_at,
-    license: 'CC-BY-SC',
-    metadata: {
-      original_id: icon.id,
-      creator_id: icon.creator?.id,
-      color_palette: extractColors(icon.image_url),
-      dominant_colors: getDominantColors(icon.image_url)
-    }
-  }));
+  return allIcons.map(icon => {
+    // L'API yotopixels fournit des tags pour ~la moitié des icônes ; pour les
+    // autres (et le repli HTML), on infère depuis le titre. Les tags réels de
+    // l'API sont toujours conservés tels quels.
+    const apiTags = Array.isArray(icon.tags) ? icon.tags : [];
+    const tags = apiTags.length > 0 ? apiTags : inferTags(icon.title);
+
+    return {
+      id: `yt-${icon.id}`,
+      source: 'yotopixels',
+      tags,
+      artist: icon.creator?.public_alias || icon.creator?.id || 'anonymous',
+      title: icon.title || 'Sans titre',
+      preview_image: icon.image_url,
+      download_url: icon.image_url,
+      category: inferCategory(icon.title, tags),
+      subcategory: inferSubcategory(icon.title, tags),
+      downloads: icon.download_count || 0,
+      date_added: icon.created_at,
+      license: 'CC-BY-SC',
+      metadata: {
+        original_id: icon.id,
+        creator_id: icon.creator?.id,
+        color_palette: extractColors(icon.image_url),
+        dominant_colors: getDominantColors(icon.image_url),
+      },
+    };
+  });
 }
 
 async function fetchPage(page) {
   const url = `${BASE_URL}${SEARCH_URL}?q=&sort=newest&page=${page}`;
-  const res = await fetch(url);
+  const res = await fetchWithRetry(url, {}, { retries: 3, baseDelayMs: 600 });
   const html = await res.text();
   return extractIconsFromHtml(html);
 }

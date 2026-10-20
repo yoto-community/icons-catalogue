@@ -17,7 +17,6 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         className="btn btn-page"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        aria-label={t('pagination.previousAria')}
       >
         {t('pagination.previous')}
       </button>
@@ -28,7 +27,6 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         className="btn btn-page"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        aria-label={t('pagination.nextAria')}
       >
         {t('pagination.next')}
       </button>

@@ -1,47 +1,52 @@
 import { useEffect } from 'react';
+import type { Icon } from '../types';
 
 interface UseKeyboardShortcutsProps {
-  query: string;
-  performSearch: () => void;
-  selectedIcon: unknown;
+  selectedIcon: Icon | null;
   closeIconDetail: () => void;
   searchInputId?: string;
 }
 
+/**
+ * Raccourcis clavier globaux :
+ * - `/` : focus sur la barre de recherche (hors champ actif).
+ * - `Échap` : ferme le modal de détail s'il est ouvert, sinon blurre la recherche.
+ *
+ * Note : volontairement aucune dépendance volatile (query, etc.) afin que
+ * l'écouteur ne soit pas réabonné à chaque frappe de caractère.
+ */
 export function useKeyboardShortcuts({
-  query,
-  performSearch,
   selectedIcon,
   closeIconDetail,
   searchInputId = 'search-input',
 }: UseKeyboardShortcutsProps) {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      const target = e.target as HTMLElement;
-      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable;
+      const target = e.target instanceof HTMLElement ? e.target : null;
+      const isInput =
+        (target !== null &&
+          (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable)) ||
+        false;
 
       if (e.key === '/' && !isInput && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
-        const input = document.getElementById(searchInputId) as HTMLInputElement;
-        input?.focus();
-        input?.select();
+        const input = document.getElementById(searchInputId);
+        if (input instanceof HTMLInputElement) {
+          input.focus();
+          input.select();
+        }
       }
       if (e.key === 'Escape') {
-        const input = document.getElementById(searchInputId) as HTMLInputElement;
+        const input = document.getElementById(searchInputId);
         if (selectedIcon) {
           closeIconDetail();
-        } else {
-          input?.blur();
-          if (query.trim()) {
-            // Note: setQuery would need to be passed or we use a different approach
-            // For now, we'll just trigger the search with empty query
-            // The parent component should handle the actual state update
-          }
+        } else if (input instanceof HTMLInputElement) {
+          input.blur();
         }
       }
     }
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [query, performSearch, selectedIcon, closeIconDetail, searchInputId]);
+  }, [selectedIcon, closeIconDetail, searchInputId]);
 }

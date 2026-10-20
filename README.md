@@ -124,6 +124,12 @@ Chaque icône suit ce format normalisé :
 
 **Total : ~27 400 icônes unifiées**
 
+> **Note qualité** : les trois sources renseignent bien tous les champs du schéma
+> (la classification catégorie/sous-catégorie est complétée au build). En revanche,
+> **yotopixels ne fournit des `tags` que pour ~49 % de ses icônes** (643/1314) —
+> la recherche full-text y est donc moins pertinente. Corriger cela demanderait
+> d'enrichir le scraper yotopixels, pas le build.
+
 ## Frontend (unified-search)
 
 Application React 18 + TypeScript + Vite 5 avec PWA (Workbox).
@@ -150,9 +156,50 @@ Application React 18 + TypeScript + Vite 5 avec PWA (Workbox).
 
 ```bash
 cd unified-search
+pnpm install
 pnpm run dev
 # http://localhost:5173/icons-catalogue/
 ```
+
+### Qualité (lint, formatage, tests)
+
+La CI (`.github/workflows/ci.yml`) exécute ces mêmes commandes sur chaque PR :
+
+```bash
+cd unified-search
+
+pnpm run lint          # ESLint (config flat, règles TypeScript strictes)
+pnpm run lint:fix      # Correction automatique
+pnpm run format        # Prettier --write
+pnpm run format:check  # Prettier --check (sans écriture)
+pnpm run check         # tsc --noEmit (typage uniquement)
+pnpm run test          # Vitest (unit + intégration, environnement jsdom)
+pnpm run test:watch    # Vitest en mode observation
+pnpm run test:coverage # Couverture (v8) + seuils : échoue si la couverture régresse
+pnpm run test:e2e      # Playwright : parcours complets + audit a11y (Chromium, build de prod)
+
+pnpm run verify        # Tout en séquence : lint + check + test + build + taille bundle
+```
+
+> **Ordre recommandé** : `eslint --fix` puis `prettier --write`. ESLint applique
+> `consistent-type-imports` (sépare `import type`), que Prettier reformate ensuite
+> proprement. Dans l'autre sens, les deux outils peuvent se contredire sur un même import.
+
+> **E2E (Playwright)** : `test:e2e` construit la build de production, la sert via
+> `vite preview`, puis exécute les specs `e2e/*.spec.ts` dans Chromium. Les données
+> sont interceptées (fixture de 60 icônes dans `e2e/fixtures/`) : le parcours testé
+> couvre le **Web Worker Lunr réel** (`aria-busy` passé à `false`), le filtrage de la
+> grille après debounce, l'état vide, la pagination, les **favoris** (persistance
+> localStorage + page dédiée), les **filtres** catégorie/sous-catégorie/tri, la
+> **modale de détail** (clic, Échap, clic extérieur), les **raccourcis clavier**
+> (`/`, Échap) et la **bascule de langue**. Un audit **axe-core**
+> (`e2e/a11y.spec.ts`, normes WCAG A/AA) vérifie l'absence de violations
+> sérieuses ou critiques sur six scénarios : grille, résultats filtrés, état vide,
+> modale, favoris et page développeurs. Les animations sont désactivées
+> (`reducedMotion: 'reduce'`) pour des mesures déterministes. Prérequis unique :
+> `pnpm exec playwright install chromium`.
+> Les seuils de couverture (plancher global + verrous 100 % sur la logique pure)
+> sont définis dans `vite.config.ts` et appliqués par la CI.
 
 ### Build production
 
@@ -170,17 +217,52 @@ unified-search/
 │   ├── icons.json      # Données icônes (copié au build depuis ../data)
 │   ├── summary.json    # Stats globales (copié au build depuis ../data)
 │   └── favicon.svg
+├── scripts/
+│   └── check-bundle-size.mjs   # Garde-fou de taille de bundle (gzip)
 ├── src/
-│   ├── main.tsx                 # Point d'entrée + React Router
-│   ├── App.tsx                  # Composant principal + routes
-│   └── styles.css               # Styles CSS natifs (variables CSS)
-├── dist/                        # Build production (GitHub Pages)
+│   ├── main.tsx                # Point d'entrée + providers (i18n, données, favoris)
+│   ├── App.tsx                 # Routes + état modal global
+│   ├── styles.css              # Styles CSS natifs (variables CSS)
+│   ├── searchIndex.ts          # Construction de l'index Lunr (partagé)
+│   ├── searchEngine.ts         # Moteur de recherche (worker + repli main-thread)
+│   ├── workers/
+│   │   └── searchIndex.worker.ts  # Construction/conserve l'index hors main thread
+│   ├── context/
+│   │   ├── IconsDataContext.tsx   # Chargement des icônes UNE fois + moteur partagé
+│   │   └── FavoritesContext.tsx   # Favoris localStorage + sync inter-onglets
+│   ├── hooks/                  # useFilteredIcons, usePagination, useUrlSync, …
+│   ├── components/             # UI présentationnelle (Header, IconsGrid, …)
+│   ├── pages/                  # Routes (Catalogue, Catégories, Auteurs, …)
+│   ├── constants/              # Libellés/icônes de catégories partagés
+│   ├── i18n/                   # Contexte i18n + locales fr/en
+│   ├── api/client.ts           # Client HTTP + classe ApiError typée
+│   ├── types/                  # Types + guards (assertIconArray)
+│   ├── utils/                  # urlParams, windowEvents, iconUtils
+│   └── test/setup.ts           # Configuration Vitest (jest-dom, stub fetch)
+├── dist/                       # Build production (GitHub Pages)
+├── eslint.config.js            # Config ESLint flat
 ├── index.html
 ├── package.json
-├── tsconfig.json
-├── vite.config.ts               # base: '/icons-catalogue/', PWA config
-└── README.md
+├── tsconfig.json               # strict: true
+└── vite.config.ts              # base: '/icons-catalogue/', PWA config, config Vitest
 ```
+
+### Architecture de la recherche (performance)
+
+La construction de l'index Lunr coûte **~1,5 s** pour ~27 400 icônes. Deux
+mécanismes évitent que ce coût pénalise l'utilisateur :
+
+1. **Web Worker** (`searchIndex.worker.ts`) — l'index est construit et conservé
+   hors du main thread. Aucune frame n'est gelée à l'ouverture ; seules les
+   requêtes et les listes d'IDs circulent (aucun coût de sérialisation de l'index).
+   En cas d'échec de chargement du worker, `searchEngine.ts` bascule
+   automatiquement sur un index construit sur le main thread.
+2. **Contexte unique** (`IconsDataContext`) — `icons.json` est téléchargé et
+   l'index construit **une seule fois** pour toute l'application. Précédemment,
+   `App` et chaque page reconstruisaient chacun leur propre index.
+
+La recherche est devenue **asynchrone** : `useFilteredIcons` stocke les IDs
+retournés par le moteur en état et les réapplique au filtre.
 
 ### Routes
 

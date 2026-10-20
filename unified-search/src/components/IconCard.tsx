@@ -1,5 +1,4 @@
 import { type MouseEvent } from 'react';
-import { Link } from 'react-router-dom';
 import type { Icon } from '../types';
 import { normalizeUrl, getSourceBadge } from '../utils/iconUtils';
 import { FavoriteButton } from './FavoriteButton';
@@ -19,12 +18,7 @@ export function IconCard({ icon, onOpenDetail, onPreview, backgroundColor }: Ico
   return (
     <article className="icon-card" role="listitem">
       <div className="icon-card-content">
-        <button
-          type="button"
-          className="icon-link"
-          onClick={() => onOpenDetail(icon)}
-          aria-label={t('iconCard.detailsAria', { title: icon.title, downloads: icon.downloads })}
-        >
+        <button type="button" className="icon-link" onClick={() => onOpenDetail(icon)}>
           <div className="icon-preview">
             <img
               src={normalizeUrl(icon.preview_image, icon.source)}
@@ -33,7 +27,7 @@ export function IconCard({ icon, onOpenDetail, onPreview, backgroundColor }: Ico
               width="64"
               height="64"
               style={{ backgroundColor: backgroundColor || 'transparent' }}
-              onError={e => {
+              onError={(e) => {
                 const target = e.currentTarget;
                 if (!target.dataset.fallback) {
                   target.dataset.fallback = '1';
@@ -42,7 +36,7 @@ export function IconCard({ icon, onOpenDetail, onPreview, backgroundColor }: Ico
                 }
               }}
             />
-            
+
             <div className="icon-source-badge" data-source={icon.source}>
               {getSourceBadge(icon.source)}
             </div>
@@ -50,27 +44,28 @@ export function IconCard({ icon, onOpenDetail, onPreview, backgroundColor }: Ico
           <div className="icon-info">
             <h3 className="icon-title">{icon.title}</h3>
             <div className="icon-meta">
-              <Link
-                to={`/authors/${encodeURIComponent(icon.artist)}`}
-                className="icon-artist"
-                aria-label={t('common.artist', { artist: icon.artist })}
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
+              {/* L'artiste est volontairement statique : dans un <button>, un
+                  second contrôle imbriqué casserait l'accessibilité (nested
+                  interactive) et ce lien était déjà neutralisé (preventDefault). */}
+              <span className="icon-artist">{icon.artist}</span>
+              <span
+                className="icon-downloads"
+                aria-label={t('common.downloads', { count: icon.downloads })}
               >
-                {icon.artist}
-              </Link>
-              <span className="icon-downloads" aria-label={t('common.downloads', { count: icon.downloads })}>
                 <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
-                  <path fill="currentColor" d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm3.78-10.22L8 10.77 4.22 7l.78-.78L8 9.22l3-3 .78.78z" />
+                  <path
+                    fill="currentColor"
+                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm3.78-10.22L8 10.77 4.22 7l.78-.78L8 9.22l3-3 .78.78z"
+                  />
                 </svg>
                 {icon.downloads.toLocaleString('fr-FR')}
               </span>
             </div>
             <div className="icon-tags">
-              {icon.tags.slice(0, 4).map(tag => (
-                <span key={tag} className="tag">{tag}</span>
+              {icon.tags.slice(0, 4).map((tag) => (
+                <span key={tag} className="tag">
+                  {tag}
+                </span>
               ))}
               {icon.tags.length > 4 && (
                 <span className="tag tag-more">+{icon.tags.length - 4}</span>
@@ -82,11 +77,19 @@ export function IconCard({ icon, onOpenDetail, onPreview, backgroundColor }: Ico
           <button
             type="button"
             className="icon-preview-btn"
-            onClick={e => onPreview(icon, e)}
+            onClick={(e) => onPreview(icon, e)}
             aria-label={t('iconCard.previewAria', { title: icon.title })}
             title={t('iconCard.previewTitle')}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg>

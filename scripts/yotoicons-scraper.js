@@ -4,11 +4,12 @@
  * Site: 25 566+ icônes singles
  */
 
-import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { fetchWithRetry } from './lib/rateLimiter.js';
+import { inferTags } from './lib/inferTags.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,11 +25,16 @@ async function sleep(ms) {
 
 async function scrapePage(pageNum, tag = '', sort = 'popular', type = 'singles') {
   const url = `${BASE_URL}${ICONS_PAGE_URL}?tag=${encodeURIComponent(tag)}&sort=${sort}&type=${type}&page=${pageNum}`;
-  const res = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; YotoIconsCatalogue/1.0; +https://github.com/yoto-community/icons-catalogue)'
-    }
-  });
+  const res = await fetchWithRetry(
+    url,
+    {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (compatible; YotoIconsCatalogue/1.0; +https://github.com/yoto-community/icons-catalogue)',
+      },
+    },
+    { retries: 3, baseDelayMs: 800 }
+  );
   if (!res.ok) throw new Error(`HTTP ${res.status} pour page ${pageNum}`);
   const html = await res.text();
   const $ = cheerio.load(html);
@@ -112,40 +118,6 @@ async function scrapePage(pageNum, tag = '', sort = 'popular', type = 'singles')
   });
 
   return icons;
-}
-
-function inferTags(title) {
-  const titleLower = title.toLowerCase();
-  const tags = [];
-  const tagMap = {
-    moon: ['moon', 'lune', 'night', 'nuit'],
-    sun: ['sun', 'soleil', 'sunny'],
-    star: ['star', 'étoile', 'stars'],
-    heart: ['heart', 'cœur', 'love', 'amour'],
-    plant: ['plant', 'plante', 'leaf', 'feuille', 'flower', 'fleur', 'sprout', 'pousse'],
-    animal: ['cat', 'chat', 'dog', 'chien', 'bird', 'oiseau', 'fish', 'poisson', 'animal'],
-    arrow: ['arrow', 'flèche', 'direction'],
-    home: ['home', 'maison', 'house'],
-    music: ['music', 'musique', 'note', 'note'],
-    weather: ['cloud', 'nuage', 'rain', 'pluie', 'snow', 'neige', 'storm', 'orage'],
-    food: ['food', 'nourriture', 'apple', 'pomme', 'pizza', 'burger', 'cake', 'gâteau'],
-    tech: ['phone', 'téléphone', 'computer', 'ordinateur', 'screen', 'écran', 'wifi', 'bluetooth'],
-    transport: ['car', 'voiture', 'bus', 'plane', 'avion', 'bike', 'vélo', 'train'],
-    people: ['person', 'personne', 'people', 'gens', 'user', 'utilisateur', 'face', 'visage'],
-    shape: ['circle', 'cercle', 'square', 'carré', 'triangle', 'diamond', 'losange'],
-    ui: ['menu', 'settings', 'paramètres', 'search', 'recherche', 'close', 'fermer', 'check', 'valider'],
-    time: ['clock', 'horloge', 'time', 'temps', 'calendar', 'calendrier', 'date'],
-    mail: ['mail', 'email', 'message', 'envelope', 'enveloppe'],
-    shopping: ['cart', 'panier', 'bag', 'sac', 'shop', 'magasin', 'buy', 'acheter'],
-    media: ['play', 'pause', 'stop', 'volume', 'video', 'vidéo', 'photo', 'camera', 'caméra'],
-  };
-
-  for (const [tag, keywords] of Object.entries(tagMap)) {
-    if (keywords.some(k => titleLower.includes(k))) {
-      tags.push(tag);
-    }
-  }
-  return tags.length > 0 ? tags : ['icon'];
 }
 
 function inferCategory(title, tags) {

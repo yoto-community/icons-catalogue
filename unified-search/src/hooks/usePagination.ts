@@ -20,15 +20,16 @@ export function usePagination<T>({
   initialPage = 1,
 }: UsePaginationProps<T>): UsePaginationReturn<T> {
   const [currentPage, setCurrentPage] = useState(initialPage);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalFiltered, setTotalFiltered] = useState(0);
 
-  // Update totalPages and totalFiltered when filteredIcons changes
-  useEffect(() => {
-    const total = filteredIcons.length;
-    setTotalFiltered(total);
-    setTotalPages(Math.max(1, Math.ceil(total / ICONS_PER_PAGE)));
-  }, [filteredIcons]);
+  // Valeurs DÉRIVÉES (et non état + useEffect). La version précédente tenait
+  // totalPages/totalFiltered dans un état initialisé à 1/0 : au premier rendu,
+  // l'effet de reset lisait totalPages=1 et remettait immédiatement currentPage
+  // à 1, ce qui rendait `initialPage > 1` inefficace au montage.
+  const totalFiltered = filteredIcons.length;
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(totalFiltered / ICONS_PER_PAGE)),
+    [totalFiltered]
+  );
 
   // Reset currentPage if it exceeds totalPages
   useEffect(() => {

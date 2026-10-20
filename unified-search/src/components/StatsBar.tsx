@@ -17,8 +17,12 @@ export function StatsBar({ totalFiltered, query, category, subcategory, summary 
       <span className="stats-total">
         {t('stats.iconsCount', { count: totalFiltered })}
         {query && <span className="stats-query">{t('stats.queryPrefix', { query })}</span>}
-        {category && <span className="stats-filter">{t('stats.categoryPrefix', { category })}</span>}
-        {subcategory && <span className="stats-filter">{t('stats.subcategoryPrefix', { subcategory })}</span>}
+        {category && (
+          <span className="stats-filter">{t('stats.categoryPrefix', { category })}</span>
+        )}
+        {subcategory && (
+          <span className="stats-filter">{t('stats.subcategoryPrefix', { subcategory })}</span>
+        )}
       </span>
       {summary?.counts?.bySource && (
         <span className="stats-sources">

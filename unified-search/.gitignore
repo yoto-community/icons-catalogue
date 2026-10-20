@@ -1,0 +1,6 @@
+# Rapport de couverture généré par Vitest (npx vitest run --coverage)
+coverage/
+
+# Artefacts Playwright (traces, dernières exécutions)
+test-results/
+playwright-report/

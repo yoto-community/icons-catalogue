@@ -41,7 +41,8 @@ export function getSourceBadge(source: Icon['source']): string {
     case 'yoto-official':
       return 'YO';
     default: {
-      const s = source as string;
+      // Valeur hors union (données JSON non garanties) : fallback défensif sans cast.
+      const s = String(source);
       return s.slice(0, 2).toUpperCase();
     }
   }

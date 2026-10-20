@@ -106,8 +106,7 @@
   },
   "dev": {
     "title": "Developers — Yoto Icons Catalogue",
-    "description":
-      "Public API documentation: data endpoints, schemas and code examples. All endpoints are public, free and without API key.",
+    "description": "Public API documentation: data endpoints, schemas and code examples. All endpoints are public, free and without API key.",
     "method": "Method",
     "endpoint": "Endpoint",
     "description": "Description",

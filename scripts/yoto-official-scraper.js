@@ -4,10 +4,10 @@
  * Source: https://yoto.dev/icons/using-icons/
  */
 
-import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { fetchWithRetry } from './lib/rateLimiter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,7 +18,7 @@ async function scrapeYotoOfficial() {
   console.log('📥 Début du scrappage des icônes officielles Yoto...');
 
   // Récupérer le bundle JS qui contient les données
-  const res = await fetch(BUNDLE_URL);
+  const res = await fetchWithRetry(BUNDLE_URL, {}, { retries: 3, baseDelayMs: 1000 });
   const jsContent = await res.text();
 
   // Extraire le JSON embarqué dans le bundle

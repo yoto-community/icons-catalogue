@@ -26,21 +26,27 @@ export function Header() {
   const { t } = useI18n();
   const [isCommunityOpen, setIsCommunityOpen] = useState(false);
 
-  const favoritesNavItem: NavItem = { path: '/favorites', labelKey: 'header.navFavorites', count: favorites.size };
+  const favoritesNavItem: NavItem = {
+    path: '/favorites',
+    labelKey: 'header.navFavorites',
+    count: favorites.size,
+  };
 
   return (
     <header className="header">
       <div className="header-content">
         <div className="header-brand">
           <h1 className="logo">
-            <span className="logo-icon" aria-hidden="true">🔍</span>
+            <span className="logo-icon" aria-hidden="true">
+              🔍
+            </span>
             {t('header.appName')}
           </h1>
         </div>
         <div className="header-actions">
           <nav className="header-nav" aria-label={t('common.search')}>
             <ul className="nav-list">
-              {mainNavItems.map(item => (
+              {mainNavItems.map((item) => (
                 <li key={item.path}>
                   <Link
                     to={item.path}
@@ -63,7 +69,7 @@ export function Header() {
                   {t('header.navCommunity')}
                 </button>
                 <ul className="nav-dropdown-menu" role="menu" aria-label={t('header.navCommunity')}>
-                  {communityNavItems.map(item => (
+                  {communityNavItems.map((item) => (
                     <li key={item.path} role="none">
                       <Link
                         to={item.path}
@@ -86,7 +92,10 @@ export function Header() {
                 >
                   {t(favoritesNavItem.labelKey)}
                   {favoritesNavItem.count !== undefined && favoritesNavItem.count > 0 && (
-                    <span className="nav-count" aria-label={t('header.favoritesCount', { count: favoritesNavItem.count })}>
+                    <span
+                      className="nav-count"
+                      aria-label={t('header.favoritesCount', { count: favoritesNavItem.count })}
+                    >
                       {favoritesNavItem.count}
                     </span>
                   )}

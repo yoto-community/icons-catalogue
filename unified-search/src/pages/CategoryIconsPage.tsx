@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import type { Icon, SortOption } from '../types';
-import { useIconsData } from '../hooks/useIconsData';
+import { useIconsData } from '../context/IconsDataContext';
 import { useFilteredIcons } from '../hooks/useFilteredIcons';
 import { usePagination } from '../hooks/usePagination';
 import { useUrlSync } from '../hooks/useUrlSync';
@@ -18,21 +18,8 @@ import {
   LoadingState,
 } from '../components';
 import { useI18n } from '../i18n';
-
-const CATEGORY_LABELS: Record<string, string> = {
-  objets: 'Objets',
-  nature: 'Nature',
-  animaux: 'Animaux',
-  musique: 'Musique',
-  personnages: 'Personnages',
-  fetes: 'Fêtes',
-  transport: 'Transport',
-  activites: 'Activités',
-  emotions: 'Émotions',
-  nourriture: 'Nourriture',
-  batiments: 'Bâtiments',
-  formes: 'Formes',
-};
+import { getCategoryLabel } from '../constants';
+import { toSortOption, toPageNumber } from '../utils/urlParams';
 
 export function CategoryIconsPage({
   onOpenDetail,
@@ -51,22 +38,15 @@ export function CategoryIconsPage({
   const location = useLocation();
   const { t } = useI18n();
 
-  // Data loading
-  const {
-    icons,
-    index,
-    isIndexLoaded,
-    isLoading,
-    categories,
-    summary,
-  } = useIconsData();
+  // Data loading (partagé via contexte)
+  const { icons, searchEngine, isSearchReady, isLoading, categories, summary } = useIconsData();
 
   // Get current category
   const currentCategory = useMemo(() => {
     if (!categoryParam) return '';
     // Normalize the category from URL (decode and match case-insensitively)
     const decoded = decodeURIComponent(categoryParam);
-    const match = categories.find(c => c.toLowerCase() === decoded.toLowerCase());
+    const match = categories.find((c) => c.toLowerCase() === decoded.toLowerCase());
     return match || decoded;
   }, [categoryParam, categories]);
 
@@ -78,18 +58,26 @@ export function CategoryIconsPage({
   // Get subcategories for the current category
   const categorySubcategories = useMemo(() => {
     if (!currentCategory) return [];
-    return [...new Set(
-      icons
-        .filter(icon => icon.category === currentCategory)
-        .map(icon => icon.subcategory)
-        .filter(Boolean)
-    )].sort();
+    return [
+      ...new Set(
+        icons
+          .filter((icon) => icon.category === currentCategory)
+          .map((icon) => icon.subcategory)
+          .filter(Boolean)
+      ),
+    ].sort();
   }, [icons, currentCategory]);
+
+  // Icônes de la catégorie, mémoïsées (évite un nouveau tableau à chaque rendu)
+  const categoryIcons = useMemo(
+    () => icons.filter((icon) => icon.category === currentCategory),
+    [icons, currentCategory]
+  );
 
   // Filter icons by current category first, then apply other filters
   const filteredIcons = useFilteredIcons({
-    icons: icons.filter(icon => icon.category === currentCategory),
-    index,
+    icons: categoryIcons,
+    searchEngine,
     query,
     category: '', // Already filtered by category above
     subcategory,
@@ -127,15 +115,21 @@ export function CategoryIconsPage({
     handleQueryChange(e.target.value, setQuery);
   };
 
-  const handleSubcategoryChange = useCallback((value: string) => {
-    setSubcategory(value);
-    performSearch();
-  }, [performSearch]);
+  const handleSubcategoryChange = useCallback(
+    (value: string) => {
+      setSubcategory(value);
+      performSearch();
+    },
+    [performSearch]
+  );
 
-  const handleSortChange = useCallback((value: SortOption) => {
-    setSortBy(value);
-    performSearch();
-  }, [performSearch]);
+  const handleSortChange = useCallback(
+    (value: SortOption) => {
+      setSortBy(value);
+      performSearch();
+    },
+    [performSearch]
+  );
 
   const handleReset = useCallback(() => {
     setQuery('');
@@ -148,8 +142,6 @@ export function CategoryIconsPage({
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
-    query,
-    performSearch,
     selectedIcon,
     closeIconDetail: onCloseDetail,
   });
@@ -159,8 +151,9 @@ export function CategoryIconsPage({
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('subcat')) setSubcategory(params.get('subcat')!);
-    if (params.get('sort')) setSortBy(params.get('sort') as SortOption);
-    if (params.get('page')) setCurrentPage(Math.max(1, Number(params.get('page'))));
+    if (params.get('sort')) setSortBy(toSortOption(params.get('sort')));
+    if (params.get('page')) setCurrentPage(toPageNumber(params.get('page')));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- restauration volontairement limitée au montage : inclure location.search ré-appliquerait l'URL à chaque rendu et écraserait les filtres en cours de saisie.
   }, [setCurrentPage, setSubcategory, setSortBy]);
 
   // Loading state
@@ -174,7 +167,15 @@ export function CategoryIconsPage({
       <section className="category-page" aria-labelledby="category-title">
         <header className="category-header">
           <Link to="/categories" className="back-link" aria-label={t('common.back')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
             {t('categories.backToCategories')}
@@ -186,21 +187,32 @@ export function CategoryIconsPage({
     );
   }
 
-  const categoryLabel = currentCategory
-    ? CATEGORY_LABELS[currentCategory] || currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)
-    : '';
+  const categoryLabel = currentCategory ? getCategoryLabel(currentCategory) : '';
 
   return (
     <>
       <div className="category-page-header">
         <Link to="/categories" className="back-link" aria-label={t('common.back')}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           {t('categories.allCategoriesLink')}
         </Link>
       </div>
-      <SearchBar query={query} onChange={handleSearchChange} autoFocus={!query} placeholder={t('search.placeholderCategory', { category: categoryLabel })} />
+      <SearchBar
+        query={query}
+        onChange={handleSearchChange}
+        autoFocus={!query}
+        placeholder={t('search.placeholderCategory', { category: categoryLabel })}
+      />
 
       <Filters
         category={currentCategory}
@@ -225,7 +237,7 @@ export function CategoryIconsPage({
         summary={summary ?? undefined}
       />
 
-      <section className="results-section" aria-live="polite" aria-busy={!isIndexLoaded}>
+      <section className="results-section" aria-live="polite" aria-busy={!isSearchReady}>
         <div className="results-layout">
           <div className="icons-grid-wrapper">
             {paginatedIcons.length === 0 ? (
@@ -236,11 +248,7 @@ export function CategoryIconsPage({
                 isLoading={isLoading}
               />
             ) : (
-              <IconsGrid
-                icons={paginatedIcons}
-                onOpenDetail={onOpenDetail}
-                onPreview={onPreview}
-              />
+              <IconsGrid icons={paginatedIcons} onOpenDetail={onOpenDetail} onPreview={onPreview} />
             )}
 
             <Pagination
