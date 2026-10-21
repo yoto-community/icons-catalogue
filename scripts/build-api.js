@@ -8,11 +8,18 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import lunr from 'lunr';
+import { assertSourcesPresent, assertNoRegression } from './lib/catalogue-guards.js';
+import { applySourceLicense } from './lib/source-licenses.js';
+import { nextCatalogVersion } from './lib/catalog-version.js';
+import { markDuplicates } from './lib/dedupe.js';
+import { validateIcons, validateSummary, validateManifest } from './lib/catalogue-schema.js';
+import { isDataSectionInSync, replaceDataSection } from './lib/readme-data.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const DIST_DIR = path.join(__dirname, '..', 'dist');
-const UNIFIED_SEARCH_PUBLIC = path.join(__dirname, '..', 'unified-search', 'public');
+const SITE_PUBLIC = path.join(__dirname, '..', 'site', 'public');
+const README_PATH = path.join(__dirname, '..', 'README.md');
 
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
@@ -20,13 +27,50 @@ function ensureDir(dir) {
   }
 }
 
-function loadJSON(filename) {
+/**
+ * Régénère la section « Données actuelles » du README depuis le résumé (P0.5) :
+ * la documentation reste alignée sur le build, sans édition manuelle.
+ */
+function updateReadmeDataSection(summary) {
+  if (!fs.existsSync(README_PATH)) return;
+  const readme = fs.readFileSync(README_PATH, 'utf-8');
+  if (isDataSectionInSync(readme, summary)) return;
+  fs.writeFileSync(README_PATH, replaceDataSection(readme, summary));
+  console.log('📄 README : section « Données actuelles » régénérée.');
+}
+
+/**
+ * Charge un fichier de données **obligatoire**. Un fichier manquant doit faire
+ * échouer le build : publier un catalogue amputé serait pire qu'un échec.
+ */
+function loadRequiredJSON(filename) {
   const filepath = path.join(DATA_DIR, filename);
   if (!fs.existsSync(filepath)) {
-    console.warn(`⚠️ Fichier non trouvé: ${filepath}`);
-    return [];
+    throw new Error(
+      `Fichier de données introuvable : ${filepath}. Lancez le scraper correspondant.`
+    );
   }
   return JSON.parse(fs.readFileSync(filepath, 'utf-8'));
+}
+
+/**
+ * Lit le résumé du build précédent, pour détecter une régression forte du
+ * catalogue (cf. {@link assertNoRegression}) et calculer la version suivante.
+ * @returns {object|null}
+ */
+function readPreviousSummary() {
+  for (const candidate of [
+    path.join(SITE_PUBLIC, 'summary.json'),
+    path.join(DIST_DIR, 'summary.json'),
+  ]) {
+    if (!fs.existsSync(candidate)) continue;
+    try {
+      return JSON.parse(fs.readFileSync(candidate, 'utf-8'));
+    } catch {
+      // Résumé illisible : on l'ignore (simple référence).
+    }
+  }
+  return null;
 }
 
 function sha256(content) {
@@ -39,29 +83,96 @@ function writeJSON(filepath, data) {
   return { bytes: Buffer.byteLength(content, 'utf8'), sha256: sha256(content) };
 }
 
+/**
+ * Échec explicite : publier un catalogue malformé serait pire qu'un échec.
+ * @param {string[]} errors
+ */
+function failValidation(errors) {
+  console.error(`❌ Catalogue invalide (${errors.length} erreur(s)) :`);
+  for (const error of errors.slice(0, 20)) console.error(`   - ${error}`);
+  if (errors.length > 20) console.error(`   … et ${errors.length - 20} autre(s)`);
+  process.exit(1);
+}
+
 console.log('🔨 Début de la construction de l\'API (dist/)...');
 
-// 1. Charger les données brutes
-const yotopixelsData = loadJSON('yotopixels-icons.json');
-const yotoiconsData = loadJSON('yotoicons-icons.json');
-const yotoOfficialData = loadJSON('yoto-official-icons.json');
+// 1. Charger les données brutes (échec explicite si une source manque).
+let yotopixelsData;
+let yotoiconsData;
+let yotoOfficialData;
+try {
+  yotopixelsData = loadRequiredJSON('yotopixels-icons.json');
+  yotoiconsData = loadRequiredJSON('yotoicons-icons.json');
+  yotoOfficialData = loadRequiredJSON('yoto-official-icons.json');
+} catch (err) {
+  console.error(`❌ ${err.message}`);
+  process.exit(1);
+}
 
 console.log(`📊 ${yotopixelsData.length} icônes yotopixels + ${yotoiconsData.length} icônes yotoicons + ${yotoOfficialData.length} icônes yoto-official`);
 
-const allIcons = [...yotopixelsData, ...yotoiconsData, ...yotoOfficialData];
+// La licence est (re)appliquée depuis la source unique `source-licenses.js` :
+// les données committées peuvent porter d'anciennes valeurs (ex. `CC-BY-SC`)
+// qui n'ont pas à être re-scrapées pour être corrigées.
+const allIcons = [...yotopixelsData, ...yotoiconsData, ...yotoOfficialData].map(applySourceLicense);
 
 if (allIcons.length === 0) {
   console.error('❌ Aucune icône trouvée. Lancez d\'abord les scrapers.');
   process.exit(1);
 }
 
+// 1bis. Garde-fous : chaque source doit être présente et non vide.
+const sourceCounts = {
+  yotopixels: yotopixelsData.length,
+  yotoicons: yotoiconsData.length,
+  'yoto-official': yotoOfficialData.length,
+};
+try {
+  assertSourcesPresent(sourceCounts);
+} catch (err) {
+  console.error(`❌ ${err.message}`);
+  process.exit(1);
+}
+
+// 1ter. Garde-fou anti-régression : refuser une chute forte vs le build précédent.
+const previousSummary = readPreviousSummary();
+if (process.env.ALLOW_CATALOGUE_SHRINK === '1') {
+  console.warn('⚠️ ALLOW_CATALOGUE_SHRINK=1 : garde-fou anti-régression désactivé.');
+} else {
+  const previousTotal = typeof previousSummary?.total === 'number' ? previousSummary.total : undefined;
+  try {
+    assertNoRegression(allIcons.length, previousTotal);
+  } catch (err) {
+    console.error(`❌ ${err.message}`);
+    console.error('   (Définissez ALLOW_CATALOGUE_SHRINK=1 pour forcer, après vérification.)');
+    process.exit(1);
+  }
+}
+
+// 1quater. Doublons inter-sources (P1.4) : marquer les occurrences non
+// canoniques (`metadata.duplicate_of`) sans rien supprimer du catalogue.
+const { groups: duplicateGroups, duplicateOf } = markDuplicates(allIcons);
+for (const icon of allIcons) {
+  const canonicalId = duplicateOf.get(icon.id);
+  if (canonicalId) {
+    icon.metadata = { ...(icon.metadata || {}), duplicate_of: canonicalId };
+  }
+}
+console.log(
+  `🔍 Doublons inter-sources : ${duplicateGroups.length} groupe(s), ` +
+    `${duplicateOf.size} icône(s) marquée(s).`
+);
+
 // 2. Construire l'index Lunr
+// Champs volontairement IDENTIQUES à ceux du client (`site/src/searchIndex.ts`)
+// pour que l'index publié et l'index reconstruit côté navigateur donnent les
+// mêmes résultats. `source`/`downloads` avaient été indexés ici mais pas côté
+// client : la divergence rendait les deux recherches incohérentes.
 const index = lunr(function () {
   this.ref('id');
   this.field('tags', { boost: 10 });
   this.field('artist');
   this.field('title');
-  this.field('source');
   this.field('category');
   this.field('subcategory');
 
@@ -71,8 +182,6 @@ const index = lunr(function () {
       tags: icon.tags,
       artist: icon.artist,
       title: icon.title,
-      source: icon.source,
-      downloads: icon.downloads || 0,
       category: icon.category,
       subcategory: icon.subcategory
     });
@@ -120,6 +229,10 @@ const fullCatalog = allIcons.map(icon => ({
   license: icon.license,
   metadata: icon.metadata
 }));
+
+// 5bis. Validation du schéma (P2.3) avant écriture : refuser un catalogue malformé.
+const iconValidation = validateIcons(fullCatalog);
+if (!iconValidation.valid) failValidation(iconValidation.errors);
 
 const fullMeta = writeJSON(path.join(DIST_DIR, 'icons.json'), fullCatalog);
 
@@ -222,7 +335,7 @@ const topArtists = Object.entries(byArtist)
 console.log('📝 Écriture du résumé...');
 const summary = {
   schemaVersion: 2,
-  catalogVersion: new Date().toISOString().split('T')[0].replace(/-/g, '.') + '-1',
+  catalogVersion: nextCatalogVersion(previousSummary?.catalogVersion),
   updatedAt: new Date().toISOString(),
   total: allIcons.length,
   counts: {
@@ -232,8 +345,16 @@ const summary = {
     bySubcategory,
     topTags,
     topArtists
+  },
+  duplicates: {
+    groups: duplicateGroups.length,
+    icons: duplicateOf.size
   }
 };
+// Validation du résumé avant écriture (schéma P2.3).
+const summaryValidation = validateSummary(summary, { expectedTotal: allIcons.length });
+if (!summaryValidation.valid) failValidation(summaryValidation.errors);
+
 const summaryMeta = writeJSON(path.join(DIST_DIR, 'summary.json'), summary);
 
 // 11. Construire le manifeste (index.json)
@@ -289,27 +410,49 @@ const manifest = {
   }
 };
 
+// Validation du manifeste avant écriture (schéma P2.3).
+const manifestValidation = validateManifest(manifest, { expectedTotal: allIcons.length });
+if (!manifestValidation.valid) failValidation(manifestValidation.errors);
+
 writeJSON(path.join(DIST_DIR, 'index.json'), manifest);
 
-// 12. Copier vers unified-search/public pour compatibilité
-console.log('📝 Synchronisation vers unified-search/public...');
-ensureDir(UNIFIED_SEARCH_PUBLIC);
+// 12. Copier vers site/public pour compatibilité
+console.log('📝 Synchronisation vers site/public...');
+ensureDir(SITE_PUBLIC);
 
-// Copier les fichiers principaux
-fs.copyFileSync(
-  path.join(DIST_DIR, 'icons.json'),
-  path.join(UNIFIED_SEARCH_PUBLIC, 'icons.json')
-);
-fs.copyFileSync(
-  path.join(DIST_DIR, 'search-index.json'),
-  path.join(UNIFIED_SEARCH_PUBLIC, 'lunr-index.bin')
-);
+// P1.3 : publier le manifeste + les shards par source (l'app les charge
+// progressivement et affiche dès le premier shard). `icons.json` n'est **plus
+// publié** : il est remplacé par `index.json` + `icons-by-source/*` (~même
+// volume, mais l'affichage n'attend plus la fin du plus gros transfert).
 fs.copyFileSync(
   path.join(DIST_DIR, 'summary.json'),
-  path.join(UNIFIED_SEARCH_PUBLIC, 'summary.json')
+  path.join(SITE_PUBLIC, 'summary.json')
 );
+fs.copyFileSync(
+  path.join(DIST_DIR, 'index.json'),
+  path.join(SITE_PUBLIC, 'index.json')
+);
+const siteSourceDir = path.join(SITE_PUBLIC, 'icons-by-source');
+fs.rmSync(siteSourceDir, { recursive: true, force: true });
+ensureDir(siteSourceDir);
+for (const entry of fs.readdirSync(path.join(DIST_DIR, 'icons-by-source'))) {
+  fs.copyFileSync(
+    path.join(DIST_DIR, 'icons-by-source', entry),
+    path.join(siteSourceDir, entry)
+  );
+}
 
-// 13. Générer un fichier de test HTML
+// Résidus d'anciennes publications : ne pas les laisser dans `public/` (Vite
+// recopie tout `public/` dans `dist/`, donc ils seraient redéployés).
+fs.rmSync(path.join(SITE_PUBLIC, 'icons.json'), { force: true });
+fs.rmSync(path.join(SITE_PUBLIC, 'lunr-index.bin'), { force: true });
+
+// 12bis. Régénérer la section « Données actuelles » du README depuis le résumé
+// (P0.5) : la doc versionnée suit le build, sans intervention manuelle.
+updateReadmeDataSection(summary);
+
+// 13. Générer un fichier de test HTML — **uniquement dans dist/ local**.
+// Il ne doit pas être publié sur GitHub Pages (artefact de debug).
 const testHtml = `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"><title>API Yoto Icons - Test</title>
 <style>
@@ -342,20 +485,21 @@ const testHtml = `<!DOCTYPE html>
   <tr><th>Tag</th><th>Nombre</th></tr>
   ${Object.entries(topTags).slice(0, 10).map(([tag, count]) => `<tr><td>${tag}</td><td>${count}</td></tr>`).join('')}
 </table>
-<h2>Endpoints API</h2>
+<h2>Endpoints API publiés (chemins relatifs à cette page)</h2>
 <ul>
-  <li><code>GET /dist/index.json</code> - Manifeste</li>
-  <li><code>GET /dist/icons.json</code> - Catalogue complet</li>
-  <li><code>GET /dist/icons/{id}.json</code> - Métadonnées d'une icône</li>
-  <li><code>GET /dist/icons-by-source/{source}.json</code> - Icônes par source</li>
-  <li><code>GET /dist/icons-by-category/{category}.json</code> - Icônes par catégorie</li>
-  <li><code>GET /dist/search-index.json</code> - Index Lunr</li>
-  <li><code>GET /dist/summary.json</code> - Statistiques</li>
+  <li><code>GET summary.json</code> - Statistiques</li>
+  <li><code>GET index.json</code> - Manifeste (sources, compteurs)</li>
+  <li><code>GET icons-by-source/{source}.json</code> - Shards par source</li>
 </ul>
+<p>Le dossier <code>dist/</code> local expose en plus <code>icons.json</code>
+(catalogue complet), <code>search-index.json</code>, les shards par catégorie
+<code>icons-by-category/{category}.json</code>, et les métadonnées individuelles
+<code>icons/{id}.json</code> — mais ces fichiers <strong>ne sont pas publiés</strong>
+sur GitHub Pages (seuls <code>summary.json</code>, <code>index.json</code> et
+<code>icons-by-source/*.json</code> le sont).</p>
 </body></html>`;
 
 fs.writeFileSync(path.join(DIST_DIR, 'test-index.html'), testHtml);
-fs.writeFileSync(path.join(UNIFIED_SEARCH_PUBLIC, 'test-index.html'), testHtml);
 
 console.log('✅ API construite avec succès !');
 console.log(`   - Total icônes: ${allIcons.length}`);
@@ -366,4 +510,5 @@ console.log(`   - Shards par catégorie: ${categoryShards.length}`);
 console.log('   - Manifeste: dist/index.json');
 console.log('   - Index recherche: dist/search-index.json');
 console.log('   - Résumé: dist/summary.json');
-console.log('   - Compatibilité unified-search: OK');
+console.log('   - Publiés (site/public): summary.json, index.json, icons-by-source/*');
+console.log('   - Compatibilité site: OK');

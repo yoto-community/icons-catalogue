@@ -1,2 +1,10 @@
 **/dist/*
 **/node_modules/*
+
+# Gros artefacts générés (P1.5). Régénérés via `pnpm run build:api` (racine) avant
+# chaque build/déploiement : les committer à chaque mise à jour hebdomadaire
+# faisait croître l'historique Git de façon durable (~47 Mo par run).
+site/public/icons.json
+site/public/index.json
+site/public/icons-by-source/
+site/public/lunr-index.bin

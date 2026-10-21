@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Catalogue unifié d'icônes 16×16 pour Yoto Player — Recherche dans yotopixels, yotoicons et les icônes officielles Yoto" />
+    <meta name="theme-color" content="#e94560" />
+    <!-- Partage social / SEO (P3.3) -->
+    <link rel="canonical" href="https://yoto-community.github.io/icons-catalogue/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Yoto Icons Catalogue" />
+    <meta property="og:title" content="Yoto Icons Catalogue — Recherche unifiée" />
+    <meta property="og:description" content="Catalogue unifié d'icônes 16×16 pour Yoto Player : yotopixels, yotoicons et les icônes officielles Yoto." />
+    <meta property="og:url" content="https://yoto-community.github.io/icons-catalogue/" />
+    <meta property="og:image" content="https://yoto-community.github.io/icons-catalogue/icons/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Yoto Icons Catalogue — Recherche unifiée" />
+    <meta name="twitter:description" content="Catalogue unifié d'icônes 16×16 pour Yoto Player : yotopixels, yotoicons et les icônes officielles Yoto." />
+    <meta name="twitter:image" content="https://yoto-community.github.io/icons-catalogue/icons/icon-512.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Yoto Icons" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <title>Yoto Icons Catalogue — Recherche unifiée</title>
+    <!-- Applique le thème avant le premier rendu pour éviter un flash clair
+         quand l'utilisateur préfère le sombre (P3.1). Doit rester synchronisé
+         avec `useTheme` (`THEME_KEY`, « system » résolu via prefers-color-scheme). -->
+    <script>
+      (function () {
+        try {
+          var pref = localStorage.getItem('yoto-icons-theme');
+          var dark =
+            pref === 'dark' ||
+            ((!pref || pref === 'system') &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {
+          /* localStorage indisponible : on laisse le thème clair par défaut. */
+        }
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

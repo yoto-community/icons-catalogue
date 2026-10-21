@@ -31,17 +31,31 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        working-directory: unified-search
+        working-directory: site
         run: pnpm install --frozen-lockfile
 
-      - name: Build unified-search
-        working-directory: unified-search
+      # P1.5 : les données volumineuses ne sont plus versionnées ; on les
+      # régénère depuis les sources `data/` avant de construire le site.
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Snapshot versioned summary
+        run: cp site/public/summary.json /tmp/summary.committed.json
+
+      - name: Generate catalogue data
+        run: pnpm run build:api
+
+      - name: Check data ↔ summary.json coherence
+        run: node scripts/check-summary-sync.js /tmp/summary.committed.json site/public/summary.json
+
+      - name: Build site
+        working-directory: site
         run: pnpm run build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: unified-search/dist
+          path: site/dist
 
   deploy:
     needs: build

@@ -3,9 +3,9 @@ data/
 dist/
 **/dist/
 **/node_modules/
-unified-search/public/
+site/public/
 # Fichiers de données volumineux (27k icônes)
 **/*.json
 !**/package.json
 !**/tsconfig*.json
-!unified-search/src/i18n/locales/*.json
+!site/src/i18n/locales/*.json
