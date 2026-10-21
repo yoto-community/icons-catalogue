@@ -1,8 +1,7 @@
 import { useFavorites } from '../context/FavoritesContext';
 import { Link, useLocation } from 'react-router-dom';
 import { useI18n } from '../i18n';
-import { LanguageSwitcher } from './LanguageSwitcher';
-import { ThemeSwitcher } from './ThemeSwitcher';
+import { SettingsMenu } from './SettingsMenu';
 import { useState } from 'react';
 
 interface NavItem {
@@ -104,8 +103,7 @@ export function Header() {
               </li>
             </ul>
           </nav>
-          <LanguageSwitcher />
-          <ThemeSwitcher />
+          <SettingsMenu />
         </div>
       </div>
     </header>

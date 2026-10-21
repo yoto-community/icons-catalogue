@@ -274,6 +274,12 @@ export default defineConfig({
           functions: 100,
           lines: 100,
         },
+        '**/src/components/SettingsMenu.tsx': {
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
+        },
         '**/src/pages/**': { statements: 95, branches: 85, functions: 85, lines: 95 },
         '**/src/workers/**': { statements: 100, branches: 90, functions: 100, lines: 100 },
       },

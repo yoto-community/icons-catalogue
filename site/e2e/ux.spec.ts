@@ -17,11 +17,15 @@ test.describe('thème clair / sombre', () => {
     // L'attribut est posé avant le premier rendu (script d'amorçage).
     await expect(html).toHaveAttribute('data-theme', /light|dark/);
 
+    // Le sélecteur de thème est regroupé dans le menu « Réglages ».
+    await page.locator('#settings-toggle').click();
     await page.locator('#theme-select').selectOption('dark');
     await expect(html).toHaveAttribute('data-theme', 'dark');
 
     await page.reload();
     await expect(html).toHaveAttribute('data-theme', 'dark');
+
+    await page.locator('#settings-toggle').click();
     await expect(page.locator('#theme-select')).toHaveValue('dark');
 
     await page.locator('#theme-select').selectOption('light');

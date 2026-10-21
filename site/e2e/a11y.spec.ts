@@ -33,6 +33,13 @@ test.describe('accessibilité (axe-core)', () => {
     await scan(page, 'accueil — grille paginée');
   });
 
+  test('menu « Réglages » ouvert', async ({ page }) => {
+    await openCatalogue(page);
+    await page.locator('#settings-toggle').click();
+    await expect(page.locator('#settings-panel')).toBeVisible();
+    await scan(page, 'en-tête — menu Réglages ouvert');
+  });
+
   test('recherche filtrée', async ({ page }) => {
     await openCatalogue(page);
     await expect(page.locator('.icon-card')).toHaveCount(PER_PAGE);

@@ -196,6 +196,9 @@
     "dark": "Sombre",
     "system": "Système"
   },
+  "settings": {
+    "label": "Réglages"
+  },
   "a11y": {
     "skipToContent": "Aller au contenu principal"
   },

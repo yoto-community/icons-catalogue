@@ -196,6 +196,9 @@
     "dark": "Dark",
     "system": "System"
   },
+  "settings": {
+    "label": "Settings"
+  },
   "a11y": {
     "skipToContent": "Skip to main content"
   },

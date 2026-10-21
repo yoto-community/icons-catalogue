@@ -25,11 +25,12 @@ describe('Header', () => {
     localStorage.setItem('locale', 'fr');
   });
 
-  it('affiche la navigation principale et le sélecteur de langue', () => {
+  it('affiche la navigation principale et le menu « Réglages »', () => {
     renderHeader();
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Catalogue');
     expect(screen.getByRole('link', { name: 'Catégories' })).toHaveAttribute('href', '/categories');
+    expect(screen.getByRole('button', { name: 'Réglages' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Changer de langue' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Changer de thème' })).toBeInTheDocument();
   });

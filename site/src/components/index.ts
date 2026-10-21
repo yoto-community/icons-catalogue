@@ -15,6 +15,7 @@ export * from './LoadingState';
 export * from './BackgroundColorSelector';
 export * from './FavoriteButton';
 export * from './LanguageSwitcher';
+export * from './SettingsMenu';
 export * from './IconsBrowser';
 export * from './BackLink';
 export * from './CodeBlock';
