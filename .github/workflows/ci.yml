@@ -1,19 +1,25 @@
-name: CI
+name: CI & Deploy
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '0 4 * * 1'  # Tous les lundis à 4h UTC
+  workflow_dispatch:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # ── Quality gates (inchangés) ──────────────────────────────────────
   quality:
     name: Lint, typecheck & tests
     runs-on: ubuntu-latest
@@ -91,8 +97,7 @@ jobs:
       - name: SEO / partage (OG, Twitter, robots, sitemap)
         run: pnpm --filter site run check:seo
 
-  # Les scripts Node (scrapers + build API) ne sont pas couverts par Vitest
-  # (frontend) : on valide au moins leur syntaxe avant déploiement.
+  # ── Scripts scrapers / build API (syntaxe + tests lib) ────────────
   scripts-syntax:
     name: Validate scraper scripts
     runs-on: ubuntu-latest
@@ -122,11 +127,9 @@ jobs:
       - name: Scraper lib unit tests (node:test)
         run: pnpm run test
 
-  # E2E : le flux de recherche dans un vrai Chromium contre la build de
-  # production (Web Worker Lunr réel, données interceptées via fixture).
-  # Complète les tests unitaires, qui simulent le worker.
+  # ── E2E : flux de recherche + a11y (Chromium, build prod) ─────────
   e2e:
-    name: E2E search flow (Playwright)
+    name: E2E search flow & a11y (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -168,3 +171,112 @@ jobs:
 
       - name: E2E (build de production + vite preview inclus)
         run: pnpm --filter site run test:e2e
+
+  # ── Déploiement unique : SEULEMENT si CI passe ────────────────────
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: [quality, scripts-syntax, e2e]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      # Installation unique à la racine : couvre le workspace (site + packages/*).
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Défense en profondeur : ne pas dépendre du `postinstall` racine.
+      - name: Build workspace packages
+        run: pnpm run build:packages
+
+      - name: Snapshot versioned summary
+        run: cp site/public/summary.json /tmp/summary.committed.json
+
+      # P1.5 : les données volumineuses ne sont plus versionnées ; on les
+      # régénère depuis les sources `data/` avant de construire le site.
+      - name: Generate catalogue data
+        run: pnpm run build:api
+
+      - name: Check data ↔ summary.json coherence
+        run: node scripts/check-summary-sync.js /tmp/summary.committed.json site/public/summary.json
+
+      - name: Build site
+        run: pnpm --filter site run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+  # ── Mise à jour hebdomadaire des données (scrapers + build API) ───
+  # Ne déploie PAS le frontend ; committe les données sources, le résumé
+  # et le README. Le déploiement frontend suit via le job deploy ci-dessus,
+  # déclenché par le push du commit de mise à jour.
+  weekly-update:
+    name: Weekly icons data update
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full update (scrape + build API)
+        run: pnpm run update:all
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit data changes
+        run: |
+          # P1.5 : le gros artefact (icons.json) est ignoré
+          # (régénéré au déploiement) ; seules les données sources, le résumé
+          # (marqueur de version) et le README (P0.5 : section « Données
+          # actuelles » régénérée par build:api) sont versionnés.
+          git add data/ site/public/ README.md
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: weekly icons data update ($(date -u +'%Y-%m-%d')) [skip ci]"
+            git push
+          else
+            echo "No data changes to commit"
+          fi
