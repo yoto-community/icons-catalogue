@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Sécurité
+    url: https://github.com/yoto-community/icons-catalogue/security/advisories/new
+    about: Signaler une vulnérabilité en privé (ne pas ouvrir d'issue publique).
+  - name: Guide de contribution
+    url: https://github.com/yoto-community/icons-catalogue/blob/main/CONTRIBUTING.md
+    about: Environnement, tests et conventions avant une PR.

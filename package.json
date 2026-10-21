@@ -2,16 +2,17 @@
   "name": "yoto-icons-catalogue",
   "version": "1.0.0",
   "description": "Catalogue d'icônes 16×16 Yoto - Scraping, indexation et recherche cross-source",
-  "main": "scripts/build-combined.js",
+  "main": "scripts/build-api.js",
   "type": "module",
   "packageManager": "pnpm@12.4.2",
   "scripts": {
     "scrape:yotopixels": "node scripts/yotopixels-scraper.js",
     "scrape:yotoicons": "node scripts/yotoicons-scraper.js",
     "scrape:yoto-official": "node scripts/yoto-official-scraper.js",
-    "build:index": "node scripts/build-combined.js",
     "build:api": "node scripts/build-api.js",
     "update:all": "pnpm run scrape:yotopixels && pnpm run scrape:yotoicons && pnpm run scrape:yoto-official && pnpm run build:api",
+    "update:readme": "node scripts/update-readme-data.js",
+    "check:readme": "node scripts/check-readme-data.js",
     "test": "node --test scripts/lib/"
   },
   "repository": {

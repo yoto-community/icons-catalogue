@@ -39,7 +39,11 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add data/ dist/ unified-search/public/
+          # P1.5 : le gros artefact (icons.json) est ignoré
+          # (régénérés au déploiement) ; seules les données sources, le résumé
+          # (marqueur de version) et le README (P0.5 : section « Données
+          # actuelles » régénérée par build:api) sont versionnés.
+          git add data/ site/public/ README.md
           if ! git diff --cached --quiet; then
             git commit -m "chore: weekly icons update ($(date -u +'%Y-%m-%d'))"
             git push

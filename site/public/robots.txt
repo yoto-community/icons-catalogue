@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Les favoris sont propres à chaque navigateur : pas d'indexation utile.
+Disallow: /icons-catalogue/favorites
+
+Sitemap: https://yoto-community.github.io/icons-catalogue/sitemap.xml
