@@ -6,9 +6,11 @@
   "description": "Recherche unifiée d'icônes 16×16 Yoto — yotopixels + yotoicons + yoto-official",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-data.mjs && tsc && vite build && pnpm run copy-data && pnpm run postbuild",
+    "build": "node scripts/check-data.mjs && tsc && vite build && pnpm run copy-data && pnpm run postbuild && pnpm run generate:sitemap && pnpm run prerender",
     "check:data": "node scripts/check-data.mjs",
     "postbuild": "node scripts/postbuild.mjs",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "prerender": "node scripts/prerender-routes.mjs",
     "copy-data": "cp public/summary.json public/index.json dist/ && cp -r public/icons dist/ && cp -r public/icons-by-source dist/",
     "preview": "vite preview",
     "check": "tsc --noEmit",
@@ -25,6 +27,7 @@
     "check:precache": "node scripts/check-precache.mjs",
     "check:seo": "node scripts/check-seo.mjs",
     "check:i18n": "node scripts/check-i18n-keys.mjs",
+    "measure:search": "node scripts/measure-search-index.mjs",
     "verify": "pnpm run lint && pnpm run check && pnpm run check:i18n && pnpm run test && pnpm run build && pnpm run check:bundle && pnpm run check:spa && pnpm run check:precache && pnpm run check:seo"
   },
   "dependencies": {

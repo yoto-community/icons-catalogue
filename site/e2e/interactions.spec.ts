@@ -147,6 +147,8 @@ test.describe('langue', () => {
     const placeholderEn = await page.locator('#search-input').getAttribute('placeholder');
     const hintEn = await page.locator('#search-hint').textContent();
 
+    // Le sélecteur de langue est regroupé dans le menu « Réglages ».
+    await page.locator('#settings-toggle').click();
     await page.locator('#language-select').selectOption('fr');
 
     await expect(page.locator('#search-input')).not.toHaveAttribute(

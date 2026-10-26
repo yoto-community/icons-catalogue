@@ -8,7 +8,7 @@
  * module isole la concurrence, l'espacement et les reprises
  * (`lib/rateLimiter.js`) et **échoue fort** si une image reste indisponible :
  * publier un catalogue aux id incohérents serait pire qu'un échec
- * (cf. `docs/analyse-id-sha256.md` §4.3 — pas d'id provisoire).
+ * (pas d'id provisoire).
  */
 
 import { fetchWithRetry, RateLimiter } from './rateLimiter.js';
@@ -83,7 +83,7 @@ export async function hashImages(items, { concurrency = 6, minDelayMs = 50, labe
     throw new Error(
       `${failures.length}/${items.length} image(s) ${label} indisponible(s) après reprises :\n` +
         `${sample}\nAbandon : les id de contenu seraient incomplets ` +
-        "(pas d'id provisoire — cf. docs/analyse-id-sha256.md §4.3)."
+        "(pas d'id provisoire)."
     );
   }
 

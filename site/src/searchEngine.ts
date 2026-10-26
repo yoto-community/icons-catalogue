@@ -10,8 +10,8 @@ import {
 /**
  * Moteur de recherche du catalogue.
  *
- * Objectif de performance : la construction de l'index Lunr coûte ~1,5 s
- * pour 27 000 icônes. Ce module l'exécute dans un Web Worker (main thread
+ * Objectif de performance : la construction de l'index Lunr coûte ~1,1 s
+ * pour ~27 000 icônes. Ce module l'exécute dans un Web Worker (main thread
  * préservé) et bascule sur un repli synchronisé en cas d'indisponibilité
  * (tests, navigateur sans Worker, échec de chargement).
  */

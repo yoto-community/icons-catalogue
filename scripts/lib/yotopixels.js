@@ -122,8 +122,8 @@ export function extractIconsFromHtml(html) {
  *
  * L'`id` **canonique** est l'identifiant de **contenu** `base64url(sha256(bytes
  * de l'image))`, calculé par le scraper (orchestration réseau) puis injecté :
- * une icône n'a pas d'`id` sans le hash de son image (cf.
- * `docs/analyse-id-sha256.md` §4.3 — pas d'id provisoire). L'identifiant natif
+ * une icône n'a pas d'`id` sans le hash de son image (pas d'id
+ * provisoire). L'identifiant natif
  * est conservé dans `metadata.source_id`.
  *
  * Les tags fournis par l'API sont conservés tels quels ; à défaut (ou pour le

@@ -48,7 +48,7 @@ const IconsDataContext = createContext<IconsDataContextValue | null>(null);
  * moteur de recherche partagé.
  *
  * Point de performance : `useIconsData` était appelé à la fois par `App` et
- * par chaque page, ce qui reconstruisait l'index Lunr (~1,5 s) plusieurs fois.
+ * par chaque page, ce qui reconstruisait l'index Lunr (~1,1 s) plusieurs fois.
  * Le Contexte supprime cette duplication et le Web Worker supprime le blocage
  * du main thread.
  */

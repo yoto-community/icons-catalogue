@@ -6,7 +6,7 @@ import summary from './fixtures/summary.small.json' with { type: 'json' };
  * Aides E2E partagées : fixture de 60 icônes interceptée par page.route.
  *
  * Répartition : 12 lunes, 8 chats, 10 voitures, 10 arbres, 10 lapins, 10 soleils.
- * Page 1 = 48 icônes (ICONS_PER_PAGE), page 2 = 12.
+ * Page 1 = 48 icônes (ICONS_PER_PAGE) ; « Charger plus » accumule les 60.
  * Tri par défaut (téléchargements décroissants) : « sunny day 10 » en tête.
  */
 

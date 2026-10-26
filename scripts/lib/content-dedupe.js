@@ -1,6 +1,6 @@
 /**
  * Fusion canonique des doublons de **contenu** (SHA-256).
- * Décision figée le 2026-10-26 (cf. `docs/analyse-id-sha256.md` §4.1).
+ * Décision figée le 2026-10-26.
  *
  * Contrairement à `dedupe.js` — doublons *visuels* rapprochés par titre +
  * catégorie, **non destructif** (badge « Doublon ») — ce module traite les

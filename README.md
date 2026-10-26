@@ -124,7 +124,7 @@ icons-catalogue/
 │       ├── yotoicons.js            # Parsing yotoicons (source unique, testée)
 │       ├── yoto-official.js        # Découverte du bundle + parsing yoto.dev (testée)
 │       ├── source-licenses.js      # Licences par source (source unique)
-│       ├── content-id.js           # Identifiant de contenu base64url(sha256) (cf. docs/)
+│       ├── content-id.js           # Identifiant de contenu base64url(sha256)
 │       ├── image-hash.js           # Téléchargement + hachage des images (scrapers)
 │       ├── content-dedupe.js       # Fusion canonique des doublons de contenu
 │       ├── dedupe.js               # Détection des doublons inter-sources (marquage)
@@ -146,7 +146,8 @@ icons-catalogue/
 │   │                               # par `build:api` (non versionnés, cf. .gitignore) ;
 │   │                               # summary.json, lui, reste versionné (marqueur de version).
 │   ├── scripts/                    # check-bundle-size, check-i18n-keys, check-spa-fallback,
-│   │                               # check-precache, check-data, check-seo, postbuild, generate-icons
+│   │                               # check-precache, check-data, check-seo, postbuild, generate-icons,
+│   │                               # generate-sitemap, prerender-routes, measure-search-index
 │   ├── e2e/                        # Tests Playwright (parcours + audit a11y)
 │   ├── dist/                       # Build production (publié par deploy-pages.yml)
 │   ├── index.html
@@ -208,7 +209,7 @@ pnpm test
 ```
 
 `build:api` : attribue les licences par source, calcule les **identifiants de
-contenu** (`base64url(sha256(image))`, cf. `docs/analyse-id-sha256.md`),
+contenu** (`base64url(sha256(image))`),
 **fusionne les doublons de contenu exacts** (politique canonique : la source
 prioritaire est publiée, les autres sont tracées), détecte les **doublons
 inter-sources** sémantiques (marqués `metadata.duplicate_of` + comptés dans
@@ -323,7 +324,7 @@ pnpm run test:e2e      # Playwright : parcours complets + audit a11y (Chromium, 
 pnpm run check:bundle   # Budget de taille de bundle (gzip)
 pnpm run check:spa      # Repli SPA (dist/404.html présent et à jour)
 pnpm run check:precache # Aucune donnée précachée par le service worker
-pnpm run check:seo      # Balises SEO/partage (OG, Twitter, canonical) + robots.txt + sitemap.xml
+pnpm run check:seo      # OG/Twitter/canonical + robots.txt + sitemap généré + prerender
 
 pnpm run verify        # Tout en séquence : lint + check + check:i18n + test + build
                        #   + budget bundle + repli SPA + précache PWA + SEO
@@ -337,7 +338,7 @@ pnpm run verify        # Tout en séquence : lint + check + check:i18n + test + 
 > `vite preview`, puis exécute les specs `e2e/*.spec.ts` dans Chromium. Les données
 > sont interceptées (fixture de 60 icônes dans `e2e/fixtures/`) : le parcours testé
 > couvre le **Web Worker Lunr réel** (`aria-busy` passé à `false`), le filtrage de la
-> grille après debounce, l'état vide, la pagination, les **favoris** (persistance
+> grille après debounce, l'état vide, l'affichage progressif (« Charger plus »), les **favoris** (persistance
 > localStorage + page dédiée), les **filtres** catégorie/sous-catégorie/source/tri, la
 > **modale de détail** (clic, Échap, clic extérieur), les **raccourcis clavier**
 > (`/`, Échap), la **bascule de langue**, le **repli SPA** (`404.html`) et
@@ -364,6 +365,13 @@ pnpm run build
 > `pnpm run build` commence par `check:data` : sans les fichiers générés dans
 > `site/public/`, il échoue avec un message indiquant la commande à lancer.
 
+Le build se termine par deux étapes **SEO** : génération de `dist/sitemap.xml`
+depuis `dist/summary.json` (routes + catégories + artistes) puis **prerender**
+d'une coquille HTML par route (`dist/<route>/index.html`) avec `title`, Open
+Graph/Twitter et JSON-LD propres — nécessaire pour les crawlers sociaux, qui
+n'exécutent pas JavaScript. Ces étapes sont couvertes par `pnpm run check:seo`
+(à lancer après une build). Détails : `site/README.md` → « SEO et partage social ».
+
 ### Structure du frontend
 
 ```
@@ -382,7 +390,11 @@ site/
 │   ├── check-spa-fallback.mjs  # Repli SPA (dist/404.html)
 │   ├── check-precache.mjs      # Vérifie qu'aucune donnée n'est précachée (P1.3)
 │   ├── check-data.mjs          # Données générées présentes avant le build (P1.5)
-│   ├── check-seo.mjs           # Balises SEO/partage + robots.txt + sitemap.xml
+│   ├── check-seo.mjs           # OG/Twitter/canonical + robots.txt + sitemap généré + prerender
+│   ├── generate-sitemap.mjs    # Génère dist/sitemap.xml depuis summary.json
+│   ├── prerender-routes.mjs    # Coquille HTML par route (title/OG/JSON-LD) dans dist/
+│   ├── measure-search-index.mjs # Mesure le coût de l'index Lunr
+│   ├── lib/catalogue-routes.mjs # Routes découvrables partagées (sitemap + prerender)
 │   ├── generate-icons.js       # Génère les PNG du PWA (72→512)
 │   └── postbuild.mjs           # Génère dist/404.html
 ├── e2e/                        # Tests Playwright (parcours + audit axe-core)
@@ -416,8 +428,9 @@ site/
 
 ### Architecture de la recherche (performance)
 
-La construction de l'index Lunr coûte **~1,5 s** pour ~27 150 icônes. Deux
-mécanismes évitent que ce coût pénalise l'utilisateur :
+La construction de l'index Lunr coûte **~1,1 s** pour ~27 150 icônes (mesuré :
+`pnpm run measure:search`). Deux mécanismes évitent que ce coût pénalise
+l'utilisateur :
 
 1. **Web Worker** (`searchIndex.worker.ts`) — l'index est construit et conservé
    hors du main thread. Aucune frame n'est gelée à l'ouverture ; seules les
@@ -431,6 +444,16 @@ mécanismes évitent que ce coût pénalise l'utilisateur :
 
 La recherche est devenue **asynchrone** : `useFilteredIcons` stocke les IDs
 retournés par le moteur en état et les réapplique au filtre.
+
+**Décision « index préconstruit »** : `pnpm run measure:search` chiffre la
+stratégie actuelle face à un index sérialisé (≈ 22 Mo, 8,4 Mo gzip, ~340 ms de
+rechargement). Le catalogue étant servi en shards, publier l'index serait un coût
+réseau net : la reconstruction en worker est **conservée**.
+
+**Accents** : l'indexation et la requête partagent un pipeline
+`stripDiacritics` (insertion avant le `trimmer` de Lunr, qui sinon tronque les
+fins de mot accentuées) : `cafe` trouve `café`. Le repli `searchIdsFallback`
+applique la même normalisation (`normalizeForSearch`).
 
 ### Routes
 
@@ -647,8 +670,10 @@ L'API est conçue pour être consommée par n'importe quel client (React, Vue, v
 
 - **Moteur** : Lunr.js 2.3.9 (côté client)
 - **Champs indexés** : `tags` (boost 10), `artist`, `title`, `category`, `subcategory`
+- **Insensible aux accents** : pipeline `stripDiacritics` (index + requêtes) — `cafe` trouve `café`
 - **Index serveur** : sérialisé en `dist/search-index.json` par `pnpm run build:api` (local, non publié)
 - **Index client** : reconstruit dans un Web Worker **une seule fois**, après le chargement complet des shards (repli main-thread si le worker échoue)
+- **Mesure** : `pnpm run measure:search` chiffre reconstruction vs index préconstruit
 - **Pas de backend requis** — 100% statique (fichiers JSON)
 
 ## Notes techniques
@@ -671,7 +696,7 @@ L'API est conçue pour être consommée par n'importe quel client (React, Vue, v
 - Doublons de **contenu** exacts (octets identiques → même `id`) **fusionnés** au
   build (`summary.duplicates.content`, `metadata.merged_source_ids` /
   `merged_count`) : la canonique est publiée, les autres sont retirées du
-  catalogue mais tracées (cf. `docs/analyse-id-sha256.md` §4.1)
+  catalogue mais tracées.
 - Icônes officielles Yoto : pas de compteur de téléchargements (fixé à 0)
 - **Tags yotopixels** : les tags fournis par l'API sont conservés ; à défaut ils
   sont **inférés depuis le titre** (`scripts/lib/inferTags.js`, correspondance par

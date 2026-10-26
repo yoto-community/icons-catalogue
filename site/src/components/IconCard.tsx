@@ -48,6 +48,7 @@ export function IconCard({
             src={normalizeUrl(icon.preview_image, icon.source)}
             alt={icon.title}
             loading="lazy"
+            decoding="async"
             width="64"
             height="64"
             style={{ backgroundColor: backgroundColor || 'transparent' }}

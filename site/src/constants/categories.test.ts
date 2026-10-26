@@ -6,7 +6,10 @@ import {
   CATEGORY_LABELS,
   CATEGORY_ICONS,
   DEFAULT_CATEGORY_ICON,
+  SUBCATEGORY_LABELS,
 } from './categories';
+import fr from '../i18n/locales/fr.json';
+import en from '../i18n/locales/en.json';
 
 describe('getCategoryLabel', () => {
   it('retourne le libellé traduit pour une catégorie connue', () => {
@@ -78,5 +81,26 @@ describe('cohérence des tables de catégories', () => {
     for (const key of Object.keys(CATEGORY_ICONS)) {
       expect(CATEGORY_LABELS[key], `libellé manquant pour « ${key} »`).toBeDefined();
     }
+  });
+
+  it('les catégories fr sont alignées sur les locales (source unique)', () => {
+    expect(Object.keys(CATEGORY_LABELS).sort()).toEqual(Object.keys(fr.categoryLabels).sort());
+    for (const [slug, label] of Object.entries(CATEGORY_LABELS)) {
+      expect(fr.categoryLabels[slug as keyof typeof fr.categoryLabels], slug).toBe(label);
+    }
+    // Toute catégorie possède une traduction anglaise.
+    expect(Object.keys(en.categoryLabels).sort()).toEqual(Object.keys(fr.categoryLabels).sort());
+  });
+
+  it('les sous-catégories fr sont alignées sur les locales (source unique)', () => {
+    expect(Object.keys(SUBCATEGORY_LABELS).sort()).toEqual(
+      Object.keys(fr.subcategoryLabels).sort()
+    );
+    for (const [slug, label] of Object.entries(SUBCATEGORY_LABELS)) {
+      expect(fr.subcategoryLabels[slug as keyof typeof fr.subcategoryLabels], slug).toBe(label);
+    }
+    expect(Object.keys(en.subcategoryLabels).sort()).toEqual(
+      Object.keys(fr.subcategoryLabels).sort()
+    );
   });
 });

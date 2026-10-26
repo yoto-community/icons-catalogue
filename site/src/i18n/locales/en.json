@@ -115,10 +115,10 @@
   },
   "pagination": {
     "previousAria": "Previous page",
-    "nextAria": "Next page",
-    "pageInfo": "Page {{current}} / {{total}}",
+    "loadMoreAria": "Load more icons",
+    "shown": "{{shown}} of {{total}} icons",
     "previous": "← Previous",
-    "next": "Next →"
+    "loadMore": "Load more"
   },
   "footer": {
     "updatedWeekly": "Data automatically updated weekly",

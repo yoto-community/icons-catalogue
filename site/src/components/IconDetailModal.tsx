@@ -55,6 +55,7 @@ export function IconDetailModal({ icon, onClose, onDownload }: IconDetailModalPr
             <img
               src={normalizeUrl(icon.preview_image, icon.source)}
               alt={icon.title}
+              decoding="async"
               width="83"
               height="83"
             />

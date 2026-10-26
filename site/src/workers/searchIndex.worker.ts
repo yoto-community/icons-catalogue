@@ -5,7 +5,7 @@ import { buildSearchIndex, type SearchableIcon } from '../searchIndex';
 /**
  * Web Worker chargé de construire et de conserver l'index Lunr.
  *
- * Intérêt : la construction coûte ~1,5 s pour 27 000 icônes. Exécutée ici,
+ * Intérêt : la construction coûte ~1,1 s pour ~27 000 icônes. Exécutée ici,
  * elle ne bloque jamais le main thread (pas de frame gelée à l'ouverture).
  * L'index ne quitte jamais le worker : seules les requêtes et les IDs
  * circulent, donc aucun coût de sérialisation de l'index.

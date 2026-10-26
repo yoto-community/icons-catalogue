@@ -12,6 +12,8 @@ interface UsePaginationReturn<T> {
   totalPages: number;
   totalFiltered: number;
   handlePageChange: (page: number) => void;
+  /** Accumule la page suivante sans remonter la fenêtre (bouton « Charger plus »). */
+  loadMore: () => void;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
@@ -38,15 +40,22 @@ export function usePagination<T>({
     }
   }, [totalPages, currentPage]);
 
-  const paginatedIcons = useMemo(() => {
-    const start = (currentPage - 1) * ICONS_PER_PAGE;
-    return filteredIcons.slice(start, start + ICONS_PER_PAGE);
-  }, [filteredIcons, currentPage]);
+  // Modèle « accumulation » : au lieu de remplacer la page courante, la grille
+  // conserve les icônes déjà affichées et en ajoute à chaque « Charger plus ».
+  // `?page=N` reproduit donc les N×ICONS_PER_PAGE premières icônes.
+  const paginatedIcons = useMemo(
+    () => filteredIcons.slice(0, currentPage * ICONS_PER_PAGE),
+    [filteredIcons, currentPage]
+  );
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
+  const loadMore = useCallback(() => {
+    setCurrentPage((page) => Math.min(page + 1, totalPages));
+  }, [totalPages]);
 
   return {
     paginatedIcons,
@@ -54,6 +63,7 @@ export function usePagination<T>({
     totalPages,
     totalFiltered,
     handlePageChange,
+    loadMore,
     setCurrentPage,
   };
 }

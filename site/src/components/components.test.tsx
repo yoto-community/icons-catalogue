@@ -64,26 +64,56 @@ describe('LoadingState', () => {
 describe('Pagination', () => {
   it('ne rend rien avec une seule page', () => {
     const { container } = renderWithI18n(
-      <Pagination currentPage={1} totalPages={1} onPageChange={() => {}} />
+      <Pagination
+        currentPage={1}
+        totalPages={1}
+        shownCount={0}
+        totalCount={0}
+        onPageChange={() => {}}
+        onLoadMore={() => {}}
+      />
     );
     expect(container.querySelector('.pagination')).toBeNull();
   });
 
-  it('désactive "précédent" en première page et navigue vers la suivante', () => {
+  it('désactive « précédent » en première page et charge la suite', () => {
+    const onLoadMore = vi.fn();
     const onPageChange = vi.fn();
-    renderWithI18n(<Pagination currentPage={1} totalPages={3} onPageChange={onPageChange} />);
+    const { container } = renderWithI18n(
+      <Pagination
+        currentPage={1}
+        totalPages={3}
+        shownCount={48}
+        totalCount={100}
+        onPageChange={onPageChange}
+        onLoadMore={onLoadMore}
+      />
+    );
 
     const buttons = screen.getAllByRole('button');
-    expect(buttons[0]).toBeDisabled();
-    expect(buttons[1]).toBeEnabled();
+    expect(buttons[0]).toBeDisabled(); // précédent
+    expect(buttons[1]).toBeEnabled(); // charger plus
+    // Locale-agnostique : « 48 sur 100 icônes » (fr) / « 48 of 100 icons » (en).
+    expect(container.querySelector('.pagination-info')).toHaveTextContent(/48.*100/);
 
     buttons[1].click();
-    expect(onPageChange).toHaveBeenCalledWith(2);
+    expect(onLoadMore).toHaveBeenCalledTimes(1);
+    expect(onPageChange).not.toHaveBeenCalled();
   });
 
-  it('désactive "suivant" en dernière page et navigue vers la précédente', () => {
+  it('désactive « charger plus » en dernière page et navigue vers la précédente', () => {
+    const onLoadMore = vi.fn();
     const onPageChange = vi.fn();
-    renderWithI18n(<Pagination currentPage={3} totalPages={3} onPageChange={onPageChange} />);
+    renderWithI18n(
+      <Pagination
+        currentPage={3}
+        totalPages={3}
+        shownCount={100}
+        totalCount={100}
+        onPageChange={onPageChange}
+        onLoadMore={onLoadMore}
+      />
+    );
 
     const buttons = screen.getAllByRole('button');
     expect(buttons[0]).toBeEnabled();

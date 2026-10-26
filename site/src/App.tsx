@@ -83,7 +83,7 @@ function CataloguePage({
 function App() {
   const { t } = useI18n();
   // Données partagées (chargées UNE fois par IconsDataProvider).
-  // Le rendu n'attend plus la construction de l'index Lunr (~1,5 s) :
+  // Le rendu n'attend plus la construction de l'index Lunr (~1,1 s) :
   // celle-ci se fait désormais dans un Web Worker, en arrière-plan.
   const { icons, summary, error, reload } = useIconsData();
 

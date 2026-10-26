@@ -31,7 +31,6 @@ cd site && pnpm install
   La logique pure vit dans `scripts/lib/` et est testée avec `node:test`.
 - `data/` — données **brutes** scrapées (source de vérité, versionnées).
 - `site/` — frontend Vite + React + TypeScript. Voir `site/README.md`.
-- `PLAN.md` — feuille de route et état d'avancement.
 
 > `site/public/index.json` et `site/public/icons-by-source/` sont **générés** par
 > `pnpm run build:api` et ne sont **pas** versionnés ; `site/public/summary.json`

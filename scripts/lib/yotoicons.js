@@ -157,7 +157,7 @@ export function mapSubcategory(sourceCategory, title, tags) {
  *
  * L'`id` **canonique** est l'identifiant de **contenu** `base64url(sha256(bytes
  * de l'image))`, calculé par le scraper puis injecté : pas d'`id` sans le hash
- * de l'image (cf. `docs/analyse-id-sha256.md` §4.3). L'identifiant natif
+ * de l'image. L'identifiant natif
  * numérique yotoicons est conservé dans `metadata.source_id`.
  *
  * @param {object} parsed - Sortie de {@link parseIconOnClick}.

@@ -76,6 +76,7 @@ export function IconsBrowser({
     handleSourceChange,
     handleSortChange,
     handlePageChange,
+    loadMore,
     handleReset,
   } = useIconsBrowser({ icons, searchEngine, lockedCategory, getSubcategories });
 
@@ -165,7 +166,10 @@ export function IconsBrowser({
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
+              shownCount={paginatedIcons.length}
+              totalCount={totalFiltered}
               onPageChange={handlePageChange}
+              onLoadMore={loadMore}
             />
           </div>
 

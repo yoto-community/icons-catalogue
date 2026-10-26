@@ -1,8 +1,10 @@
 /**
  * Constantes partagées des catégories d'icônes.
  *
- * Source unique de vérité pour les libellés affichés et les icônes emoji.
- * Utilisé par CategoriesListPage et CategoryIconsPage (évite la duplication).
+ * `CATEGORY_LABELS` / `SUBCATEGORY_LABELS` fournissent le **repli fr** quand la
+ * clé i18n est absente : ils doivent rester alignés sur `categoryLabels` /
+ * `subcategoryLabels` des locales (`categories.test.ts` le vérifie).
+ * `CATEGORY_ICONS` est la source unique des emojis.
  */
 
 export const CATEGORY_LABELS: Record<string, string> = {

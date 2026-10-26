@@ -115,10 +115,10 @@
   },
   "pagination": {
     "previousAria": "Page précédente",
-    "nextAria": "Page suivante",
-    "pageInfo": "Page {{current}} / {{total}}",
+    "loadMoreAria": "Charger plus d’icônes",
+    "shown": "{{shown}} sur {{total}} icônes",
     "previous": "← Précédent",
-    "next": "Suivant →"
+    "loadMore": "Charger plus"
   },
   "footer": {
     "updatedWeekly": "Données mises à jour automatiquement chaque semaine",

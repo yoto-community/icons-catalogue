@@ -1,7 +1,7 @@
 /**
  * Identifiant de **contenu** d'une icône : `base64url(sha256(bytes de l'image))`.
  *
- * Décision figée le 2026-10-26 (cf. `docs/analyse-id-sha256.md`) : l'`id`
+ * Décision figée le 2026-10-26 : l'`id`
  * canonique d'une icône est le hash de son image (43 caractères base64url, sans
  * padding), et l'identifiant natif de la source est conservé dans
  * `metadata.source_id`.

@@ -23,7 +23,7 @@ export function EditorPreview({ grid }: EditorPreviewProps) {
     <section className="editor-preview" aria-label={t('editor.preview.ariaLabel')}>
       <h3 className="editor-preview-title">{t('editor.preview.title')}</h3>
       <div className="editor-preview-frame">
-        <img src={src} alt={t('editor.preview.title')} width={128} height={128} />
+        <img src={src} alt={t('editor.preview.title')} width={128} height={128} decoding="async" />
       </div>
     </section>
   );

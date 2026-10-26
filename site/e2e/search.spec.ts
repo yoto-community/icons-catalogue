@@ -61,14 +61,14 @@ test.describe('flux de recherche', () => {
     await expect(page.locator('.empty-state')).toContainText('zzzzrien');
   });
 
-  test('la pagination déroule la seconde page (48 puis 12)', async ({ page }) => {
+  test('« Charger plus » accumule la seconde page (48 puis 60)', async ({ page }) => {
     await openCatalogue(page);
     await expect(page.locator('.icon-card')).toHaveCount(PER_PAGE);
 
-    // Bouton « suivant » : structure [précédent, info, suivant] -> index 1.
+    // Structure de la nav : [précédent, info, charger plus] -> index 1.
     await page.locator('nav.pagination button').nth(1).click();
 
-    await expect(page.locator('.icon-card')).toHaveCount(TOTAL - PER_PAGE);
-    await expect(page.locator('nav.pagination .pagination-info')).toContainText('2');
+    await expect(page.locator('.icon-card')).toHaveCount(TOTAL);
+    await expect(page.locator('.pagination-info')).toContainText(String(TOTAL));
   });
 });

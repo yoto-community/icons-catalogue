@@ -17,11 +17,17 @@ export function YotoMiniPreview({ previewedIcon }: YotoMiniPreviewProps) {
         {previewedIcon ? (
           <div className="yoto-mini-device">
             <div className="yoto-mini-screen">
-              <img src={YOTO_MINI_IMAGE} alt="Yoto Mini" className="yoto-mini-image" />
+              <img
+                src={YOTO_MINI_IMAGE}
+                alt="Yoto Mini"
+                className="yoto-mini-image"
+                decoding="async"
+              />
               <img
                 src={normalizeUrl(previewedIcon.preview_image, previewedIcon.source)}
                 alt={previewedIcon.title}
                 className="yoto-mini-icon-overlay"
+                decoding="async"
               />
             </div>
             <div className="yoto-mini-preview-info">
@@ -34,7 +40,12 @@ export function YotoMiniPreview({ previewedIcon }: YotoMiniPreviewProps) {
           </div>
         ) : (
           <div className="yoto-mini-empty">
-            <img src={YOTO_MINI_IMAGE} alt="Yoto Mini" className="yoto-mini-image" />
+            <img
+              src={YOTO_MINI_IMAGE}
+              alt="Yoto Mini"
+              className="yoto-mini-image"
+              decoding="async"
+            />
             <p className="yoto-mini-empty-text">{t('yotoMini.emptyText')}</p>
           </div>
         )}

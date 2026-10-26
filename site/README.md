@@ -5,10 +5,10 @@ Application React (Vite + TypeScript + PWA) pour la recherche unifiée d'icônes
 ## Fonctionnalités
 
 - **Recherche unifiée** : yotopixels + yotoicons + yoto-official sans filtre de source
-- **Recherche full-text** via Lunr.js (tags boostés ×10, artiste, titre, catégorie, sous-catégorie)
+- **Recherche full-text** via Lunr.js (tags boostés ×10, artiste, titre, catégorie, sous-catégorie) — **insensible aux accents** (`cafe` trouve `café`)
 - **Filtres** : Catégorie, Sous-catégorie (dépendante de la catégorie), Source (yotopixels / yotoicons / yoto-official)
 - **Tri** : Téléchargements (défaut), Titre A-Z
-- **Pagination** (48 icônes/page)
+- **Affichage progressif** (48 icônes, puis « Charger plus » qui accumule la suite)
 - **Raccourcis clavier** :
   - `/` → Focus recherche
   - `Échap` → Effacer recherche / Fermer modal
@@ -16,6 +16,7 @@ Application React (Vite + TypeScript + PWA) pour la recherche unifiée d'icônes
 - **Favoris** : Persistance localStorage, page dédiée `/favorites`, export des icônes favorites en archive `.zip`
 - **Navigation par catégories** : `/categories` → `/categories/:category`
 - **Navigation par auteurs** : `/authors` → `/authors/:artist`
+- **SEO / partage** : `sitemap.xml` généré au build (routes + catégories + artistes) et **prerender d'une coquille HTML par route** (title, Open Graph, Twitter, JSON-LD, `<noscript>`) pour les crawlers qui n'exécutent pas JavaScript
 - **Sources** : page `/sources` (menu **Communauté**) — provenance, licences et attribution des icônes
 - **Développeurs** : page `/developers` (menu **Communauté**) — documentation de l'API statique
 - **Éditeur d'icônes** : `/editor` (menu principal) — pixel art 16×16 (crayon, gomme, remplissage, pipette), palette + couleur personnalisée + opacité, import d'image, export PNG, brouillon auto-sauvegardé (localStorage), chargé à la demande (lazy)
@@ -69,9 +70,14 @@ site/
 │   ├── check-i18n-keys.mjs      # Parité fr/en + clés utilisées
 │   ├── check-data.mjs           # Données générées présentes avant le build (P1.5)
 │   ├── check-precache.mjs       # Aucune donnée précachée par le SW (P1.3)
-│   ├── check-seo.mjs            # Balises SEO/partage (OG, Twitter, canonical) + robots + sitemap
+│   ├── check-seo.mjs            # OG/Twitter/canonical + robots + sitemap généré + prerender
 │   ├── generate-icons.js        # Génère les PNG du PWA (72→512)
 │   ├── postbuild.mjs            # Génère dist/404.html (repli SPA GitHub Pages)
+│   ├── generate-sitemap.mjs     # Génère dist/sitemap.xml depuis summary.json (routes + catégories + artistes)
+│   ├── prerender-routes.mjs     # Écrit une coquille HTML par route (title/OG/JSON-LD) dans dist/
+│   ├── measure-search-index.mjs # Mesure le coût de l'index Lunr (reconstruction vs préconstruit)
+│   ├── lib/
+│   │   └── catalogue-routes.mjs # Routes découvrables partagées (sitemap + prerender)
 │   └── check-spa-fallback.mjs   # Vérifie que dist/404.html est présent et à jour
 ├── e2e/                         # Playwright (search, filters, favorites, interactions, editor, ux, a11y, spa-fallback)
 ├── src/
@@ -97,7 +103,7 @@ site/
 │   │   ├── IconCard.tsx         # Carte icône individuelle
 │   │   ├── IconDetailModal.tsx  # Modal détail + téléchargement
 │   │   ├── YotoMiniPreview.tsx  # Mini-preview latéral
-│   │   ├── Pagination.tsx       # Pagination
+│   │   ├── Pagination.tsx       # Affichage progressif (précédent / info / charger plus)
 │   │   ├── EmptyState.tsx       # État vide + reset
 │   │   ├── ErrorState.tsx       # Échec de chargement + bouton Réessayer
 │   │   ├── ErrorBoundary.tsx    # Filet de sécurité racine (erreurs de rendu)
@@ -109,7 +115,7 @@ site/
 │   ├── hooks/                   # Hooks personnalisés
 │   │   ├── useIconsBrowser.ts   # État de navigation partagé (catalogue + pages filtrées)
 │   │   ├── useFilteredIcons.ts  # Filtrage (Lunr + catégorie + sous-cat) + tri
-│   │   ├── usePagination.ts     # Pagination (48/page)
+│   │   ├── usePagination.ts     # Affichage progressif (accumulation, 48/page)
 │   │   ├── useUrlSync.ts        # Synchronisation URL <-> état
 │   │   ├── useDebouncedSearch.ts# Debounce recherche (80ms)
 │   │   ├── useKeyboardShortcuts.ts # Raccourcis clavier
@@ -173,6 +179,25 @@ pnpm run build
 
 Le PWA scope est `/icons-catalogue/` et start_url `/icons-catalogue/`.
 
+## SEO et partage social
+
+Deux artefacts sont **générés au build** (après `vite build`) :
+
+- **`dist/sitemap.xml`** (`generate-sitemap.mjs`) — dérivé de `dist/summary.json` :
+  accueil, `/categories`, `/authors`, `/sources`, `/developers`, puis chaque page
+  de catégorie et chaque page d'artiste. Toujours en phase avec les données
+  (l'ancien sitemap statique ne listait que 5 URL).
+- **Prerender par route** (`prerender-routes.mjs`) — écrit un
+  `dist/<route>/index.html` (copie de `dist/index.html` enrichie) avec `<title>`,
+  `description`, `canonical`, Open Graph + Twitter et un bloc **JSON-LD** propres à
+  la route, plus un repli `<noscript>`. Indispensable pour les robots d'aperçu
+  social (Facebook, Twitter…) qui **n'exécutent pas JavaScript**.
+
+La liste des routes est centralisée dans `scripts/lib/catalogue-routes.mjs`
+(sitemap + prerender partagent la même source de vérité). `robots.txt` reste dans
+`public/` et référence la sitemap générée. `pnpm run check:seo` valide ces
+artefacts (donc après une build).
+
 ## API de données
 
 L'application charge le catalogue **progressivement** (servi sous
@@ -185,6 +210,12 @@ L'application charge le catalogue **progressivement** (servi sous
 
 L'index de recherche Lunr est construit **une seule fois**, quand tous les shards
 sont chargés. Le catalogue complet `icons.json` n'est **plus publié**.
+
+> **Coût mesuré** (`pnpm run measure:search`, catalogue réel ~27 000 icônes) :
+> reconstruction ≈ **1,1 s** dans le Web Worker, contre un index préconstruit
+> sérialisé ≈ **22 Mo (8,4 Mo gzip)** à télécharger. Le catalogue étant découpé en
+> shards (jamais servi en une fois), publier l'index serait un coût réseau net :
+> la reconstruction en worker est conservée.
 
 ### Format d'une icône
 
@@ -275,16 +306,17 @@ Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
 - Compose `useFilteredIcons`, `usePagination`, `useUrlSync` et `useDebouncedSearch`
 - Utilisé par le catalogue (`App.tsx`) et les pages catégorie/auteur (supprime la triplication)
 - `lockedCategory` : catégorie imposée par la route (non réécrite dans l'URL)
-- Retourne : filtres, `paginatedIcons`, `currentPage`, `totalPages`, `totalFiltered`, `hasActiveFilters` et handlers
+- Retourne : filtres, `paginatedIcons`, `currentPage`, `totalPages`, `totalFiltered`, `hasActiveFilters`, `loadMore` et handlers
 
 ### `useFilteredIcons` — Filtrage + tri (mémoïsé)
 - Recherche Lunr si query + moteur prêt
 - Filtre catégorie / sous-catégorie / source
 - Tri : downloads DESC, title ASC
 
-### `usePagination` — Pagination
-- 48 icônes/page (`ICONS_PER_PAGE`)
-- Retourne : `paginatedIcons`, `currentPage`, `totalPages`, `totalFiltered`, `handlePageChange`, `setCurrentPage`
+### `usePagination` — Affichage progressif
+- 48 icônes par palier (`ICONS_PER_PAGE`), accumulation au clic sur « Charger plus »
+- Modèle **accumulation** : la grille conserve les icônes affichées et ajoute la suite (`?page=N` = les N×48 premières)
+- Retourne : `paginatedIcons`, `currentPage`, `totalPages`, `totalFiltered`, `handlePageChange`, `loadMore`, `setCurrentPage`
 
 ### `useUrlSync` — Synchronisation état → URL
 - Écrit `q`, `cat`, `subcat`, `source`, `sort`, `page` à chaque changement
@@ -305,7 +337,7 @@ Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
 - `favorites: Set<string>`, `isFavorite(id)`, `toggleFavorite(id)`, `addFavorite`, `removeFavorite`, `clearFavorites`
 - Synchronisation inter-onglets via l'événement `storage`
 - **Migration d'ids** : les favoris stockés référencent les `id` **de contenu**
-  (`base64url(sha256)`, cf. racine `docs/analyse-id-sha256.md`). Les favoris
+  (`base64url(sha256)`). Les favoris
   enregistrés avant la bascule (anciens ids préfixés `yt-`/`yi-`/`yo-`) ne
   correspondent plus à aucune icône et apparaissent donc vides ; aucun
   re-association fiable n'est possible.
@@ -418,13 +450,13 @@ Configuré via `vite-plugin-pwa` + Workbox :
 - **Debounce** : 80ms sur recherche
 - **Affichage progressif** : le catalogue est fusionné shard par shard ; la grille
   s'affiche dès le 1ᵉʳ shard reçu, l'index Lunr n'est construit qu'une fois tout chargé (P1.3)
-- **Virtual scrolling** : Non (pagination 48/page), grille CSS simple
+- **Virtual scrolling** : Non (affichage progressif par paliers de 48), grille CSS simple
 
 ## Scripts disponibles
 
 ```bash
 pnpm run dev            # Serveur de développement Vite
-pnpm run build          # check:data + tsc + vite build + copie des données + dist/404.html
+pnpm run build          # check:data + tsc + vite build + données + 404.html + sitemap + prerender
 pnpm run preview        # Prévisualisation de la build de production
 pnpm run check          # tsc --noEmit
 pnpm run lint           # ESLint (config flat)
@@ -437,12 +469,15 @@ pnpm run test:coverage  # Vitest + couverture (v8) + seuils
 pnpm run test:e2e       # Playwright (build + vite preview :4173 + serveur type GitHub Pages :4174 + Chromium)
 pnpm run check:bundle   # Budget de taille de bundle (gzip)
 pnpm run check:i18n     # Parité fr/en + clés utilisées
-pnpm run check:seo      # Balises SEO/partage (OG, Twitter, canonical) + robots.txt + sitemap.xml
+pnpm run check:seo      # OG/Twitter/canonical + robots.txt + sitemap généré + prerender (nécessite dist/)
 pnpm run check:spa      # Vérifie que dist/404.html (repli SPA) est présent et à jour
 pnpm run check:precache # Vérifie qu'aucune donnée n'est précachée par le SW
 pnpm run check:data     # Vérifie que les données générées sont présentes
 pnpm run postbuild      # Génère dist/404.html (étape interne de build)
 pnpm run copy-data      # Copie les données servies dans dist/ (étape interne de build)
+pnpm run generate:sitemap # Génère dist/sitemap.xml depuis summary.json (étape interne de build)
+pnpm run prerender      # Écrit une coquille HTML par route dans dist/ (étape interne de build)
+pnpm run measure:search # Mesure le coût de l'index Lunr (reconstruction vs préconstruit)
 pnpm run verify         # lint + check + check:i18n + test + build + check:bundle + check:spa + check:precache + check:seo
 ```
 

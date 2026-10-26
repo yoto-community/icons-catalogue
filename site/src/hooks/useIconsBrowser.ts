@@ -61,6 +61,7 @@ export function useIconsBrowser({
     totalPages,
     totalFiltered,
     handlePageChange,
+    loadMore,
     setCurrentPage,
   } = usePagination({ filteredIcons });
 
@@ -162,6 +163,7 @@ export function useIconsBrowser({
     handleSourceChange,
     handleSortChange,
     handlePageChange,
+    loadMore,
     handleReset,
   };
 }

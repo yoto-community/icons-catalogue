@@ -153,8 +153,7 @@ if (process.env.ALLOW_CATALOGUE_SHRINK === '1') {
 // 1quater. Fusion des doublons de **contenu** (id = base64url(sha256)) : deux
 // images aux octets identiques portent le même `id` et ne peuvent donc pas
 // coexister (le schéma exige des `id` uniques). Politique figée : la canonique
-// est publiée, les autres sont retirées mais tracées
-// (cf. `docs/analyse-id-sha256.md` §4.1).
+// est publiée, les autres sont retirées mais tracées.
 const contentMerge = mergeContentDuplicates(allIcons);
 allIcons = contentMerge.icons;
 console.log(

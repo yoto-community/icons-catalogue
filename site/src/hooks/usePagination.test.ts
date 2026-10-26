@@ -30,23 +30,43 @@ describe('usePagination', () => {
     expect(result.current.paginatedIcons).toHaveLength(0);
   });
 
-  it("honore initialPage et découpe depuis l'offset correspondant", () => {
+  it('accumule depuis le début quand initialPage > 1', () => {
     const { result } = renderHook(() => usePagination({ filteredIcons: icons, initialPage: 2 }));
 
     expect(result.current.currentPage).toBe(2);
-    expect(result.current.paginatedIcons[0].id).toBe(`i${ICONS_PER_PAGE}`);
-    expect(result.current.paginatedIcons).toHaveLength(ICONS_PER_PAGE);
+    // Modèle « accumulation » : la page 2 affiche les 2 × ICONS_PER_PAGE premières.
+    expect(result.current.paginatedIcons).toHaveLength(2 * ICONS_PER_PAGE);
+    expect(result.current.paginatedIcons[0].id).toBe('i0');
   });
 
-  it('handlePageChange change de page et remonte la fenêtre', () => {
+  it('handlePageChange remonte la fenêtre et affiche la page cumulée', () => {
     const { result } = renderHook(() => usePagination({ filteredIcons: icons }));
 
     act(() => result.current.handlePageChange(3));
 
     expect(result.current.currentPage).toBe(3);
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
-    // Dernière page partielle : 100 - 96 = 4 éléments
-    expect(result.current.paginatedIcons).toHaveLength(100 - 2 * ICONS_PER_PAGE);
+    // Page 3 : les 100 icônes sont désormais accumulées.
+    expect(result.current.paginatedIcons).toHaveLength(100);
+  });
+
+  it('loadMore accumule la page suivante sans remonter la fenêtre', () => {
+    const { result } = renderHook(() => usePagination({ filteredIcons: icons }));
+
+    act(() => result.current.loadMore());
+
+    expect(result.current.currentPage).toBe(2);
+    expect(result.current.paginatedIcons).toHaveLength(2 * ICONS_PER_PAGE);
+    expect(window.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('loadMore ne dépasse pas la dernière page', () => {
+    const { result } = renderHook(() => usePagination({ filteredIcons: icons, initialPage: 3 }));
+
+    act(() => result.current.loadMore());
+
+    expect(result.current.currentPage).toBe(3);
+    expect(result.current.paginatedIcons).toHaveLength(100);
   });
 
   it('remet à la page 1 quand la page courante dépasse le nouveau total', () => {

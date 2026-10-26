@@ -67,6 +67,19 @@ describe('buildSearchIndex', () => {
     const index = buildSearchIndex([]);
     expect(index.search('moon')).toHaveLength(0);
   });
+
+  it('ignore les accents (indexation et requête normalisées)', () => {
+    const accented = [
+      makeIcon('cafe-1', { title: 'café crème', tags: ['café'] }),
+      makeIcon('fete-1', { title: 'fête foraine', tags: ['fête'] }),
+    ];
+    const index = buildSearchIndex(accented);
+
+    // Requête sans accent → trouve le document accentué, et inversement.
+    expect(index.search('cafe').map((r) => r.ref)).toContain('cafe-1');
+    expect(index.search('café').map((r) => r.ref)).toContain('cafe-1');
+    expect(index.search('fete').map((r) => r.ref)).toContain('fete-1');
+  });
 });
 
 describe('searchIdsFallback', () => {
@@ -92,5 +105,14 @@ describe('searchIdsFallback', () => {
 
   it('recherche aussi dans les tags et la catégorie', () => {
     expect(searchIdsFallback(icons, 'animaux')).toEqual(new Set(['cat-1']));
+  });
+
+  it('ignore les accents (requête et champs normalisés)', () => {
+    const accented = [
+      makeIcon('cafe-1', { title: 'café', tags: [] }),
+      makeIcon('fete-1', { title: 'fête', tags: [] }),
+    ];
+    expect(searchIdsFallback(accented, 'cafe')).toEqual(new Set(['cafe-1']));
+    expect(searchIdsFallback(accented, 'fête')).toEqual(new Set(['fete-1']));
   });
 });
