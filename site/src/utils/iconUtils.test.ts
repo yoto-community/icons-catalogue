@@ -51,9 +51,14 @@ describe('normalizeUrl', () => {
 });
 
 describe('getSourceUrl', () => {
-  it('construit l’URL yotopixels depuis original_id', () => {
-    const icon = makeIcon({ source: 'yotopixels', metadata: { original_id: '42' } });
-    expect(getSourceUrl(icon)).toBe('https://yotopixels.com/icons/42');
+  it('construit l’URL yotopixels depuis source_id (repli original_id)', () => {
+    expect(getSourceUrl(makeIcon({ source: 'yotopixels', metadata: { source_id: '42' } }))).toBe(
+      'https://yotopixels.com/icons/42'
+    );
+    // Repli sur l'ancien champ `original_id` (données historiques).
+    expect(getSourceUrl(makeIcon({ source: 'yotopixels', metadata: { original_id: '42' } }))).toBe(
+      'https://yotopixels.com/icons/42'
+    );
   });
 
   it('retourne la page officielle pour yoto-official', () => {
@@ -62,9 +67,13 @@ describe('getSourceUrl', () => {
     );
   });
 
-  it("retourne l'URL yotoicons par défaut", () => {
-    const icon = makeIcon({ source: 'yotoicons', id: 'yi-artist-99' });
-    expect(getSourceUrl(icon)).toBe('https://card-content.yotoplay.com/yoto/artist-99');
+  it('retourne la page de détail yotoicons, sinon le site', () => {
+    const icon = makeIcon({
+      source: 'yotoicons',
+      metadata: { detail_url: 'https://www.yotoicons.com/icons?tag=Bluey' },
+    });
+    expect(getSourceUrl(icon)).toBe('https://www.yotoicons.com/icons?tag=Bluey');
+    expect(getSourceUrl(makeIcon({ source: 'yotoicons' }))).toBe('https://www.yotoicons.com');
   });
 });
 

@@ -12,6 +12,7 @@
 
 import { inferCategory, inferSubcategory } from './taxonomy.js';
 import { licenseForSource } from './source-licenses.js';
+import { contentIdFromMediaId } from './content-id.js';
 
 /** Page d'où part la découverte du bundle. */
 export const YOTO_DEV_ICONS_PAGE = 'https://yoto.dev/icons/using-icons/';
@@ -71,16 +72,21 @@ export function extractRawIcons(bundleJs) {
 /**
  * Transforme une icône brute yoto.dev en icône normalisée du catalogue.
  *
+ * Cas particulier : le `mediaId` officiel **est déjà** l'identifiant de contenu
+ * (`base64url(sha256(bytes))`, vérifié 519/519). L'`id` est donc le `mediaId`
+ * **verbatim** (aucun téléchargement, aucun préfixe) et
+ * `metadata.source_id == metadata.media_id == id`.
+ *
  * @param {object} raw
  * @param {string} [scrapedAt] - Horodatage ISO (injecté pour des tests déterministes).
  * @returns {object} Icône au schéma commun.
  */
 export function toNormalizedIcon(raw, scrapedAt = new Date().toISOString()) {
   const mediaId = String(raw.mediaId);
+  const id = contentIdFromMediaId(mediaId);
   const title = raw.title || 'Sans titre';
   const tags = Array.isArray(raw.publicTags) ? raw.publicTags : [];
   const imageUrl = raw.url || `${BASE_CDN_URL}${mediaId}`;
-  const id = `yo-${mediaId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 50)}`;
 
   return {
     id,
@@ -96,8 +102,10 @@ export function toNormalizedIcon(raw, scrapedAt = new Date().toISOString()) {
     date_added: scrapedAt,
     license: licenseForSource('yoto-official'),
     metadata: {
+      source_id: mediaId,
       media_id: mediaId,
       official: true,
+      content_encoding: 'base64url',
     },
   };
 }

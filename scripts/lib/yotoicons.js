@@ -15,6 +15,7 @@
 import { inferCategory, inferSubcategory } from './taxonomy.js';
 import { inferTags } from './inferTags.js';
 import { licenseForSource } from './source-licenses.js';
+import { isContentId, CONTENT_ID_RE } from './content-id.js';
 
 const BASE_URL = 'https://www.yotoicons.com';
 
@@ -57,6 +58,15 @@ const ONCLICK_RE =
   /populate_icon_modal\(\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/;
 
 const ONCLICK_RE_GLOBAL = new RegExp(ONCLICK_RE.source, 'g');
+
+/**
+ * URL de l'image d'une icône yotoicons depuis son id numérique.
+ * @param {string|number} id
+ * @returns {string}
+ */
+export function buildImageUrl(id) {
+  return `${BASE_URL}/static/uploads/${id}.png`;
+}
 
 /**
  * Parse un attribut `onclick="populate_icon_modal(...)"`.
@@ -144,21 +154,40 @@ export function mapSubcategory(sourceCategory, title, tags) {
 
 /**
  * Transforme une fiche parsée en icône normalisée du catalogue.
+ *
+ * L'`id` **canonique** est l'identifiant de **contenu** `base64url(sha256(bytes
+ * de l'image))`, calculé par le scraper puis injecté : pas d'`id` sans le hash
+ * de l'image (cf. `docs/analyse-id-sha256.md` §4.3). L'identifiant natif
+ * numérique yotoicons est conservé dans `metadata.source_id`.
+ *
  * @param {object} parsed - Sortie de {@link parseIconOnClick}.
- * @param {string} [scrapedAt] - Horodatage ISO (injecté pour des tests déterministes).
+ * @param {{contentId: string, scrapedAt?: string}} options - `contentId` = hash
+ *   de contenu de l'image ; `scrapedAt` injectable pour des tests déterministes.
  * @returns {object} Icône au schéma commun.
+ * @throws {Error} Si `contentId` est absent ou mal formé.
  */
-export function toNormalizedIcon(parsed, scrapedAt = new Date().toISOString()) {
+export function toNormalizedIcon(
+  parsed,
+  { contentId, scrapedAt = new Date().toISOString() } = {}
+) {
+  if (!isContentId(contentId)) {
+    throw new Error(
+      'toNormalizedIcon (yotoicons) : `contentId` requis — identifiant de contenu ' +
+        `base64url(sha256(image)), 43 caractères (${CONTENT_ID_RE}). Reçu ` +
+        `${JSON.stringify(contentId)}. Téléchargez d'abord l'image (lib/image-hash.js).`
+    );
+  }
+
   const title = buildTitle(parsed.tag1, parsed.tag2, parsed.id);
   const tags = buildTags(parsed.tag1, parsed.tag2, parsed.category, title);
   const category = mapCategory(parsed.category, title, tags);
   const subcategory = mapSubcategory(parsed.category, title, tags);
-  const imageUrl = `${BASE_URL}/static/uploads/${parsed.id}.png`;
+  const imageUrl = buildImageUrl(parsed.id);
   const author = parsed.author || 'anonymous';
   const tagForDetail = parsed.tag1 || parsed.category || '';
 
   return {
-    id: `yi-${author.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${parsed.id}`,
+    id: contentId,
     source: 'yotoicons',
     tags,
     artist: `@${author}`,
@@ -171,11 +200,13 @@ export function toNormalizedIcon(parsed, scrapedAt = new Date().toISOString()) {
     date_added: scrapedAt,
     license: licenseForSource('yotoicons'),
     metadata: {
+      source_id: parsed.id,
       numeric_id: parsed.id,
       source_category: parsed.category,
       detail_url: tagForDetail
         ? `${BASE_URL}/icons?tag=${encodeURIComponent(tagForDetail)}`
         : BASE_URL,
+      content_encoding: 'base64url',
     },
   };
 }

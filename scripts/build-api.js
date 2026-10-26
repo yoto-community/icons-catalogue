@@ -12,6 +12,7 @@ import { assertSourcesPresent, assertNoRegression } from './lib/catalogue-guards
 import { applySourceLicense } from './lib/source-licenses.js';
 import { nextCatalogVersion } from './lib/catalog-version.js';
 import { markDuplicates } from './lib/dedupe.js';
+import { mergeContentDuplicates } from './lib/content-dedupe.js';
 import { validateIcons, validateSummary, validateManifest } from './lib/catalogue-schema.js';
 import { isDataSectionInSync, replaceDataSection } from './lib/readme-data.js';
 
@@ -114,7 +115,7 @@ console.log(`📊 ${yotopixelsData.length} icônes yotopixels + ${yotoiconsData.
 // La licence est (re)appliquée depuis la source unique `source-licenses.js` :
 // les données committées peuvent porter d'anciennes valeurs (ex. `CC-BY-SC`)
 // qui n'ont pas à être re-scrapées pour être corrigées.
-const allIcons = [...yotopixelsData, ...yotoiconsData, ...yotoOfficialData].map(applySourceLicense);
+let allIcons = [...yotopixelsData, ...yotoiconsData, ...yotoOfficialData].map(applySourceLicense);
 
 if (allIcons.length === 0) {
   console.error('❌ Aucune icône trouvée. Lancez d\'abord les scrapers.');
@@ -149,7 +150,19 @@ if (process.env.ALLOW_CATALOGUE_SHRINK === '1') {
   }
 }
 
-// 1quater. Doublons inter-sources (P1.4) : marquer les occurrences non
+// 1quater. Fusion des doublons de **contenu** (id = base64url(sha256)) : deux
+// images aux octets identiques portent le même `id` et ne peuvent donc pas
+// coexister (le schéma exige des `id` uniques). Politique figée : la canonique
+// est publiée, les autres sont retirées mais tracées
+// (cf. `docs/analyse-id-sha256.md` §4.1).
+const contentMerge = mergeContentDuplicates(allIcons);
+allIcons = contentMerge.icons;
+console.log(
+  `🧬 Doublons de contenu : ${contentMerge.groups.length} groupe(s), ` +
+    `${contentMerge.merged} icône(s) fusionnée(s) → ${allIcons.length} entrées uniques.`
+);
+
+// 1quinquies. Doublons inter-sources (P1.4) : marquer les occurrences non
 // canoniques (`metadata.duplicate_of`) sans rien supprimer du catalogue.
 const { groups: duplicateGroups, duplicateOf } = markDuplicates(allIcons);
 for (const icon of allIcons) {
@@ -334,7 +347,7 @@ const topArtists = Object.entries(byArtist)
 // 10. Écrire le résumé
 console.log('📝 Écriture du résumé...');
 const summary = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   catalogVersion: nextCatalogVersion(previousSummary?.catalogVersion),
   updatedAt: new Date().toISOString(),
   total: allIcons.length,
@@ -347,8 +360,14 @@ const summary = {
     topArtists
   },
   duplicates: {
+    // Déduplication sémantique (titre + catégorie, non destructive).
     groups: duplicateGroups.length,
-    icons: duplicateOf.size
+    icons: duplicateOf.size,
+    // Fusion de contenu (id = hash) : icônes retirées de la publication.
+    content: {
+      groups: contentMerge.groups.length,
+      merged: contentMerge.merged
+    }
   }
 };
 // Validation du résumé avant écriture (schéma P2.3).
@@ -360,7 +379,7 @@ const summaryMeta = writeJSON(path.join(DIST_DIR, 'summary.json'), summary);
 // 11. Construire le manifeste (index.json)
 console.log('📝 Écriture du manifeste...');
 const manifest = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   catalogVersion: summary.catalogVersion,
   updatedAt: summary.updatedAt,
   counts: {

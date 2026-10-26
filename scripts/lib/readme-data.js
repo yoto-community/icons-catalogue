@@ -51,10 +51,20 @@ function sectionLines(summary) {
   lines.push(
     `- **Doublons inter-sources** : ${formatCount(duplicates.groups)} groupes / ${formatCount(
       duplicates.icons
-    )} icônes marquées`,
-    '',
-    '### Catégories principales'
+    )} icônes marquées`
   );
+
+  // Fusion des doublons de contenu exacts (id = base64url(sha256)) : champ
+  // apparu avec le schéma 3, absent des résumés plus anciens.
+  if (duplicates.content) {
+    lines.push(
+      `- **Doublons de contenu fusionnés** : ${formatCount(
+        duplicates.content.groups
+      )} groupes / ${formatCount(duplicates.content.merged)} icônes retirées`
+    );
+  }
+
+  lines.push('', '### Catégories principales');
 
   for (const [category, count] of orderedCategories(byCategory)) {
     lines.push(`- \`${category}\` : ${formatCount(count)}`);

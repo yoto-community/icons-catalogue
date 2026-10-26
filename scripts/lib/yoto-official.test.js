@@ -71,19 +71,23 @@ test('extractRawIcons échoue si le JSON n’est pas un tableau', () => {
 // ---------------------------------------------------------------------------
 
 test('toNormalizedIcon produit une icône au schéma commun', () => {
+  const mediaId = '_WWpLHoOj6iqeREcGkJnGlsis2QSF6znM0UPFdXTjf8';
   const icon = toNormalizedIcon(
-    { mediaId: 'abc-123', title: 'Santa', publicTags: ['christmas'] },
+    { mediaId, title: 'Santa', publicTags: ['christmas'] },
     '2026-10-21T00:00:00.000Z'
   );
 
-  assert.equal(icon.id, 'yo-abc-123');
+  // Pour l'officiel, l'id de contenu EST le mediaId (déjà un sha256 base64url).
+  assert.equal(icon.id, mediaId);
   assert.equal(icon.source, 'yoto-official');
   assert.equal(icon.artist, 'Yoto');
   assert.equal(icon.license, 'Yoto Official');
   assert.equal(icon.downloads, 0);
   assert.equal(icon.category, 'fetes');
   assert.equal(icon.metadata.official, true);
-  assert.equal(icon.metadata.media_id, 'abc-123');
+  assert.equal(icon.metadata.source_id, mediaId);
+  assert.equal(icon.metadata.media_id, mediaId);
+  assert.equal(icon.metadata.content_encoding, 'base64url');
   assert.equal(icon.date_added, '2026-10-21T00:00:00.000Z');
 });
 
@@ -98,9 +102,11 @@ test('toNormalizedIcon conserve l’URL fournie', () => {
   assert.equal(icon.preview_image, 'https://cdn/x.png');
 });
 
-test('toNormalizedIcon nettoie l’identifiant média pour un id sûr', () => {
-  const icon = toNormalizedIcon({ mediaId: 'a/b c?d', title: 'x' });
-  assert.equal(icon.id, 'yo-abcd');
+test('toNormalizedIcon conserve le mediaId verbatim (id = mediaId, sans préfixe)', () => {
+  const mediaId = 'A'.repeat(43);
+  const icon = toNormalizedIcon({ mediaId, title: 'x' });
+  assert.equal(icon.id, mediaId);
+  assert.equal(icon.metadata.source_id, mediaId);
 });
 
 test('toNormalizedIcons ignore les entrées sans mediaId', () => {
@@ -110,5 +116,6 @@ test('toNormalizedIcons ignore les entrées sans mediaId', () => {
     null,
   ]);
   assert.equal(icons.length, 1);
-  assert.equal(icons[0].id, 'yo-ok');
+  assert.equal(icons[0].id, 'ok');
+  assert.equal(icons[0].metadata.source_id, 'ok');
 });

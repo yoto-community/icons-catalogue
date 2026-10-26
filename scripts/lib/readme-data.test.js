@@ -10,24 +10,25 @@ import {
 } from './readme-data.js';
 
 const SUMMARY = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   catalogVersion: '2026.10.21-6',
   updatedAt: '2026-10-21T10:08:33.460Z',
-  total: 27460,
+  total: 27040,
   counts: {
-    bySource: { yotoicons: 25627, yotopixels: 1314, 'yoto-official': 519 },
+    bySource: { yotoicons: 25209, yotopixels: 1312, 'yoto-official': 519 },
     byCategory: { objets: 8196, animaux: 6375, musique: 21 },
   },
-  duplicates: { groups: 45, icons: 45 },
+  duplicates: { groups: 45, icons: 45, content: { groups: 409, merged: 420 } },
 };
 
 const EXPECTED_SECTION = `## Données actuelles (dernier build)
 
-- **Total** : 27 460 icônes
-- **yotopixels** : 1 314
-- **yotoicons** : 25 627
+- **Total** : 27 040 icônes
+- **yotopixels** : 1 312
+- **yotoicons** : 25 209
 - **yoto-official** : 519
 - **Doublons inter-sources** : 45 groupes / 45 icônes marquées
+- **Doublons de contenu fusionnés** : 409 groupes / 420 icônes retirées
 
 ### Catégories principales
 - \`objets\` : 8 196
@@ -73,6 +74,16 @@ test('renderDataSection trie les catégories par effectif décroissant', () => {
   assert.ok(objets < animaux && animaux < musique);
 });
 
+test('renderDataSection omet la ligne de fusion quand le résumé ne la porte pas', () => {
+  const section = renderDataSection({
+    total: 3,
+    counts: { bySource: { yotopixels: 3 }, byCategory: {} },
+    duplicates: { groups: 0, icons: 0 },
+  });
+  assert.equal(section.includes('Doublons de contenu'), false);
+  assert.equal(section.includes('Doublons inter-sources'), true);
+});
+
 test('extractDataSection renvoie la section existante', () => {
   const readme = `# Titre\n\n## Avant\n\nblabla\n\n${EXPECTED_SECTION}\n## Licence\n\nMIT.\n`;
   assert.equal(extractDataSection(readme).trimEnd(), EXPECTED_SECTION.trimEnd());
@@ -86,7 +97,7 @@ test('isDataSectionInSync compare README et summary', () => {
   const inSyncReadme = `# T\n\n${EXPECTED_SECTION}\n## Licence\n`;
   assert.equal(isDataSectionInSync(inSyncReadme, SUMMARY), true);
 
-  const drifted = inSyncReadme.replace('27 460', '27 399');
+  const drifted = inSyncReadme.replace('27 040', '27 399');
   assert.equal(isDataSectionInSync(drifted, SUMMARY), false);
 
   assert.equal(isDataSectionInSync('# T\n\n## Licence\n', SUMMARY), false);

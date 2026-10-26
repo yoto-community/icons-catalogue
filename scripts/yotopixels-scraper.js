@@ -13,6 +13,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { fetchWithRetry } from './lib/rateLimiter.js';
 import { extractIconsFromHtml, toNormalizedIcons } from './lib/yotopixels.js';
+import { hashImages } from './lib/image-hash.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -62,8 +63,9 @@ async function scrapeYotopixels() {
 
   console.log(`✅ ${allIcons.length} icônes yotopixels extraites au total`);
 
-  // Convertir au format commun du catalogue
-  return toNormalizedIcons(allIcons);
+  // On renvoie les fiches **brutes** : l'identifiant de contenu exige le
+  // téléchargement de chaque image, réalisé ensuite par l'appelant.
+  return allIcons;
 }
 
 async function fetchPage(page) {
@@ -75,7 +77,17 @@ async function fetchPage(page) {
 
 // Exécution
 scrapeYotopixels()
-  .then((icons) => {
+  .then(async (rawIcons) => {
+    // Identifiant canonique = base64url(sha256(image)) → téléchargement requis.
+    console.log(`🔗 Calcul des identifiants de contenu (${rawIcons.length} images)…`);
+    const contentIds = await hashImages(
+      rawIcons.map((icon) => ({ key: icon.id, url: icon.image_url })),
+      { label: 'images yotopixels' }
+    );
+    const icons = toNormalizedIcons(rawIcons, {
+      contentIdFor: (icon) => contentIds.get(icon.id),
+    });
+
     const outputPath = path.join(__dirname, '..', 'data', 'yotopixels-icons.json');
     const dataDir = path.dirname(outputPath);
     if (!fs.existsSync(dataDir)) {

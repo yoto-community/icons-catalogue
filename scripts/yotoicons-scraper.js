@@ -13,7 +13,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { fetchWithRetry, RateLimiter } from './lib/rateLimiter.js';
-import { parseIconsFromHtml, toNormalizedIcon } from './lib/yotoicons.js';
+import { parseIconsFromHtml, toNormalizedIcon, buildImageUrl } from './lib/yotoicons.js';
+import { hashImages } from './lib/image-hash.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -39,8 +40,9 @@ async function scrapePage(pageNum, tag = '', sort = 'popular', type = 'singles')
   if (!res.ok) throw new Error(`HTTP ${res.status} pour page ${pageNum}`);
 
   const html = await res.text();
-  const scrapedAt = new Date().toISOString();
-  return parseIconsFromHtml(html).map((parsed) => toNormalizedIcon(parsed, scrapedAt));
+  // Fiches brutes uniquement : l'identifiant de contenu (donc le téléchargement
+  // de l'image) est résolu après la collecte complète.
+  return parseIconsFromHtml(html);
 }
 
 async function scrapeAllYotoicons() {
@@ -76,7 +78,7 @@ async function scrapeAllYotoicons() {
 
     let added = 0;
     for (const icon of icons) {
-      const key = icon.metadata?.numeric_id;
+      const key = icon.id;
       if (key) {
         if (seen.has(key)) continue;
         seen.add(key);
@@ -109,7 +111,18 @@ async function scrapeAllYotoicons() {
 }
 
 scrapeAllYotoicons()
-  .then(icons => {
+  .then(async (parsedIcons) => {
+    // Identifiant canonique = base64url(sha256(image)) → téléchargement requis.
+    console.log(`🔗 Calcul des identifiants de contenu (${parsedIcons.length} images)…`);
+    const contentIds = await hashImages(
+      parsedIcons.map((parsed) => ({ key: parsed.id, url: buildImageUrl(parsed.id) })),
+      { label: 'images yotoicons', concurrency: 6, minDelayMs: 50 }
+    );
+    const scrapedAt = new Date().toISOString();
+    const icons = parsedIcons.map((parsed) =>
+      toNormalizedIcon(parsed, { contentId: contentIds.get(parsed.id), scrapedAt })
+    );
+
     const outputPath = path.join(__dirname, '..', 'data', 'yotoicons-icons.json');
     const dataDir = path.dirname(outputPath);
     if (!fs.existsSync(dataDir)) {

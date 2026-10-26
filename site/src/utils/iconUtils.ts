@@ -11,12 +11,16 @@ export function normalizeUrl(url: string, source: Icon['source']): string {
 
 export function getSourceUrl(icon: Icon): string {
   if (icon.source === 'yotopixels') {
-    return `https://yotopixels.com/icons/${icon.metadata?.original_id || icon.id.replace('yt-', '')}`;
+    // L'id canonique est désormais un hash de contenu : l'id natif vit dans
+    // `metadata.source_id` (repli `original_id` pour les données historiques).
+    const sourceId = icon.metadata?.source_id ?? icon.metadata?.original_id ?? icon.id;
+    return `https://yotopixels.com/icons/${sourceId}`;
   }
   if (icon.source === 'yoto-official') {
     return `https://yoto.dev/icons/using-icons/`;
   }
-  return `https://card-content.yotoplay.com/yoto/${icon.id.replace('yi-', '')}`;
+  // yotoicons : page de détail d'origine (repli : le site).
+  return icon.metadata?.detail_url || 'https://www.yotoicons.com';
 }
 
 export function getSourceLabel(source: Icon['source']): string {

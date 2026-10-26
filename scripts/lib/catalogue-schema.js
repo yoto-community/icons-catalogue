@@ -13,6 +13,7 @@
 
 import { CATEGORIES, SUBCATEGORIES } from './taxonomy.js';
 import { SOURCE_LICENSES } from './source-licenses.js';
+import { CONTENT_ID_RE } from './content-id.js';
 
 /** Sources canoniques (clés de `SOURCE_LICENSES`). */
 export const SOURCES = Object.freeze(Object.keys(SOURCE_LICENSES));
@@ -21,7 +22,7 @@ export const SOURCES = Object.freeze(Object.keys(SOURCE_LICENSES));
 export const LICENSES = Object.freeze([...new Set(Object.values(SOURCE_LICENSES))]);
 
 /** Version du schéma publié (alignée sur `build-api.js`). */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /** Champs texte obligatoires et non vides d'une icône. */
 const ICON_STRING_FIELDS = [
@@ -75,6 +76,12 @@ export function validateIcon(icon) {
     }
   }
 
+  if (isNonEmptyString(icon.id) && !CONTENT_ID_RE.test(icon.id)) {
+    errors.push(
+      'champ `id` : identifiant de contenu base64url attendu (base64url(sha256), 43 caractères)'
+    );
+  }
+
   if (isNonEmptyString(icon.source) && !SOURCES.includes(icon.source)) {
     errors.push(`\`source\` inconnue : « ${icon.source} »`);
   }
@@ -120,8 +127,10 @@ export function validateIcon(icon) {
     }
   }
 
-  if (icon.metadata !== undefined && !isPlainObject(icon.metadata)) {
-    errors.push('champ `metadata` : objet attendu');
+  if (!isPlainObject(icon.metadata)) {
+    errors.push('champ `metadata` requis (objet)');
+  } else if (!isNonEmptyString(icon.metadata.source_id)) {
+    errors.push('champ `metadata.source_id` requis (chaîne non vide, identifiant natif)');
   }
 
   return errors;

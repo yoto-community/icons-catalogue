@@ -5,12 +5,17 @@ import {
   parseIconsFromHtml,
   buildTitle,
   buildTags,
+  buildImageUrl,
   mapCategory,
   mapSubcategory,
   toNormalizedIcon,
   SOURCE_CATEGORY_MAP,
   SOURCE_SUBCATEGORY_MAP,
 } from './yotoicons.js';
+import { contentId } from './content-id.js';
+
+/** Identifiant de contenu déterministe à partir d'une graine lisible. */
+const cid = (seed) => contentId(Buffer.from(String(seed)));
 
 test('parseIconOnClick extrait les six arguments', () => {
   const parsed = parseIconOnClick(
@@ -154,12 +159,20 @@ test('chaque valeur de SOURCE_SUBCATEGORY_MAP est une sous-catégorie canonique'
   }
 });
 
+test('buildImageUrl construit l’URL canonique de l’image', () => {
+  assert.equal(buildImageUrl('2706'), 'https://www.yotoicons.com/static/uploads/2706.png');
+  assert.equal(buildImageUrl(42), 'https://www.yotoicons.com/static/uploads/42.png');
+});
+
 test('toNormalizedIcon produit une icône au schéma commun', () => {
   const parsed = parseIconOnClick(
     "populate_icon_modal('2706', 'animals', 'Bluey', 'Creek', 'allisonhopes', '13652')"
   );
-  const icon = toNormalizedIcon(parsed, '2026-10-21T00:00:00.000Z');
-  assert.equal(icon.id, 'yi-allisonhopes-2706');
+  const icon = toNormalizedIcon(parsed, {
+    contentId: cid('yotoicons-2706'),
+    scrapedAt: '2026-10-21T00:00:00.000Z',
+  });
+  assert.equal(icon.id, cid('yotoicons-2706'));
   assert.equal(icon.source, 'yotoicons');
   assert.equal(icon.title, 'Bluey');
   assert.equal(icon.category, 'animaux');
@@ -168,7 +181,17 @@ test('toNormalizedIcon produit une icône au schéma commun', () => {
   assert.equal(icon.license, 'CC-BY-NC');
   assert.equal(icon.download_url, 'https://www.yotoicons.com/static/uploads/2706.png');
   assert.equal(icon.preview_image, icon.download_url);
+  assert.equal(icon.metadata.source_id, '2706');
   assert.equal(icon.metadata.numeric_id, '2706');
   assert.equal(icon.metadata.source_category, 'animals');
+  assert.equal(icon.metadata.content_encoding, 'base64url');
   assert.equal(icon.date_added, '2026-10-21T00:00:00.000Z');
+});
+
+test('toNormalizedIcon exige un identifiant de contenu (pas d’id provisoire)', () => {
+  const parsed = parseIconOnClick(
+    "populate_icon_modal('2706', 'animals', 'Bluey', 'Creek', 'allisonhopes', '13652')"
+  );
+  assert.throws(() => toNormalizedIcon(parsed), /contentId/);
+  assert.throws(() => toNormalizedIcon(parsed, { contentId: 'yi-allisonhopes-2706' }), /contentId/);
 });

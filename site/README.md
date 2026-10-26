@@ -175,7 +175,7 @@ sont chargés. Le catalogue complet `icons.json` n'est **plus publié**.
 
 ```json
 {
-  "id": "yi-artist-titre-icone",
+  "id": "LZ0OGDaJz-Mbud5o3yDBBjeFvDHVdkSNTXIWogHZ0kw",
   "source": "yotoicons",
   "tags": ["moon", "night"],
   "artist": "@artistname",
@@ -187,9 +187,19 @@ sont chargés. Le catalogue complet `icons.json` n'est **plus publié**.
   "downloads": 123,
   "date_added": "2026-10-18T10:30:00Z",
   "license": "CC-BY-SA",
-  "metadata": { "duplicate_of": "yo-... (si doublon inter-sources)" }
+  "metadata": {
+    "source_id": "2706",
+    "content_encoding": "base64url",
+    "duplicate_of": "yo-... (si doublon inter-sources)"
+  }
 }
 ```
+
+**`id`** est un **identifiant de contenu** (`base64url(sha256(image))`, 43
+caractères, canonique) : deux images aux octets identiques portent le même `id`.
+L'identifiant **natif** de la source est dans **`metadata.source_id`** (uuid
+yotopixels, id numérique yotoicons, `mediaId` officiel). Utilisez-le pour
+retrouver une icône par sa provenance.
 
 Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
 (sans accent), alignés sur `src/constants/categories.ts` (cf. `Icon` dans
@@ -199,29 +209,38 @@ Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
 
 ```json
 {
-  "schemaVersion": 2,
-  "catalogVersion": "2026.10.21-1",
-  "updatedAt": "2026-10-21T09:19:04.329Z",
-  "total": 27460,
+  "schemaVersion": 3,
+  "catalogVersion": "2026.10.26-2",
+  "updatedAt": "2026-10-26T10:40:59.217Z",
+  "total": 27150,
   "counts": {
     "bySource": {
-      "yotopixels": 1314,
-      "yotoicons": 25627,
+      "yotopixels": 1312,
+      "yotoicons": 25319,
       "yoto-official": 519
     },
     "byCategory": {
-      "objets": 8196,
-      "animaux": 6375,
-      "personnages": 6343
+      "objets": 7291,
+      "animaux": 6657,
+      "personnages": 6466
     },
     "byArtist": { "@artist": 123 },
     "bySubcategory": { "autre": 25000 },
     "topTags": { "moon": 450, "star": 320 },
     "topArtists": { "@artist": 123 }
   },
-  "duplicates": { "groups": 45, "icons": 45 }
+  "duplicates": {
+    "groups": 45,
+    "icons": 45,
+    "content": { "groups": 409, "merged": 420 }
+  }
 }
 ```
+
+> Les compteurs ci-dessus sont **illustratifs** : `summary.json` publié fait foi.
+> `duplicates.groups`/`icons` = déduplication **sémantique** non destructive
+> (titre + catégorie) ; `duplicates.content` = fusion des doublons de **contenu**
+> exacts (icônes retirées du catalogue).
 
 ## Architecture des données et des hooks
 
@@ -270,6 +289,11 @@ Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
 - Clé `yoto-icons-favorites` (array d'IDs)
 - `favorites: Set<string>`, `isFavorite(id)`, `toggleFavorite(id)`, `addFavorite`, `removeFavorite`, `clearFavorites`
 - Synchronisation inter-onglets via l'événement `storage`
+- **Migration d'ids** : les favoris stockés référencent les `id` **de contenu**
+  (`base64url(sha256)`, cf. racine `docs/analyse-id-sha256.md`). Les favoris
+  enregistrés avant la bascule (anciens ids préfixés `yt-`/`yi-`/`yo-`) ne
+  correspondent plus à aucune icône et apparaissent donc vides ; aucun
+  re-association fiable n'est possible.
 
 ## Personnalisation
 

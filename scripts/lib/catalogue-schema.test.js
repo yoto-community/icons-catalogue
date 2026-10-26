@@ -10,15 +10,19 @@ import {
   validateManifest,
   assertValidCatalogue,
 } from './catalogue-schema.js';
+import { contentId } from './content-id.js';
 
 // ---------------------------------------------------------------------------
 // Fixtures minimales, alignées sur la forme réellement produite par
 // `build-api.js` (icons.json / summary.json / index.json).
 // ---------------------------------------------------------------------------
 
+/** Identifiant de contenu déterministe à partir d'une graine lisible. */
+const cid = (seed) => contentId(Buffer.from(String(seed)));
+
 function validIcon(overrides = {}) {
   return {
-    id: 'yt-1',
+    id: cid('valid'),
     source: 'yotopixels',
     title: 'Star',
     artist: 'sylvain',
@@ -30,6 +34,7 @@ function validIcon(overrides = {}) {
     date_added: '2026-10-17T16:51:35.062Z',
     license: 'CC-BY-SA',
     tags: ['star'],
+    metadata: { source_id: 'native-1' },
     ...overrides,
   };
 }
@@ -91,7 +96,7 @@ function mentions(errors, needle) {
 test('les enums exposées proviennent des sources uniques', () => {
   assert.deepEqual(SOURCES, ['yotopixels', 'yotoicons', 'yoto-official']);
   assert.deepEqual(LICENSES, ['CC-BY-SA', 'CC-BY-NC', 'Yoto Official']);
-  assert.equal(SCHEMA_VERSION, 2);
+  assert.equal(SCHEMA_VERSION, 3);
 });
 
 // ---------------------------------------------------------------------------
@@ -100,8 +105,12 @@ test('les enums exposées proviennent des sources uniques', () => {
 
 test('validateIcon : une icône conforme ne produit aucune erreur', () => {
   assert.deepEqual(validateIcon(validIcon()), []);
-  // metadata est optionnel ; sa présence valide ne casse rien.
-  assert.deepEqual(validateIcon(validIcon({ metadata: { original_id: '1' } })), []);
+});
+
+test('validateIcon : l’id doit être un identifiant de contenu base64url (43 car.)', () => {
+  assert.equal(mentions(validateIcon(validIcon({ id: 'yt-1' })), 'id'), true);
+  assert.equal(mentions(validateIcon(validIcon({ id: 'a'.repeat(64) })), 'id'), true);
+  assert.equal(mentions(validateIcon(validIcon({ id: cid('ok') })), 'id'), false);
 });
 
 test('validateIcon : refuse un non-objet', () => {
@@ -153,9 +162,16 @@ test('validateIcon : date_added et URLs sont contrôlés', () => {
   assert.equal(mentions(validateIcon(validIcon({ download_url: 'x.png' })), 'download_url'), true);
 });
 
-test('validateIcon : metadata, si présent, doit être un objet', () => {
+test('validateIcon : metadata doit être un objet portant source_id', () => {
   assert.equal(mentions(validateIcon(validIcon({ metadata: [] })), 'metadata'), true);
   assert.equal(mentions(validateIcon(validIcon({ metadata: 'x' })), 'metadata'), true);
+  assert.equal(mentions(validateIcon(validIcon({ metadata: undefined })), 'metadata'), true);
+  assert.equal(mentions(validateIcon(validIcon({ metadata: {} })), 'source_id'), true);
+  assert.equal(
+    mentions(validateIcon(validIcon({ metadata: { source_id: '  ' } })), 'source_id'),
+    true
+  );
+  assert.deepEqual(validateIcon(validIcon({ metadata: { source_id: '2706' } })), []);
 });
 
 // ---------------------------------------------------------------------------
@@ -163,21 +179,22 @@ test('validateIcon : metadata, si présent, doit être un objet', () => {
 // ---------------------------------------------------------------------------
 
 test('validateIcons : catalogue conforme → valide', () => {
-  const result = validateIcons([validIcon({ id: 'a' }), validIcon({ id: 'b' })]);
+  const result = validateIcons([validIcon({ id: cid('a') }), validIcon({ id: cid('b') })]);
   assert.equal(result.valid, true);
   assert.deepEqual(result.errors, []);
 });
 
 test('validateIcons : détecte les identifiants dupliqués', () => {
-  const result = validateIcons([validIcon({ id: 'dup' }), validIcon({ id: 'dup' })]);
+  const result = validateIcons([validIcon({ id: cid('dup') }), validIcon({ id: cid('dup') })]);
   assert.equal(result.valid, false);
   assert.equal(mentions(result.errors, 'id dupliqué'), true);
 });
 
 test('validateIcons : préfixe chaque erreur par l’identifiant de l’icône', () => {
-  const result = validateIcons([validIcon({ id: 'cassée', category: 'zzz' })]);
+  const broken = cid('broken');
+  const result = validateIcons([validIcon({ id: broken, category: 'zzz' })]);
   assert.equal(result.valid, false);
-  assert.equal(mentions(result.errors, 'cassée'), true);
+  assert.equal(mentions(result.errors, broken), true);
 });
 
 test('validateIcons : refuse un catalogue vide ou non-tableau', () => {
@@ -273,8 +290,14 @@ test('assertValidCatalogue : ne lève rien pour un ensemble valide', () => {
   assert.doesNotThrow(() =>
     assertValidCatalogue({
       icons: [
-        validIcon({ id: 'a' }),
-        validIcon({ id: 'b', source: 'yotoicons', license: 'CC-BY-NC', subcategory: 'autre' }),
+        validIcon({ id: cid('a') }),
+        validIcon({
+          id: cid('b'),
+          source: 'yotoicons',
+          license: 'CC-BY-NC',
+          subcategory: 'autre',
+          metadata: { source_id: '2706' },
+        }),
       ],
       summary: validSummary(),
       manifest: validManifest(),
@@ -284,7 +307,7 @@ test('assertValidCatalogue : ne lève rien pour un ensemble valide', () => {
 
 test('assertValidCatalogue : lève une erreur lisible et tronquée sinon', () => {
   assert.throws(
-    () => assertValidCatalogue({ icons: [validIcon({ id: 'x', category: 'zzz' })] }),
+    () => assertValidCatalogue({ icons: [validIcon({ id: cid('x'), category: 'zzz' })] }),
     (error) => {
       assert.match(error.message, /Catalogue invalide/);
       assert.match(error.message, /category/);

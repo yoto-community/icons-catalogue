@@ -15,6 +15,7 @@ import * as cheerio from 'cheerio';
 import { inferTags } from './inferTags.js';
 import { inferCategory, inferSubcategory } from './taxonomy.js';
 import { licenseForSource } from './source-licenses.js';
+import { isContentId, CONTENT_ID_RE } from './content-id.js';
 
 /** Origine du site (préfixe des URLs relatives du repli HTML). */
 export const YOTOPIXELS_BASE_URL = 'https://yotopixels.com';
@@ -119,18 +120,34 @@ export function extractIconsFromHtml(html) {
 /**
  * Transforme une icône brute yotopixels en icône normalisée du catalogue.
  *
+ * L'`id` **canonique** est l'identifiant de **contenu** `base64url(sha256(bytes
+ * de l'image))`, calculé par le scraper (orchestration réseau) puis injecté :
+ * une icône n'a pas d'`id` sans le hash de son image (cf.
+ * `docs/analyse-id-sha256.md` §4.3 — pas d'id provisoire). L'identifiant natif
+ * est conservé dans `metadata.source_id`.
+ *
  * Les tags fournis par l'API sont conservés tels quels ; à défaut (ou pour le
  * repli HTML), ils sont inférés depuis le titre.
  *
  * @param {object} icon - Icône brute (`extractIconsFromHtml`).
+ * @param {{contentId: string}} options - `contentId` = hash de contenu de l'image.
  * @returns {object} Icône au schéma commun.
+ * @throws {Error} Si `contentId` est absent ou mal formé.
  */
-export function toNormalizedIcon(icon) {
+export function toNormalizedIcon(icon, { contentId } = {}) {
+  if (!isContentId(contentId)) {
+    throw new Error(
+      'toNormalizedIcon (yotopixels) : `contentId` requis — identifiant de contenu ' +
+        `base64url(sha256(image)), 43 caractères (${CONTENT_ID_RE}). Reçu ` +
+        `${JSON.stringify(contentId)}. Téléchargez d'abord l'image (lib/image-hash.js).`
+    );
+  }
+
   const apiTags = Array.isArray(icon.tags) ? icon.tags : [];
   const tags = apiTags.length > 0 ? apiTags : inferTags(icon.title);
 
   return {
-    id: `yt-${icon.id}`,
+    id: contentId,
     source: 'yotopixels',
     tags,
     artist: icon.creator?.public_alias || icon.creator?.id || 'anonymous',
@@ -143,8 +160,10 @@ export function toNormalizedIcon(icon) {
     date_added: icon.created_at,
     license: licenseForSource('yotopixels'),
     metadata: {
+      source_id: icon.id,
       original_id: icon.id,
       creator_id: icon.creator?.id,
+      content_encoding: 'base64url',
     },
   };
 }
@@ -152,9 +171,15 @@ export function toNormalizedIcon(icon) {
 /**
  * Applique {@link toNormalizedIcon} à tout un lot.
  *
+ * `contentIdFor` fournit, pour chaque icône brute, son identifiant de contenu
+ * (typiquement résolu en amont par le scraper via `lib/image-hash.js`).
+ *
  * @param {Array<object>} icons
+ * @param {{contentIdFor?: (icon: object) => string}} [options]
  * @returns {Array<object>}
  */
-export function toNormalizedIcons(icons) {
-  return icons.map(toNormalizedIcon);
+export function toNormalizedIcons(icons, { contentIdFor } = {}) {
+  return icons.map((icon) =>
+    toNormalizedIcon(icon, { contentId: contentIdFor ? contentIdFor(icon) : undefined })
+  );
 }

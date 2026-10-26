@@ -9,6 +9,10 @@ import {
   toNormalizedIcon,
   toNormalizedIcons,
 } from './yotopixels.js';
+import { contentId } from './content-id.js';
+
+/** Identifiant de contenu déterministe à partir d'une graine lisible. */
+const cid = (seed) => contentId(Buffer.from(String(seed)));
 
 // ---------------------------------------------------------------------------
 // Fixtures hors-ligne (aucun réseau). `SVELTEKIT_HTML` reproduit la forme réelle
@@ -152,10 +156,10 @@ function rawIcon(overrides = {}) {
 }
 
 test('toNormalizedIcon : mappe au schéma commun du catalogue', () => {
-  const icon = toNormalizedIcon(rawIcon());
+  const icon = toNormalizedIcon(rawIcon(), { contentId: cid('rawIcon') });
 
   assert.deepEqual(icon, {
-    id: 'yt-cb239825-6dd8-402e-b00b-a788ede40b07',
+    id: cid('rawIcon'),
     source: 'yotopixels',
     tags: ['cat'],
     artist: 'sylvain',
@@ -167,19 +171,39 @@ test('toNormalizedIcon : mappe au schéma commun du catalogue', () => {
     downloads: 7,
     date_added: '2026-10-17T16:51:35.062Z',
     license: 'CC-BY-SA',
-    metadata: { original_id: 'cb239825-6dd8-402e-b00b-a788ede40b07', creator_id: 'creator-1' },
+    metadata: {
+      source_id: 'cb239825-6dd8-402e-b00b-a788ede40b07',
+      original_id: 'cb239825-6dd8-402e-b00b-a788ede40b07',
+      creator_id: 'creator-1',
+      content_encoding: 'base64url',
+    },
   });
 });
 
+test('toNormalizedIcon : exige un identifiant de contenu (pas d’id provisoire)', () => {
+  assert.throws(() => toNormalizedIcon(rawIcon()), /contentId/);
+  assert.throws(() => toNormalizedIcon(rawIcon(), { contentId: 'yt-cb239825' }), /contentId/);
+});
+
 test('toNormalizedIcon : tags de l’API conservés, sinon inférés depuis le titre', () => {
-  assert.deepEqual(toNormalizedIcon(rawIcon({ tags: ['bluey', 'dog'] })).tags, ['bluey', 'dog']);
-  assert.deepEqual(toNormalizedIcon(rawIcon({ tags: [] })).tags, inferTags('Cute Cat'));
-  assert.deepEqual(toNormalizedIcon(rawIcon({ tags: undefined })).tags, inferTags('Cute Cat'));
+  assert.deepEqual(
+    toNormalizedIcon(rawIcon({ tags: ['bluey', 'dog'] }), { contentId: cid('t1') }).tags,
+    ['bluey', 'dog']
+  );
+  assert.deepEqual(
+    toNormalizedIcon(rawIcon({ tags: [] }), { contentId: cid('t2') }).tags,
+    inferTags('Cute Cat')
+  );
+  assert.deepEqual(
+    toNormalizedIcon(rawIcon({ tags: undefined }), { contentId: cid('t3') }).tags,
+    inferTags('Cute Cat')
+  );
 });
 
 test('toNormalizedIcon : valeurs de repli (titre, artiste, téléchargements)', () => {
   const icon = toNormalizedIcon(
-    rawIcon({ title: '', creator: undefined, download_count: undefined })
+    rawIcon({ title: '', creator: undefined, download_count: undefined }),
+    { contentId: cid('t4') }
   );
   assert.equal(icon.title, 'Sans titre');
   assert.equal(icon.artist, 'anonymous');
@@ -188,19 +212,27 @@ test('toNormalizedIcon : valeurs de repli (titre, artiste, téléchargements)', 
 });
 
 test('toNormalizedIcon : repli sur l’identifiant du créateur à défaut d’alias', () => {
-  const icon = toNormalizedIcon(rawIcon({ creator: { id: 'creator-2' } }));
+  const icon = toNormalizedIcon(rawIcon({ creator: { id: 'creator-2' } }), {
+    contentId: cid('t5'),
+  });
   assert.equal(icon.artist, 'creator-2');
 });
 
-test('toNormalizedIcons : applique le mapping à tout un lot', () => {
-  const icons = toNormalizedIcons([rawIcon({ id: 'a' }), rawIcon({ id: 'b' })]);
+test('toNormalizedIcons : applique le mapping et les id de contenu à tout un lot', () => {
+  const icons = toNormalizedIcons([rawIcon({ id: 'a' }), rawIcon({ id: 'b' })], {
+    contentIdFor: (icon) => cid(icon.id),
+  });
   assert.equal(icons.length, 2);
   assert.deepEqual(
     icons.map((icon) => icon.id),
-    ['yt-a', 'yt-b']
+    [cid('a'), cid('b')]
   );
   assert.equal(
     icons.every((icon) => icon.source === 'yotopixels'),
+    true
+  );
+  assert.equal(
+    icons.every((icon) => icon.metadata.source_id === 'a' || icon.metadata.source_id === 'b'),
     true
   );
   assert.equal(YOTOPIXELS_BASE_URL, 'https://yotopixels.com');

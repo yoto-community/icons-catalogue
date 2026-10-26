@@ -12,6 +12,14 @@ export interface Icon {
   date_added: string;
   license?: string;
   metadata?: {
+    /**
+     * Identifiant **natif** de la source (provenance) : uuid yotopixels,
+     * id numérique yotoicons, `mediaId` officiel. L'`id` canonique, lui, est un
+     * hash de contenu (cf. `base64url(sha256)`).
+     */
+    source_id?: string;
+    /** Format de l'identifiant de contenu porté par `id` (toujours « base64url »). */
+    content_encoding?: string;
     original_id?: string;
     creator_id?: string;
     /** Identifiant numérique d'origine sur yotoicons (ex. « 1234 »). */
@@ -27,6 +35,10 @@ export interface Icon {
      * (détecté au build, P1.4).
      */
     duplicate_of?: string;
+    /** Identifiants natifs des sources fusionnées (doublons de contenu exacts). */
+    merged_source_ids?: string[];
+    /** Nombre d'entrées de contenu fusionnées dans cette icône canonique. */
+    merged_count?: number;
   };
 }
 
@@ -45,10 +57,17 @@ export interface SummaryData {
   updatedAt: string;
   total: number;
   counts: SummaryCounts;
-  /** Doublons inter-sources détectés au build (P1.4). */
+  /**
+   * Doublons détectés au build : déduplication **sémantique** inter-sources
+   * (P1.4, `groups`/`icons`) et **fusion de contenu** exact (`content`).
+   */
   duplicates?: {
     groups: number;
     icons: number;
+    content?: {
+      groups: number;
+      merged: number;
+    };
   };
 }
 

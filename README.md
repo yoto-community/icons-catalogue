@@ -1,6 +1,6 @@
 # Yoto Icons Catalogue
 
-Catalogue unifié de **~27 460 icônes 16×16 pour Yoto Player**, réunissant trois
+Catalogue unifié de **~27 150 icônes 16×16 pour Yoto Player**, réunissant trois
 sources (yotopixels, yotoicons et les icônes officielles Yoto) dans une seule
 interface : recherche full-text, filtres, favoris et téléchargement. 100 %
 statique — sans compte ni backend — et installable comme application.
@@ -59,7 +59,7 @@ Interface disponible en **français** et **anglais** (sélecteur dans l'en-tête
 | **yotoicons** | ~25 630 | CC-BY-NC | Pagination HTML (`/icons?page=N`) |
 | **yoto-official** | ~520 | Yoto Official | Bundle JS Astro (découvert depuis `/icons/using-icons/`) |
 
-**Total : ~27 460 icônes unifiées**
+**Total : ~27 150 icônes unifiées**
 
 Les icônes restent la propriété de leurs auteurs : respectez les licences
 (certaines interdisent l'usage commercial). Le code de ce catalogue est sous
@@ -164,23 +164,29 @@ pnpm run update:readme
 pnpm run check:readme
 
 # Tests des modules partagés (node:test : taxonomy, inferTags, rateLimiter,
-# yotoicons, yoto-official, source-licenses, catalog-version, dedupe, guards,
-# readme-data)
+# content-id, content-dedupe, yotoicons, yoto-official, source-licenses,
+# catalog-version, dedupe, guards, readme-data)
 pnpm test
 ```
 
-`build:api` : attribue les licences par source, détecte les **doublons
-inter-sources** (marqués `metadata.duplicate_of` + comptés dans
+`build:api` : attribue les licences par source, calcule les **identifiants de
+contenu** (`base64url(sha256(image))`, cf. `docs/analyse-id-sha256.md`),
+**fusionne les doublons de contenu exacts** (politique canonique : la source
+prioritaire est publiée, les autres sont tracées), détecte les **doublons
+inter-sources** sémantiques (marqués `metadata.duplicate_of` + comptés dans
 `summary.duplicates`), incrémente `catalogVersion` et régénère la section
 « Données actuelles » du README depuis `site/public/summary.json` (P0.5).
 
 ## Schéma de données commun
 
-Chaque icône suit ce format normalisé :
+Chaque icône suit ce format normalisé. Deux identifiants cohabitent :
+**`id`** = identifiant de **contenu** (`base64url(sha256(bytes de l'image))`,
+43 caractères, canonique) et **`metadata.source_id`** = identifiant **natif** de
+la source (provenance).
 
 ```json
 {
-  "id": "yt-artist-titre-icone",
+  "id": "d1dFuvdzskXcC0uedCcrknLPHjvzTLLc9ouVyCDBCRg",
   "source": "yotopixels" | "yotoicons" | "yoto-official",
   "tags": ["moon", "night", "nature"],
   "artist": "nom-artiste",
@@ -193,16 +199,30 @@ Chaque icône suit ce format normalisé :
   "date_added": "2026-10-18T10:30:00Z",
   "license": "CC-BY-SA" | "CC-BY-NC" | "Yoto Official",
   "metadata": {
+    "source_id": "cb239825-6dd8-402e-b00b-a788ede40b07",
+    "content_encoding": "base64url",
     "original_id": "...",
     "creator_id": "...",
     "numeric_id": "...",
     "detail_url": "...",
     "media_id": "...",
     "official": true,
-    "duplicate_of": "id-de-l-icône-canonique"
+    "duplicate_of": "id-de-l-icône-canonique",
+    "merged_source_ids": ["id-natif-1", "id-natif-2"],
+    "merged_count": 2
   }
 }
 ```
+
+> **`id` = contenu** : l'`id` canonique est le hash SHA-256 des octets de l'image,
+> encodé en base64url (43 caractères) — le même modèle que le `mediaId` officiel
+> Yoto (qui *est* déjà ce hash). Deux images aux octets identiques produisent donc
+> le même `id`, quelle que soit la source. Utiliser **`metadata.source_id`** pour
+> retrouver une icône par son identifiant d'origine.
+
+> **`metadata.source_id`** : identifiant **natif** de la source — uuid
+> `yotopixels`, id numérique `yotoicons`, `mediaId` `yoto-official` (pour cette
+> dernière, `id == source_id == media_id`).
 
 > **`date_added`** : date de **collecte** (horodatage du scrape) pour yotoicons et
 > yoto-official, seule date réellement exposée par ces sources ; yotopixels
@@ -213,6 +233,12 @@ Chaque icône suit ce format normalisé :
 > même visuel dans une autre source (titre + catégorie normalisés, 1 candidat max
 > par source). La valeur est l'`id` de l'icône **canonique** (source prioritaire
 > `yoto-official` > `yotopixels` > `yotoicons`). Aucune icône n'est supprimée.
+
+> **`metadata.merged_source_ids` / `merged_count`** : présents quand plusieurs
+> entrées partageaient le **même contenu** (octets identiques → même `id`). Une
+> seule est publiée (la canonique) ; les autres sont retirées du catalogue mais
+> leur provenance est conservée dans ces champs (et les groupes sont listés dans
+> `summary.duplicates.content`).
 
 > **Taxonomie canonique** : `category` et `subcategory` sont attribuées par un
 > classificateur unique et partagé (`scripts/lib/taxonomy.js`), aligné sur les
@@ -343,7 +369,7 @@ site/
 
 ### Architecture de la recherche (performance)
 
-La construction de l'index Lunr coûte **~1,5 s** pour ~27 460 icônes. Deux
+La construction de l'index Lunr coûte **~1,5 s** pour ~27 150 icônes. Deux
 mécanismes évitent que ce coût pénalise l'utilisateur :
 
 1. **Web Worker** (`searchIndex.worker.ts`) — l'index est construit et conservé
@@ -510,23 +536,23 @@ entrées `shards` listent aussi les artefacts locaux non publiés).
 
 ```json
 {
-  "schemaVersion": 2,
-  "catalogVersion": "2026.10.21-1",
-  "updatedAt": "2026-10-21T09:19:04.329Z",
+  "schemaVersion": 3,
+  "catalogVersion": "2026.10.26-2",
+  "updatedAt": "2026-10-26T10:40:59.217Z",
   "counts": {
-    "total": 27460,
-    "bySource": { "yotopixels": 1314, "yotoicons": 25627, "yoto-official": 519 },
-    "byCategory": { "objets": 8196, "animaux": 6375, ... }
+    "total": 27150,
+    "bySource": { "yotopixels": 1312, "yotoicons": 25319, "yoto-official": 519 },
+    "byCategory": { "objets": 7291, "animaux": 6657, ... }
   },
-  "sources": [{ "id": "yotopixels", "count": 1314 }, ...],
-  "categories": [{ "id": "objets", "count": 8196 }, ...],
+  "sources": [{ "id": "yotopixels", "count": 1312 }, ...],
+  "categories": [{ "id": "objets", "count": 7291 }, ...],
   "shards": [
-    { "path": "icons.json", "type": "full", "count": 27460, "bytes": 18719413, "sha256": "..." },
-    { "path": "icons-by-source/yotoicons.json", "type": "source", "source": "yotoicons", "count": 25627, ... },
-    { "path": "icons-by-category/objets.json", "type": "category", "category": "objets", "count": 8196, ... }
+    { "path": "icons.json", "type": "full", "count": 27150, "bytes": 21100370, "sha256": "..." },
+    { "path": "icons-by-source/yotoicons.json", "type": "source", "source": "yotoicons", "count": 25319, ... },
+    { "path": "icons-by-category/objets.json", "type": "category", "category": "objets", "count": 7291, ... }
   ],
-  "searchIndex": { "path": "search-index.json", "bytes": 28378191, "sha256": "..." },
-  "summary": { "path": "summary.json", "bytes": 48517, "sha256": "..." }
+  "searchIndex": { "path": "search-index.json", "bytes": 36543126, "sha256": "..." },
+  "summary": { "path": "summary.json", "bytes": 48353, "sha256": "..." }
 }
 ```
 
@@ -534,7 +560,7 @@ entrées `shards` listent aussi les artefacts locaux non publiés).
 
 ```json
 {
-  "id": "yi-allisonhopes-2706",
+  "id": "LZ0OGDaJz-Mbud5o3yDBBjeFvDHVdkSNTXIWogHZ0kw",
   "source": "yotoicons",
   "tags": ["bluey", "animals"],
   "artist": "@allisonhopes",
@@ -547,6 +573,8 @@ entrées `shards` listent aussi les artefacts locaux non publiés).
   "date_added": "2026-10-21T08:21:25.945Z",
   "license": "CC-BY-NC",
   "metadata": {
+    "source_id": "2706",
+    "content_encoding": "base64url",
     "numeric_id": "2706",
     "source_category": "animals",
     "detail_url": "https://www.yotoicons.com/icons?tag=Bluey"
@@ -584,8 +612,14 @@ L'API est conçue pour être consommée par n'importe quel client (React, Vue, v
   **pas** versionnés : ils sont régénérés au build (P1.5). L'index de recherche
   (`dist/search-index.json`) et le catalogue complet `dist/icons.json` ne sont
   **pas publiés** (P1.3).
-- Doublons inter-sources marqués au build (`metadata.duplicate_of`,
-  `summary.duplicates`, badge « Doublon ») : 45 groupes / 45 icônes (P1.4)
+- Doublons **sémantiques** inter-sources marqués au build
+  (`metadata.duplicate_of`, `summary.duplicates`, badge « Doublon ») : 45 groupes /
+  45 icônes (P1.4) — **non destructif** (aucune icône supprimée). Le compteur peut
+  varier légèrement d'un build à l'autre (fusion de contenu, nouveaux scrapes).
+- Doublons de **contenu** exacts (octets identiques → même `id`) **fusionnés** au
+  build (`summary.duplicates.content`, `metadata.merged_source_ids` /
+  `merged_count`) : la canonique est publiée, les autres sont retirées du
+  catalogue mais tracées (cf. `docs/analyse-id-sha256.md` §4.1)
 - Icônes officielles Yoto : pas de compteur de téléchargements (fixé à 0)
 - **yotopixels ne fournit des `tags` que pour ~49 % de ses icônes** (643/1314) :
   la recherche full-text y est donc moins pertinente. Corriger cela demande
@@ -593,21 +627,22 @@ L'API est conçue pour être consommée par n'importe quel client (React, Vue, v
 
 ## Données actuelles (dernier build)
 
-- **Total** : 27 570 icônes
-- **yotopixels** : 1 314
-- **yotoicons** : 25 737
+- **Total** : 27 150 icônes
+- **yotopixels** : 1 312
+- **yotoicons** : 25 319
 - **yoto-official** : 519
-- **Doublons inter-sources** : 46 groupes / 46 icônes marquées
+- **Doublons inter-sources** : 45 groupes / 45 icônes marquées
+- **Doublons de contenu fusionnés** : 409 groupes / 420 icônes retirées
 
 ### Catégories principales
-- `objets` : 7 399
-- `animaux` : 6 752
-- `personnages` : 6 545
-- `nature` : 2 087
-- `formes` : 1 974
-- `transport` : 1 247
-- `nourriture` : 1 040
-- `batiments` : 391
+- `objets` : 7 291
+- `animaux` : 6 657
+- `personnages` : 6 466
+- `nature` : 2 049
+- `formes` : 1 904
+- `transport` : 1 239
+- `nourriture` : 1 027
+- `batiments` : 382
 - `fetes` : 49
 - `musique` : 43
 - `activites` : 28
