@@ -12,8 +12,8 @@ export function useDebouncedSearch({
   onUrlSync,
   urlSyncDelay = 100,
 }: UseDebouncedSearchProps) {
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
-  const urlSyncRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const urlSyncRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const performSearch = useCallback(() => {
     onSearch();

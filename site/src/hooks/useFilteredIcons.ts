@@ -33,11 +33,10 @@ export function useFilteredIcons({
   const [matchingIds, setMatchingIds] = useState<Set<string> | null>(null);
 
   useEffect(() => {
-    // Requête vide : pas de filtre texte.
-    if (!trimmedQuery || !searchEngine) {
-      setMatchingIds(null);
-      return;
-    }
+    // Requête vide ou moteur absent : on ne filtre pas le texte. Le résultat
+    // précédent est conservé (le `useMemo` ci-dessous l'ignore tant que la
+    // requête est vide), ce qui évite un clignotement de la grille.
+    if (!trimmedQuery || !searchEngine) return;
 
     let cancelled = false;
     searchEngine

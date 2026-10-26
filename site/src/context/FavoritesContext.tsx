@@ -26,22 +26,18 @@ function parseFavorites(raw: string | null): string[] {
 }
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [isLoaded, setIsLoaded] = useState(false);
+  // Lecture SYNCHRONE au montage (initialiseur paresseux) : l'état initial vaut
+  // déjà les favoris stockés, ce qui supprime le rendu en cascade d'un effet de
+  // chargement et le risque d'écraser le stockage avec un état vide.
+  const [favorites, setFavorites] = useState<Set<string>>(
+    () => new Set(parseFavorites(localStorage.getItem(FAV_KEY)))
+  );
 
-  // Charge les favoris depuis localStorage au montage.
+  // Persiste à chaque changement. Le premier passage réécrit la valeur déjà
+  // chargée : sans effet de bord observable.
   useEffect(() => {
-    setFavorites(new Set(parseFavorites(localStorage.getItem(FAV_KEY))));
-    setIsLoaded(true);
-  }, []);
-
-  // Persiste à chaque changement. Le premier enregistrement n'a lieu qu'après
-  // le chargement initial, pour ne pas écraser le stockage avec un état vide.
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem(FAV_KEY, JSON.stringify([...favorites]));
-    }
-  }, [favorites, isLoaded]);
+    localStorage.setItem(FAV_KEY, JSON.stringify([...favorites]));
+  }, [favorites]);
 
   // Synchronisation inter-onglets : `storage` ne se déclenche que dans les
   // AUTRES onglets, il n'y a donc pas de boucle à éviter côté émetteur.

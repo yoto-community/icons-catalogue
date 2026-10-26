@@ -85,6 +85,20 @@ describe('usePagination', () => {
     expect(result.current.paginatedIcons).toHaveLength(10);
   });
 
+  it('conserve la page courante quand le nouveau total la couvre encore', () => {
+    const { result, rerender } = renderHook(({ list }) => usePagination({ filteredIcons: list }), {
+      initialProps: { list: makeIcons(10) },
+    });
+
+    expect(result.current.totalPages).toBe(1);
+
+    // La liste grandit : totalPages change, mais la page 1 reste valide.
+    rerender({ list: icons });
+
+    expect(result.current.totalPages).toBe(3);
+    expect(result.current.currentPage).toBe(1);
+  });
+
   it('setCurrentPage expose un setter fonctionnel', () => {
     const { result } = renderHook(() => usePagination({ filteredIcons: icons }));
 

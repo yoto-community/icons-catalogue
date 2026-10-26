@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { ICONS_PER_PAGE } from '../constants';
 
 interface UsePaginationProps<T> {
@@ -33,12 +33,17 @@ export function usePagination<T>({
     [totalFiltered]
   );
 
-  // Reset currentPage if it exceeds totalPages
-  useEffect(() => {
+  // Si la page courante dépasse le nouveau total (filtre plus strict), on
+  // revient à la page 1. Ajustement PENDANT le rendu plutôt que dans un effet :
+  // c'est le pattern recommandé par React pour « dériver l'état d'une prop »,
+  // et il évite le rendu en cascade.
+  const [prevTotalPages, setPrevTotalPages] = useState(totalPages);
+  if (totalPages !== prevTotalPages) {
+    setPrevTotalPages(totalPages);
     if (currentPage > totalPages) {
       setCurrentPage(1);
     }
-  }, [totalPages, currentPage]);
+  }
 
   // Modèle « accumulation » : au lieu de remplacer la page courante, la grille
   // conserve les icônes déjà affichées et en ajoute à chaque « Charger plus ».

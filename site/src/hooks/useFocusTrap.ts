@@ -28,7 +28,7 @@ function getFocusable(container: HTMLElement): HTMLElement[] {
  */
 export function useFocusTrap<T extends HTMLElement = HTMLDivElement>(
   active: boolean
-): RefObject<T> {
+): RefObject<T | null> {
   const ref = useRef<T>(null);
 
   useEffect(() => {

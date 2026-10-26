@@ -413,11 +413,11 @@ export const ENDPOINTS = {
 
 | Package | Version | Usage |
 |---------|---------|-------|
-| React | 18 | UI |
-| React DOM | 18 | Rendering |
+| React | 19 | UI |
+| React DOM | 19 | Rendering |
 | React Router DOM | 7 | Routing SPA |
 | Lunr.js | 2.3.9 | Full-text search client-side |
-| Vite | 5 | Build tool + dev server |
+| Vite | 8 | Build tool + dev server |
 | TypeScript | 5 | Typage statique |
 | vite-plugin-pwa | latest | PWA + Workbox |
 

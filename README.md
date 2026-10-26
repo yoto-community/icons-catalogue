@@ -287,7 +287,7 @@ la source (provenance).
 
 ## Frontend (site)
 
-Application React 18 + TypeScript + Vite 5 avec PWA (Workbox).
+Application React 19 + TypeScript + Vite 8 avec PWA (Workbox).
 
 > Les fonctionnalités visibles (recherche, filtres, favoris, PWA…) sont décrites
 > dans [Utilisation](#utilisation). Les sections ci-dessous portent sur le

@@ -56,6 +56,11 @@ describe('getSubcategoryLabel', () => {
     expect(getSubcategoryLabel('lune', t)).toBe('Moon');
     expect(getSubcategoryLabel('inconnu', t)).toBe('Inconnu');
   });
+
+  it('retombe sur la table fr si le traducteur ne connaît pas la clé', () => {
+    const t = (key: string) => key;
+    expect(getSubcategoryLabel('lune', t)).toBe('Lune');
+  });
 });
 
 describe('getCategoryIcon', () => {

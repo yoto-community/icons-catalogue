@@ -134,6 +134,18 @@ describe('useFilteredIcons', () => {
     await waitFor(() => expect(result.current).toHaveLength(0));
   });
 
+  it('replie sur un résultat vide si le moteur échoue', async () => {
+    const failingEngine: SearchEngine = {
+      ready: Promise.resolve(),
+      isReady: () => true,
+      search: () => Promise.reject(new Error('boom')),
+      dispose: () => {},
+    };
+    const { result } = renderFiltered({ query: 'moon', searchEngine: failingEngine });
+
+    await waitFor(() => expect(result.current).toHaveLength(0));
+  });
+
   it('combine recherche textuelle ET filtre de catégorie', async () => {
     // Le moteur dit « moon-1 » et « sun-1 », mais la catégorie limite à nature.
     const { result } = renderFiltered({

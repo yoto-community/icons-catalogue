@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
           cache-dependency-path: site/pnpm-lock.yaml
 
@@ -112,7 +112,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install root dependencies
         run: pnpm install --frozen-lockfile
@@ -147,7 +147,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
           cache-dependency-path: site/pnpm-lock.yaml
 

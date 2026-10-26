@@ -5,7 +5,7 @@ l'environnement, les conventions et les vérifications attendues avant une PR.
 
 ## Prérequis
 
-- **Node.js 20** (voir `.nvmrc` : `nvm use`)
+- **Node.js 22** (voir `.nvmrc` : `nvm use`)
 - **pnpm 12** (via `packageManager` dans `package.json` : `corepack enable`)
 - **Chromium** pour les tests E2E : `pnpm exec playwright install chromium`
 

@@ -20,10 +20,13 @@ const distDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'ass
 /**
  * Budgets en octets (gzip). Le poids est mesuré après compression car c'est
  * ce que le navigateur télécharge réellement.
+ *
+ * Relevés pour React 19 : son `react-dom` client est sensiblement plus gros
+ * que celui de React 18 (≈ +23 Ko gzip sur le chunk `index`).
  */
 const BUDGETS = {
-  total: 130 * 1024, // Budget global des JS+CSS compressés
-  perFile: 100 * 1024, // Aucun fichier compressé ne doit dépasser 100 Ko
+  total: 150 * 1024, // Budget global des JS+CSS compressés
+  perFile: 115 * 1024, // Aucun fichier compressé ne doit dépasser 115 Ko
 };
 
 function formatKo(bytes) {

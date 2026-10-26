@@ -49,7 +49,6 @@ export function useTheme() {
     const query = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (event: MediaQueryListEvent) => setSystemDark(event.matches);
 
-    setSystemDark(query.matches);
     query.addEventListener('change', handleChange);
     return () => query.removeEventListener('change', handleChange);
   }, []);
