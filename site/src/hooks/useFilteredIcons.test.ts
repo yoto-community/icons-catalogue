@@ -29,7 +29,7 @@ const ICONS: Icon[] = [
     downloads: 10,
     date_added: '2026-03-01T00:00:00Z',
     source: 'yotopixels',
-    license: 'CC-BY-SA',
+    license: 'Unspecified',
   }),
   makeIcon('cat-1', {
     title: 'sleeping cat',
@@ -38,7 +38,7 @@ const ICONS: Icon[] = [
     downloads: 30,
     date_added: '2026-01-01T00:00:00Z',
     source: 'yotoicons',
-    license: 'CC-BY-NC',
+    license: 'Source terms',
   }),
   makeIcon('sun-1', {
     title: 'bright sun',
@@ -47,7 +47,7 @@ const ICONS: Icon[] = [
     downloads: 20,
     date_added: '2026-02-01T00:00:00Z',
     source: 'yoto-official',
-    license: 'Yoto Official',
+    license: 'Proprietary',
   }),
 ];
 
@@ -73,7 +73,6 @@ function renderFiltered(overrides: Partial<Parameters<typeof useFilteredIcons>[0
     category: '',
     subcategory: '',
     source: '',
-    license: '',
     sortBy: 'downloads' as SortOption,
     ...overrides,
   };
@@ -100,11 +99,6 @@ describe('useFilteredIcons', () => {
   it('applique le filtre de source', () => {
     const { result } = renderFiltered({ source: 'yotopixels' });
     expect(result.current.map((icon) => icon.id)).toEqual(['moon-1']);
-  });
-
-  it('applique le filtre de licence', () => {
-    const { result } = renderFiltered({ license: 'CC-BY-NC' });
-    expect(result.current.map((icon) => icon.id)).toEqual(['cat-1']);
   });
 
   it('combine filtre de source ET de catégorie', () => {

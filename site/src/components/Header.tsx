@@ -18,6 +18,7 @@ const mainNavItems: NavItem[] = [
 
 const communityNavItems: NavItem[] = [
   { path: '/authors', labelKey: 'header.navAuthors' },
+  { path: '/sources', labelKey: 'header.navSources' },
   { path: '/developers', labelKey: 'header.navDevelopers' },
 ];
 

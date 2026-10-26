@@ -78,6 +78,13 @@ test.describe('accessibilité (axe-core)', () => {
     await scan(page, 'page développeurs');
   });
 
+  test('page sources', async ({ page }) => {
+    await openCatalogue(page);
+    await page.goto('/icons-catalogue/sources');
+    await expect(page.locator('.source-card')).toHaveCount(3);
+    await scan(page, 'page sources');
+  });
+
   test('page auteur', async ({ page }) => {
     await openCatalogue(page);
     await page.goto('/icons-catalogue/authors/%40e2e-sun');

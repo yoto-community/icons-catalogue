@@ -24,7 +24,7 @@
     "viewOnYoto": "Voir sur Yoto",
     "viewOnYotopixels": "Voir sur Yotopixels",
     "viewOnYotoicons": "Voir sur Yotoicons",
-    "license": "Licence",
+    "license": "Provenance",
     "tags": "Tags",
     "category": "Catégorie",
     "subcategory": "Sous-catégorie",
@@ -49,6 +49,7 @@
     "navAuthors": "Auteurs",
     "navFavorites": "Favoris",
     "navDevelopers": "Développeurs",
+    "navSources": "Sources",
     "navCommunity": "Communauté",
     "favoritesCount": "{{count}} favori{{count > 1 ? 's' : ''}}",
     "navEditor": "Éditeur"
@@ -74,9 +75,6 @@
     "sourceLabel": "Source",
     "sourceAria": "Filtrer par source",
     "allSources": "Toutes les sources",
-    "licenseLabel": "Licence",
-    "licenseAria": "Filtrer par licence",
-    "allLicenses": "Toutes les licences",
     "backgroundColorLabel": "Arrière-plan",
     "backgroundColorAria": "Choisir la couleur d'arrière-plan",
     "backgroundColorDefault": "Par défaut",
@@ -125,6 +123,7 @@
   "footer": {
     "updatedWeekly": "Données mises à jour automatiquement chaque semaine",
     "sources": "Sources:",
+    "aboutSources": "À propos des sources",
     "github": "GitHub"
   },
   "loading": {
@@ -243,6 +242,45 @@
     "yotoicons": "YotoIcons",
     "yoto-official": "Yoto officiel"
   },
+  "licenseLabels": {
+    "Unspecified": "Non précisé",
+    "Source terms": "Conditions de la source",
+    "Proprietary": "Yoto — tous droits réservés"
+  },
+  "sourcesPage": {
+    "title": "Sources des icônes",
+    "description": "Le catalogue réunit des icônes de trois sources. Aucune ne les place sous une licence standard : la « provenance » indiquée décrit les conditions réellement déclarées par chaque source, et les icônes restent la propriété de leurs auteurs.",
+    "listTitle": "Les trois sources",
+    "iconsLabel": "Icônes",
+    "natureLabel": "Nature",
+    "countsNote": "Compteurs issus du dernier build du catalogue ; les icônes strictement identiques présentes dans plusieurs sources ne sont comptées qu'une fois.",
+    "descriptions": {
+      "yotopixels": "Icônes partagées par la communauté, créées avec les outils YotoPixels.",
+      "yotoicons": "Grande bibliothèque d'icônes partagées par des auteurs de la communauté.",
+      "yoto-official": "Icônes fournies par Yoto pour ses cartes et son écosystème."
+    },
+    "natures": {
+      "yotopixels": "Communautaire",
+      "yotoicons": "Communautaire",
+      "yoto-official": "Officiel"
+    },
+    "conditionNotes": {
+      "yotopixels": "Aucune licence ni CGU publiée par la source : les icônes restent la propriété de leurs auteurs, aucun droit de réutilisation n'est accordé.",
+      "yotoicons": "Conditions propres à la source : les icônes sont partagées pour tous (yotoicons.com, l'API et yoto.space) et ces services peuvent les utiliser, y compris commercialement.",
+      "yoto-official": "Contenu propriétaire Yoto (tous droits réservés), indexé ici à titre d'information ; pour tout usage, référez-vous aux conditions Yoto."
+    },
+    "termsLink": "Conditions de la source",
+    "rightsDisclaimer": "Les icônes restent la propriété de leurs auteurs et/ou de Yoto. Le catalogue ne concède aucun droit : vérifiez les conditions de chaque source avant toute réutilisation, en particulier commerciale.",
+    "reuseTitle": "Réutiliser une icône",
+    "reuseContent": "La provenance (visible sur la fiche de chaque icône) résume les conditions déclarées par la source. Elle ne vaut pas autorisation : créditez toujours <strong>l'auteur (@pseudo)</strong> et la source, et vérifiez les conditions avant tout usage, notamment commercial.",
+    "duplicatesTitle": "Doublons entre sources",
+    "duplicatesContent": "Une même icône peut exister dans plusieurs sources. Le catalogue les signale par un badge <strong>« Doublon »</strong> et ne conserve qu'une copie des contenus strictement identiques : le total peut donc différer de la somme brute des sites.",
+    "moreTitle": "Pour aller plus loin",
+    "updatedAt": "Dernière mise à jour : {{date}}",
+    "updatedWeekly": "Les données sont mises à jour automatiquement chaque semaine.",
+    "devLink": "Intégrer les données via l'API (développeurs)",
+    "repoLink": "Méthode de collecte (dépôt GitHub)"
+  },
   "dev": {
     "title": "API développeurs",
     "description": "Endpoints statiques pour intégrer les icônes du catalogue Yoto dans vos applications. Aucune clé d'API, aucun backend.",
@@ -288,7 +326,7 @@
     "versioningContent": "Le champ <code>schemaVersion</code> du résumé indique la version du schéma ; <code>catalogVersion</code> (format AAAA.MM.JJ-N) identifie le build.",
     "stabilityContent": "Les champs existants ne sont jamais supprimés, seuls de nouveaux champs sont ajoutés.",
     "licenceTitle": "Licence et attribution",
-    "licenceContent": "Le code de ce catalogue est sous licence <a href=\"https://github.com/yoto-community/icons-catalogue/blob/main/LICENSE\">MIT</a>. Les icônes restent la propriété de leurs auteurs : consultez le champ <code>license</code> de chaque icône (ex. CC-BY-SA, CC-BY-NC, Yoto Official).",
+    "licenceContent": "Le code de ce catalogue est sous licence <a href=\"https://github.com/yoto-community/icons-catalogue/blob/main/LICENSE\">MIT</a>. Les icônes, elles, ne sont pas sous licence libre : leur provenance est indiquée dans le champ <code>license</code> de chaque icône (ex. <code>Unspecified</code>, <code>Source terms</code>, <code>Proprietary</code>). Elle décrit les conditions de la source et ne vaut pas autorisation de réutilisation ; consultez la page <a href=\"/sources\">Sources</a>.",
     "attributionLabel": "Attribution",
     "attributionContent": "Créditez l'auteur (@pseudo) et la source de chaque icône que vous réutilisez.",
     "contentsLabel": "Contenu des données",

@@ -56,6 +56,12 @@ describe('Header', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('expose un lien vers la page des sources dans le menu communauté', () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: 'Communauté' }));
+    expect(screen.getByRole('menuitem', { name: 'Sources' })).toHaveAttribute('href', '/sources');
+  });
+
   it('affiche le compteur de favoris quand il est non nul', () => {
     localStorage.setItem(FAV_KEY, JSON.stringify(['a', 'b']));
     const { container } = renderHeader();

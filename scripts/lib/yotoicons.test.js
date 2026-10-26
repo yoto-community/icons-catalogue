@@ -178,7 +178,7 @@ test('toNormalizedIcon produit une icône au schéma commun', () => {
   assert.equal(icon.category, 'animaux');
   assert.equal(icon.subcategory, 'animal');
   assert.equal(icon.downloads, 13652);
-  assert.equal(icon.license, 'CC-BY-NC');
+  assert.equal(icon.license, 'Source terms');
   assert.equal(icon.download_url, 'https://www.yotoicons.com/static/uploads/2706.png');
   assert.equal(icon.preview_image, icon.download_url);
   assert.equal(icon.metadata.source_id, '2706');

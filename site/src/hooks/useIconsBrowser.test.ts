@@ -167,8 +167,8 @@ describe('useIconsBrowser', () => {
 
   it('filtre par source puis réinitialise', () => {
     const icons = [
-      icon({ id: 'p1', source: 'yotopixels', license: 'CC-BY-SA' }),
-      icon({ id: 'i1', source: 'yotoicons', license: 'CC-BY-NC' }),
+      icon({ id: 'p1', source: 'yotopixels', license: 'Unspecified' }),
+      icon({ id: 'i1', source: 'yotoicons', license: 'Source terms' }),
     ];
     const { result } = renderHook(() =>
       useIconsBrowser({ ...base, icons, getSubcategories: () => [] })
@@ -184,37 +184,21 @@ describe('useIconsBrowser', () => {
     expect(result.current.hasActiveFilters).toBe(false);
   });
 
-  it('filtre par licence', () => {
-    const icons = [
-      icon({ id: 'sa', license: 'CC-BY-SA' }),
-      icon({ id: 'nc', license: 'CC-BY-NC' }),
-    ];
-    const { result } = renderHook(() =>
-      useIconsBrowser({ ...base, icons, getSubcategories: () => [] })
-    );
-
-    act(() => result.current.handleLicenseChange('CC-BY-NC'));
-    expect(result.current.totalFiltered).toBe(1);
-    expect(result.current.paginatedIcons[0].id).toBe('nc');
-  });
-
-  it('restaure source et licence depuis l’URL', () => {
-    window.history.replaceState(null, '', '/?source=yotoicons&license=CC-BY-NC');
+  it('restaure la source depuis l’URL', () => {
+    window.history.replaceState(null, '', '/?source=yotoicons');
 
     const { result } = renderHook(() => useIconsBrowser({ ...base, icons: ICONS }));
 
     expect(result.current.source).toBe('yotoicons');
-    expect(result.current.license).toBe('CC-BY-NC');
     expect(result.current.hasActiveFilters).toBe(true);
   });
 
-  it('ignore les valeurs de source/licence invalides dans l’URL', () => {
-    window.history.replaceState(null, '', '/?source=hacker&license=MIT');
+  it('ignore une source invalide dans l’URL', () => {
+    window.history.replaceState(null, '', '/?source=hacker');
 
     const { result } = renderHook(() => useIconsBrowser({ ...base, icons: ICONS }));
 
     expect(result.current.source).toBe('');
-    expect(result.current.license).toBe('');
   });
 
   it('écrit la source dans l’URL après un changement (débounce)', () => {

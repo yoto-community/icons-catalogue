@@ -5,13 +5,7 @@ import { useFilteredIcons } from './useFilteredIcons';
 import { usePagination } from './usePagination';
 import { useUrlSync } from './useUrlSync';
 import { useDebouncedSearch } from './useDebouncedSearch';
-import {
-  toSortOption,
-  toPageNumber,
-  toSourceFilter,
-  toLicenseFilter,
-  DEFAULT_SORT,
-} from '../utils/urlParams';
+import { toSortOption, toPageNumber, toSourceFilter, DEFAULT_SORT } from '../utils/urlParams';
 
 export interface UseIconsBrowserOptions {
   /** Icônes du périmètre : catalogue complet, catégorie ou auteur. */
@@ -47,7 +41,6 @@ export function useIconsBrowser({
   const [category, setCategory] = useState(lockedCategory ?? '');
   const [subcategory, setSubcategory] = useState('');
   const [source, setSource] = useState('');
-  const [license, setLicense] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>(DEFAULT_SORT);
 
   const subcategories = useMemo(() => getSubcategories(category), [getSubcategories, category]);
@@ -59,7 +52,6 @@ export function useIconsBrowser({
     category,
     subcategory,
     source,
-    license,
     sortBy,
   });
 
@@ -78,7 +70,6 @@ export function useIconsBrowser({
     category: lockedCategory ? '' : category,
     subcategory,
     source,
-    license,
     sortBy,
     currentPage,
   });
@@ -117,14 +108,6 @@ export function useIconsBrowser({
     [performSearch]
   );
 
-  const handleLicenseChange = useCallback(
-    (value: string) => {
-      setLicense(value);
-      performSearch();
-    },
-    [performSearch]
-  );
-
   const handleSortChange = useCallback(
     (value: SortOption) => {
       setSortBy(value);
@@ -138,14 +121,13 @@ export function useIconsBrowser({
     setCategory(lockedCategory ?? '');
     setSubcategory('');
     setSource('');
-    setLicense('');
     setSortBy(DEFAULT_SORT);
     setCurrentPage(1);
   }, [setCurrentPage, lockedCategory]);
 
   // La catégorie imposée n'est pas un « filtre actif » : elle est toujours là.
   const hasActiveFilters = Boolean(
-    query.trim() || subcategory || source || license || (!lockedCategory && category)
+    query.trim() || subcategory || source || (!lockedCategory && category)
   );
 
   // Restauration depuis l'URL, au montage uniquement.
@@ -156,7 +138,6 @@ export function useIconsBrowser({
     if (!lockedCategory && params.get('cat')) setCategory(params.get('cat')!);
     if (params.get('subcat')) setSubcategory(params.get('subcat')!);
     setSource(toSourceFilter(params.get('source')));
-    setLicense(toLicenseFilter(params.get('license')));
     if (params.get('sort')) setSortBy(toSortOption(params.get('sort')));
     if (params.get('page')) setCurrentPage(toPageNumber(params.get('page')));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- restauration volontairement limitée au montage : la relancer écraserait les filtres en cours de saisie.
@@ -167,7 +148,6 @@ export function useIconsBrowser({
     category,
     subcategory,
     source,
-    license,
     sortBy,
     subcategories,
     paginatedIcons,
@@ -180,7 +160,6 @@ export function useIconsBrowser({
     handleCategoryChange,
     handleSubcategoryChange,
     handleSourceChange,
-    handleLicenseChange,
     handleSortChange,
     handlePageChange,
     handleReset,

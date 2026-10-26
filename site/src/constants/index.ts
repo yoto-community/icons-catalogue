@@ -17,3 +17,4 @@ export function sourceShardUrl(source: string): string {
 export * from './categories';
 export * from './editor';
 export * from './filters';
+export * from './sources';

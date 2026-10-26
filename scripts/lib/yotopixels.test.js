@@ -170,7 +170,7 @@ test('toNormalizedIcon : mappe au schéma commun du catalogue', () => {
     subcategory: 'chat',
     downloads: 7,
     date_added: '2026-10-17T16:51:35.062Z',
-    license: 'CC-BY-SA',
+    license: 'Unspecified',
     metadata: {
       source_id: 'cb239825-6dd8-402e-b00b-a788ede40b07',
       original_id: 'cb239825-6dd8-402e-b00b-a788ede40b07',

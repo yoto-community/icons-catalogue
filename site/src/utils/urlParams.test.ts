@@ -3,7 +3,6 @@ import {
   toSortOption,
   toPageNumber,
   toSourceFilter,
-  toLicenseFilter,
   SORT_OPTIONS,
   DEFAULT_SORT,
 } from './urlParams';
@@ -82,19 +81,5 @@ describe('toSourceFilter', () => {
     expect(toSourceFilter(null)).toBe('');
     expect(toSourceFilter(undefined)).toBe('');
     expect(toSourceFilter('__proto__')).toBe('');
-  });
-});
-
-describe('toLicenseFilter', () => {
-  it('accepte chaque licence connue', () => {
-    expect(toLicenseFilter('CC-BY-SA')).toBe('CC-BY-SA');
-    expect(toLicenseFilter('CC-BY-NC')).toBe('CC-BY-NC');
-    expect(toLicenseFilter('Yoto Official')).toBe('Yoto Official');
-  });
-
-  it('rejette une licence inconnue ou absente', () => {
-    expect(toLicenseFilter('MIT')).toBe('');
-    expect(toLicenseFilter(null)).toBe('');
-    expect(toLicenseFilter(undefined)).toBe('');
   });
 });

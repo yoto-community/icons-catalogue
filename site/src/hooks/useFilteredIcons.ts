@@ -9,7 +9,6 @@ interface UseFilteredIconsProps {
   category: string;
   subcategory: string;
   source: string;
-  license: string;
   sortBy: SortOption;
 }
 
@@ -28,7 +27,6 @@ export function useFilteredIcons({
   category,
   subcategory,
   source,
-  license,
   sortBy,
 }: UseFilteredIconsProps): Icon[] {
   const trimmedQuery = query.trim();
@@ -76,14 +74,10 @@ export function useFilteredIcons({
       result = result.filter((icon) => icon.source === source);
     }
 
-    if (license) {
-      result = result.filter((icon) => icon.license === license);
-    }
-
     // Tri sur une copie : ne jamais muter le tableau `icons` du contexte.
     return [...result].sort((a, b) => {
       if (sortBy === 'downloads') return (b.downloads || 0) - (a.downloads || 0);
       return a.title.localeCompare(b.title);
     });
-  }, [icons, trimmedQuery, matchingIds, category, subcategory, source, license, sortBy]);
+  }, [icons, trimmedQuery, matchingIds, category, subcategory, source, sortBy]);
 }

@@ -24,7 +24,7 @@
     "viewOnYoto": "View on Yoto",
     "viewOnYotopixels": "View on Yotopixels",
     "viewOnYotoicons": "View on Yotoicons",
-    "license": "License",
+    "license": "Provenance",
     "tags": "Tags",
     "category": "Category",
     "subcategory": "Subcategory",
@@ -49,6 +49,7 @@
     "navAuthors": "Authors",
     "navFavorites": "Favorites",
     "navDevelopers": "Developers",
+    "navSources": "Sources",
     "navCommunity": "Community",
     "favoritesCount": "{{count}} favorite{{count > 1 ? 's' : ''}}",
     "navEditor": "Editor"
@@ -74,9 +75,6 @@
     "sourceLabel": "Source",
     "sourceAria": "Filter by source",
     "allSources": "All sources",
-    "licenseLabel": "License",
-    "licenseAria": "Filter by license",
-    "allLicenses": "All licenses",
     "backgroundColorLabel": "Background",
     "backgroundColorAria": "Choose background color",
     "backgroundColorDefault": "Default",
@@ -125,6 +123,7 @@
   "footer": {
     "updatedWeekly": "Data automatically updated weekly",
     "sources": "Sources:",
+    "aboutSources": "About the sources",
     "github": "GitHub"
   },
   "loading": {
@@ -243,6 +242,45 @@
     "yotoicons": "YotoIcons",
     "yoto-official": "Yoto official"
   },
+  "licenseLabels": {
+    "Unspecified": "Unspecified",
+    "Source terms": "Source terms",
+    "Proprietary": "Yoto — all rights reserved"
+  },
+  "sourcesPage": {
+    "title": "Icon sources",
+    "description": "The catalogue gathers icons from three sources. None places them under a standard license: the “provenance” shown describes the terms each source actually states, and the icons remain the property of their authors.",
+    "listTitle": "The three sources",
+    "iconsLabel": "Icons",
+    "natureLabel": "Nature",
+    "countsNote": "Counters come from the latest catalogue build; identical icons present in several sources are counted only once.",
+    "descriptions": {
+      "yotopixels": "Icons shared by the community, created with YotoPixels tools.",
+      "yotoicons": "A large library of icons shared by community authors.",
+      "yoto-official": "Icons provided by Yoto for its cards and ecosystem."
+    },
+    "natures": {
+      "yotopixels": "Community",
+      "yotoicons": "Community",
+      "yoto-official": "Official"
+    },
+    "conditionNotes": {
+      "yotopixels": "No license or terms published by the source: the icons remain the property of their authors and no reuse right is granted.",
+      "yotoicons": "Source-specific terms: the icons are shared with everyone (yotoicons.com, the API and yoto.space) and those services may use them, including commercially.",
+      "yoto-official": "Proprietary Yoto content (all rights reserved), indexed here for information; for any use, refer to Yoto's terms."
+    },
+    "termsLink": "Source terms",
+    "rightsDisclaimer": "The icons remain the property of their authors and/or Yoto. The catalogue grants no rights: check each source's terms before any reuse, especially commercial.",
+    "reuseTitle": "Reusing an icon",
+    "reuseContent": "The provenance (shown on each icon's detail page) summarises the terms stated by the source. It is not an authorisation: always credit <strong>the author (@handle)</strong> and the source, and check the terms before any use, particularly commercial.",
+    "duplicatesTitle": "Duplicates across sources",
+    "duplicatesContent": "The same icon may exist in several sources. The catalogue flags them with a <strong>“Duplicate”</strong> badge and keeps only one copy of strictly identical content: the total may therefore differ from the raw sum of the sites.",
+    "moreTitle": "Learn more",
+    "updatedAt": "Last updated: {{date}}",
+    "updatedWeekly": "Data is automatically updated weekly.",
+    "devLink": "Integrate the data via the API (developers)",
+    "repoLink": "Collection method (GitHub repository)"
+  },
   "dev": {
     "title": "Developer API",
     "description": "Static endpoints to integrate Yoto catalogue icons into your applications. No API key, no backend.",
@@ -288,7 +326,7 @@
     "versioningContent": "The summary <code>schemaVersion</code> field indicates the schema version; <code>catalogVersion</code> (format YYYY.MM.DD-N) identifies the build.",
     "stabilityContent": "Existing fields are never removed, only new fields are added.",
     "licenceTitle": "License & attribution",
-    "licenceContent": "This catalogue's code is licensed under <a href=\"https://github.com/yoto-community/icons-catalogue/blob/main/LICENSE\">MIT</a>. Icons remain the property of their authors: check each icon's <code>license</code> field (e.g. CC-BY-SA, CC-BY-NC, Yoto Official).",
+    "licenceContent": "This catalogue's code is licensed under <a href=\"https://github.com/yoto-community/icons-catalogue/blob/main/LICENSE\">MIT</a>. The icons themselves are not open-licensed: their provenance is given in each icon's <code>license</code> field (e.g. <code>Unspecified</code>, <code>Source terms</code>, <code>Proprietary</code>). It describes the source's terms and is not an authorisation to reuse; see the <a href=\"/sources\">Sources</a> page.",
     "attributionLabel": "Attribution",
     "attributionContent": "Credit the author (@handle) and source of every icon you reuse.",
     "contentsLabel": "Data contents",

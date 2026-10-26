@@ -81,7 +81,7 @@ test('toNormalizedIcon produit une icône au schéma commun', () => {
   assert.equal(icon.id, mediaId);
   assert.equal(icon.source, 'yoto-official');
   assert.equal(icon.artist, 'Yoto');
-  assert.equal(icon.license, 'Yoto Official');
+  assert.equal(icon.license, 'Proprietary');
   assert.equal(icon.downloads, 0);
   assert.equal(icon.category, 'fetes');
   assert.equal(icon.metadata.official, true);

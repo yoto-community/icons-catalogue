@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Icon } from '../types';
 import { normalizeUrl, getSourceUrl, getSourceLabel, getArtistUrl } from '../utils/iconUtils';
-import { getCategoryLabel, getSubcategoryLabel } from '../constants';
+import { getCategoryLabel, getSubcategoryLabel, getLicenseLabel } from '../constants';
 import { useI18n } from '../i18n';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
@@ -100,7 +100,7 @@ export function IconDetailModal({ icon, onClose, onDownload }: IconDetailModalPr
             {icon.license && (
               <div className="meta-item">
                 <span className="meta-label">{t('common.license')}</span>
-                <span className="meta-value">{icon.license}</span>
+                <span className="meta-value">{getLicenseLabel(icon.license, t)}</span>
               </div>
             )}
             <div className="meta-item">

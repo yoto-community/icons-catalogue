@@ -32,7 +32,7 @@ function validIcon(overrides = {}) {
     subcategory: 'etoile',
     downloads: 3,
     date_added: '2026-10-17T16:51:35.062Z',
-    license: 'CC-BY-SA',
+    license: 'Unspecified',
     tags: ['star'],
     metadata: { source_id: 'native-1' },
     ...overrides,
@@ -95,7 +95,7 @@ function mentions(errors, needle) {
 
 test('les enums exposées proviennent des sources uniques', () => {
   assert.deepEqual(SOURCES, ['yotopixels', 'yotoicons', 'yoto-official']);
-  assert.deepEqual(LICENSES, ['CC-BY-SA', 'CC-BY-NC', 'Yoto Official']);
+  assert.deepEqual(LICENSES, ['Unspecified', 'Source terms', 'Proprietary']);
   assert.equal(SCHEMA_VERSION, 3);
 });
 
@@ -135,7 +135,7 @@ test('validateIcon : la licence doit exister ET correspondre à la source', () =
   const inconnue = validateIcon(validIcon({ license: 'WTFPL' }));
   assert.equal(mentions(inconnue, 'license'), true);
 
-  const incoherente = validateIcon(validIcon({ source: 'yotopixels', license: 'CC-BY-NC' }));
+  const incoherente = validateIcon(validIcon({ source: 'yotopixels', license: 'Source terms' }));
   assert.equal(mentions(incoherente, 'licence'), true);
 });
 
@@ -294,7 +294,7 @@ test('assertValidCatalogue : ne lève rien pour un ensemble valide', () => {
         validIcon({
           id: cid('b'),
           source: 'yotoicons',
-          license: 'CC-BY-NC',
+          license: 'Source terms',
           subcategory: 'autre',
           metadata: { source_id: '2706' },
         }),

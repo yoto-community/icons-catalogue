@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import type { SortOption, SummaryData } from '../types';
 import { useI18n } from '../i18n';
 import { toSortOption } from '../utils/urlParams';
-import { SOURCE_OPTIONS, LICENSE_OPTIONS, getSourceLabel } from '../constants/filters';
+import { SOURCE_OPTIONS, getSourceLabel } from '../constants/filters';
 
 interface CategoryFilterProps {
   value: string;
@@ -100,36 +100,6 @@ export function SourceFilter({ value, onChange }: SourceFilterProps) {
   );
 }
 
-interface LicenseFilterProps {
-  value: string;
-  onChange: (value: string) => void;
-}
-
-export function LicenseFilter({ value, onChange }: LicenseFilterProps) {
-  const { t } = useI18n();
-
-  return (
-    <div className="filter-group">
-      <label htmlFor="license-filter" className="sr-only">
-        {t('filters.licenseLabel')}
-      </label>
-      <select
-        id="license-filter"
-        value={value}
-        onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-        aria-label={t('filters.licenseAria')}
-      >
-        <option value="">{t('filters.allLicenses')}</option>
-        {LICENSE_OPTIONS.map((license) => (
-          <option key={license} value={license}>
-            {license}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
 interface SortFilterProps {
   value: SortOption;
   onChange: (value: SortOption) => void;
@@ -182,7 +152,6 @@ interface FiltersProps {
   category: string;
   subcategory: string;
   source: string;
-  license: string;
   sortBy: SortOption;
   categories: string[];
   subcategories: string[];
@@ -191,7 +160,6 @@ interface FiltersProps {
   onCategoryChange: (value: string) => void;
   onSubcategoryChange: (value: string) => void;
   onSourceChange: (value: string) => void;
-  onLicenseChange: (value: string) => void;
   onSortChange: (value: SortOption) => void;
   onReset: () => void;
   hideCategoryFilter?: boolean;
@@ -201,7 +169,6 @@ export function Filters({
   category,
   subcategory,
   source,
-  license,
   sortBy,
   categories,
   subcategories,
@@ -210,7 +177,6 @@ export function Filters({
   onCategoryChange,
   onSubcategoryChange,
   onSourceChange,
-  onLicenseChange,
   onSortChange,
   onReset,
   hideCategoryFilter = false,
@@ -232,7 +198,6 @@ export function Filters({
           subcategories={subcategories}
         />
         <SourceFilter value={source} onChange={onSourceChange} />
-        <LicenseFilter value={license} onChange={onLicenseChange} />
         <SortFilter value={sortBy} onChange={onSortChange} />
         <ResetFilters hasActiveFilters={hasActiveFilters} onClick={onReset} />
       </div>

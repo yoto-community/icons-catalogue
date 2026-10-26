@@ -62,7 +62,6 @@ export function IconsBrowser({
     category,
     subcategory,
     source,
-    license,
     sortBy,
     subcategories,
     paginatedIcons,
@@ -75,7 +74,6 @@ export function IconsBrowser({
     handleCategoryChange,
     handleSubcategoryChange,
     handleSourceChange,
-    handleLicenseChange,
     handleSortChange,
     handlePageChange,
     handleReset,
@@ -115,7 +113,6 @@ export function IconsBrowser({
         category={category}
         subcategory={subcategory}
         source={source}
-        license={license}
         sortBy={sortBy}
         categories={categories}
         subcategories={subcategories}
@@ -124,7 +121,6 @@ export function IconsBrowser({
         onCategoryChange={handleCategoryChange}
         onSubcategoryChange={handleSubcategoryChange}
         onSourceChange={handleSourceChange}
-        onLicenseChange={handleLicenseChange}
         onSortChange={handleSortChange}
         onReset={handleReset}
         hideCategoryFilter={Boolean(lockedCategory)}

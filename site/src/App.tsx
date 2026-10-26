@@ -18,6 +18,7 @@ import {
   AuthorsListPage,
   AuthorIconsPage,
   DevelopersPage,
+  SourcesPage,
 } from './pages';
 import { normalizeUrl } from './utils/iconUtils';
 import { onWindowCustomEvent } from './utils/windowEvents';
@@ -191,6 +192,7 @@ function App() {
               }
             />
             <Route path="/developers" element={<DevelopersPage summary={summary} />} />
+            <Route path="/sources" element={<SourcesPage summary={summary} />} />
             <Route
               path="/editor"
               element={

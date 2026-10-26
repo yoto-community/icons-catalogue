@@ -2,8 +2,9 @@
 
 Catalogue unifié de **~27 150 icônes 16×16 pour Yoto Player**, réunissant trois
 sources (yotopixels, yotoicons et les icônes officielles Yoto) dans une seule
-interface : recherche full-text, filtres, favoris et téléchargement. 100 %
-statique — sans compte ni backend — et installable comme application.
+interface : recherche full-text, filtres, favoris, téléchargement et un
+**éditeur d'icônes 16×16** intégré. 100 % statique — sans compte ni backend — et
+installable comme application.
 
 **➡️ Accéder au catalogue** : `https://username.github.io/icons-catalogue/`
 
@@ -16,23 +17,43 @@ inscription n'est nécessaire.
 - Tapez dans la barre de recherche : la grille se filtre instantanément sur le
   titre, l'artiste, la catégorie et les tags.
 - Combinez avec les filtres **Catégorie**, **Sous-catégorie** (la seconde dépend
-  de la première), **Source** (yotopixels, yotoicons, yoto-official) et
-  **Licence** (CC-BY-SA, CC-BY-NC, Yoto Official).
+  de la première) et **Source** (yotopixels, yotoicons, yoto-official). La
+  **provenance** de chaque icône (conditions déclarées par sa source) est
+  affichée sur la fiche et récapitulée sur la page `/sources` ; elle n'a pas de
+  filtre dédié, chaque source ayant une provenance unique.
 - Choisissez le tri : **Téléchargements** (défaut) ou **Titre A-Z**.
 
 ### Parcourir
 - `/categories` — toutes les catégories avec leur nombre d'icônes.
 - `/authors` — tous les artistes avec leur nombre d'icônes.
+- `/sources` — provenance, licences et attribution des icônes (menu **Communauté**).
+- `/developers` — documentation de l'API statique et endpoints publiés (menu **Communauté**).
 - Cliquez une icône pour ouvrir sa fiche (aperçu grand format, téléchargement et
   métadonnées). Un survol au clic droit (ou l'icône 🔍) ouvre un aperçu latéral rapide.
 
 ### Favoris
 - Cliquez le **cœur** d'une icône pour l'enregistrer ; retrouvez-les sur `/favorites`.
 - Les favoris restent dans votre navigateur (localStorage) — aucun compte requis.
+- **Export en `.zip`** : téléchargez d'un coup les images de tous vos favoris.
+
+### Créer / modifier une icône (éditeur)
+- `/editor` (menu principal **Éditeur**) — éditeur de pixel art **16×16** pour le
+  Yoto Player : crayon, gomme, remplissage, pipette, palette rapide, couleur
+  personnalisée et réglage d'**opacité**.
+- **Import d'image** : partez d'un fichier PNG/JPEG (converti automatiquement en
+  16×16) ou, depuis la fiche d'une icône officielle, du bouton
+  **« Retoucher dans l'éditeur »**.
+- **Brouillon auto-sauvegardé** dans le navigateur (localStorage), restaurable ou
+  jetable, et **export PNG 16×16**.
+- Aides au dessin : compteur de couleurs, alerte au-delà de 8 couleurs (lisibilité)
+  et alerte « noir pur » (invisible sur le fond noir du Player).
+- Raccourcis : `p` crayon · `g` gomme · `f` remplissage · `b` pipette ·
+  `1`–`9` palette · flèches pour déplacer le curseur · `Entrée`/`Espace` pour
+  peindre · `Ctrl+Z` annuler · `Ctrl+Shift+Z` rétablir.
 
 ### Partager une recherche
 L'URL reflète toujours la vue courante
-(`?q=moon&cat=nature&source=yotoicons&license=CC-BY-NC&sort=downloads&page=2`) :
+(`?q=moon&cat=nature&source=yotoicons&sort=downloads&page=2`) :
 copiez-la pour partager exactement la même sélection.
 
 ### Installer l'application (PWA)
@@ -46,24 +67,28 @@ réseau d'abord), puis restent disponibles **hors-ligne**.
 | Raccourci | Action |
 |-----------|--------|
 | `/` | Placer le curseur dans la recherche |
-| `Échap` | Effacer la recherche / fermer la fiche |
+| `Échap` | Quitter la recherche / fermer la fiche |
 
 ### Langues
 Interface disponible en **français** et **anglais** (sélecteur dans l'en-tête).
 
 ## Sources & licences
 
-| Source | Icônes | Licence | Méthode |
-|--------|--------|---------|---------|
-| **yotopixels** | ~1 310 | CC-BY-SA | API SvelteKit (`/search?q=&sort=newest&page=N`) |
-| **yotoicons** | ~25 630 | CC-BY-NC | Pagination HTML (`/icons?page=N`) |
-| **yoto-official** | ~520 | Yoto Official | Bundle JS Astro (découvert depuis `/icons/using-icons/`) |
+| Source | Icônes | Provenance | Méthode |
+|--------|--------|------------|---------|
+| **yotopixels** | ~1 310 | Non précisé | API SvelteKit (`/search?q=&sort=newest&page=N`) |
+| **yotoicons** | ~25 320 | Conditions de la source | Pagination HTML (`/icons?page=N`) |
+| **yoto-official** | ~520 | Yoto — tous droits réservés | Bundle JS Astro (découvert depuis `/icons/using-icons/`) |
 
 **Total : ~27 150 icônes unifiées**
 
-Les icônes restent la propriété de leurs auteurs : respectez les licences
-(certaines interdisent l'usage commercial). Le code de ce catalogue est sous
-licence MIT (voir [Licence](#licence)).
+Les icônes restent la propriété de leurs auteurs et/ou de Yoto. **Aucune de ces
+sources ne place ses icônes sous une licence libre (CC/SPDX)** : la colonne
+« Provenance » décrit les conditions réellement déclarées par chaque source
+(vérifiées le 2026-10-26). Le catalogue ne concède aucun droit de réutilisation :
+consultez les conditions de la source (page `/sources`) avant tout usage,
+notamment commercial. Le code de
+ce catalogue est sous licence MIT (voir [Licence](#licence)).
 
 ## Structure
 
@@ -87,30 +112,41 @@ icons-catalogue/
 │   ├── yotoicons-scraper.js        # Scraper yotoicons.com (pagination HTML)
 │   ├── yoto-official-scraper.js    # Scraper icônes officielles Yoto (bundle JS)
 │   ├── build-api.js                # Génère dist/ puis copie les fichiers servis dans site/public
+│   ├── update-readme-data.js       # Régénère la section « Données actuelles » du README
+│   ├── check-readme-data.js        # Garde-fou CI : section README ↔ summary.json
+│   ├── check-summary-sync.js       # Garde-fou CI : data/ ↔ summary.json (dérive)
 │   └── lib/                        # Modules partagés + tests node:test
 │       ├── taxonomy.js             # Catégories / sous-catégories canoniques (source unique)
 │       ├── inferTags.js            # Inférence de tags depuis le titre
 │       ├── rateLimiter.js          # fetch + reprise (backoff) + limitation de débit
+│       ├── fetchWithTimeout.js     # fetch avec délai maximal
+│       ├── yotopixels.js           # Parsing SvelteKit/HTML yotopixels (testée)
 │       ├── yotoicons.js            # Parsing yotoicons (source unique, testée)
 │       ├── yoto-official.js        # Découverte du bundle + parsing yoto.dev (testée)
 │       ├── source-licenses.js      # Licences par source (source unique)
-│       ├── catalog-version.js      # catalogVersion strictement croissante
+│       ├── content-id.js           # Identifiant de contenu base64url(sha256) (cf. docs/)
+│       ├── image-hash.js           # Téléchargement + hachage des images (scrapers)
+│       ├── content-dedupe.js       # Fusion canonique des doublons de contenu
 │       ├── dedupe.js               # Détection des doublons inter-sources (marquage)
+│       ├── catalog-version.js      # catalogVersion strictement croissante
+│       ├── summary-sync.js         # Contrôle data/ ↔ summary.json (CI)
+│       ├── catalogue-schema.js     # Validation des artefacts de build (schémas)
 │       └── catalogue-guards.js     # Garde-fous build:api (sources présentes, anti-régression)
 ├── site/                           # Frontend React (Vite + TypeScript + PWA), déployé sur GitHub Pages
 │   ├── src/
-│   │   ├── components/             # Composants UI (IconsBrowser, Filters, Modal, etc.)
-│   │   ├── hooks/                  # Hooks personnalisés (useIconsBrowser, useFilteredIcons, etc.)
-│   │   ├── pages/                  # Pages (Catalogue, Favorites, Categories, Authors)
+│   │   ├── components/             # Composants UI (IconsBrowser, Filters, Modal…) + editor/
+│   │   ├── hooks/                  # Hooks personnalisés (useIconsBrowser, useFilteredIcons, …)
+│   │   ├── pages/                  # Pages (Catalogue, Favoris, Catégories, Auteurs, Sources, Developers, Éditeur)
 │   │   ├── context/                # IconsDataContext, FavoritesContext
 │   │   ├── i18n/locales/           # Traductions fr/en (source unique, bundlée)
 │   │   ├── types/                  # Types + guards TypeScript
-│   │   └── constants/              # Constantes (ICONS_PER_PAGE, CATALOGUE_BASE, filtres, catégories)
+│   │   └── constants/              # Constantes (ICONS_PER_PAGE, CATALOGUE_BASE, filtres, catégories, éditeur)
 │   ├── public/                     # Fichiers servis sous /icons-catalogue/ (icons/, favicon.svg).
-│   │                               # index.json, icons-by-source/ et summary.json y sont
-│   │                               # *générés* par `build:api` et ne sont plus versionnés (cf. .gitignore).
+│   │                               # index.json et icons-by-source/ y sont *générés*
+│   │                               # par `build:api` (non versionnés, cf. .gitignore) ;
+│   │                               # summary.json, lui, reste versionné (marqueur de version).
 │   ├── scripts/                    # check-bundle-size, check-i18n-keys, check-spa-fallback,
-│   │                               # check-precache, check-data, postbuild
+│   │                               # check-precache, check-data, check-seo, postbuild, generate-icons
 │   ├── e2e/                        # Tests Playwright (parcours + audit a11y)
 │   ├── dist/                       # Build production (publié par deploy-pages.yml)
 │   ├── index.html
@@ -133,11 +169,12 @@ cd site
 pnpm install
 ```
 
-> **Données générées, non versionnées** : `site/public/summary.json`,
-> `site/public/index.json` et `site/public/icons-by-source/` sont produits par
-> `pnpm run build:api` (racine) et ne sont plus committés. Lancez-le **avant** le
-> build du site (`cd site && pnpm run build`), sinon le build échoue avec un
-> message explicite (`pnpm run check:data`).
+> **Données générées** : `site/public/index.json` et
+> `site/public/icons-by-source/` sont produits par `pnpm run build:api` (racine)
+> et ne sont plus committés (cf. `.gitignore`) ; `site/public/summary.json`, lui,
+> **reste versionné** (marqueur de `catalogVersion`). Lancez `build:api`
+> **avant** le build du site (`cd site && pnpm run build`), sinon le build échoue
+> avec un message explicite (`pnpm run check:data`).
 
 ## Scripts (scraping & build)
 
@@ -164,8 +201,9 @@ pnpm run update:readme
 pnpm run check:readme
 
 # Tests des modules partagés (node:test : taxonomy, inferTags, rateLimiter,
-# content-id, content-dedupe, yotoicons, yoto-official, source-licenses,
-# catalog-version, dedupe, guards, readme-data)
+# yotopixels, yotoicons, yoto-official, content-id, content-dedupe,
+# source-licenses, catalog-version, summary-sync, catalogue-schema, dedupe,
+# guards, readme-data)
 pnpm test
 ```
 
@@ -197,7 +235,7 @@ la source (provenance).
   "subcategory": "lune|soleil|etoile|coeur|plante|chat|chien|oiseau|fleche|animal|vehicule|batiment|nourriture|musique|noel|halloween|anniversaire|autre",
   "downloads": 123,
   "date_added": "2026-10-18T10:30:00Z",
-  "license": "CC-BY-SA" | "CC-BY-NC" | "Yoto Official",
+  "license": "Unspecified" | "Source terms" | "Proprietary",
   "metadata": {
     "source_id": "cb239825-6dd8-402e-b00b-a788ede40b07",
     "content_encoding": "base64url",
@@ -282,8 +320,13 @@ pnpm run test:watch    # Vitest en mode observation
 pnpm run test:coverage # Couverture (v8) + seuils : échoue si la couverture régresse
 pnpm run test:e2e      # Playwright : parcours complets + audit a11y (Chromium, build de prod)
 
+pnpm run check:bundle   # Budget de taille de bundle (gzip)
+pnpm run check:spa      # Repli SPA (dist/404.html présent et à jour)
+pnpm run check:precache # Aucune donnée précachée par le service worker
+pnpm run check:seo      # Balises SEO/partage (OG, Twitter, canonical) + robots.txt + sitemap.xml
+
 pnpm run verify        # Tout en séquence : lint + check + check:i18n + test + build
-                       #   + budget bundle + repli SPA + précache PWA
+                       #   + budget bundle + repli SPA + précache PWA + SEO
 ```
 
 > **Ordre recommandé** : `eslint --fix` puis `prettier --write`. ESLint applique
@@ -295,12 +338,14 @@ pnpm run verify        # Tout en séquence : lint + check + check:i18n + test + 
 > sont interceptées (fixture de 60 icônes dans `e2e/fixtures/`) : le parcours testé
 > couvre le **Web Worker Lunr réel** (`aria-busy` passé à `false`), le filtrage de la
 > grille après debounce, l'état vide, la pagination, les **favoris** (persistance
-> localStorage + page dédiée), les **filtres** catégorie/sous-catégorie/source/licence/tri, la
+> localStorage + page dédiée), les **filtres** catégorie/sous-catégorie/source/tri, la
 > **modale de détail** (clic, Échap, clic extérieur), les **raccourcis clavier**
-> (`/`, Échap) et la **bascule de langue**. Un audit **axe-core**
-> (`e2e/a11y.spec.ts`, normes WCAG A/AA) vérifie l'absence de violations
-> sérieuses ou critiques sur six scénarios : grille, résultats filtrés, état vide,
-> modale, favoris et page développeurs. Les animations sont désactivées
+> (`/`, Échap), la **bascule de langue**, le **repli SPA** (`404.html`) et
+> l'**éditeur d'icônes** (`e2e/editor.spec.ts` : dessin, outils, export, brouillon).
+> Un audit **axe-core** (`e2e/a11y.spec.ts`, normes WCAG A/AA) vérifie l'absence de
+> violations sérieuses ou critiques sur onze scénarios : grille, menu « Réglages »,
+> recherche filtrée, état vide, modale, favoris, pages développeurs / sources /
+> auteur, et éditeur (rendu + peinture au clavier). Les animations sont désactivées
 > (`reducedMotion: 'reduce'`) pour des mesures déterministes. Prérequis unique :
 > `pnpm exec playwright install chromium`.
 > Les seuils de couverture (plancher global + verrous 100 % sur la logique pure)
@@ -323,11 +368,11 @@ pnpm run build
 
 ```
 site/
-├── public/                     # Publié tel quel ; summary.json, index.json et
-│   │                           #   icons-by-source/ y sont GÉNÉRÉS par build:api
-│   │                           #   (non versionnés, cf. .gitignore)
+├── public/                     # Publié tel quel ; index.json et icons-by-source/
+│   │                           #   sont GÉNÉRÉS par build:api (non versionnés,
+│   │                           #   cf. .gitignore) ; summary.json reste versionné
 │   ├── index.json              # Manifeste publié (sources, compteurs)
-│   ├── summary.json            # Statistiques globales
+│   ├── summary.json            # Statistiques globales (versionné)
 │   ├── icons-by-source/        # Shards par source (yotopixels, yotoicons, yoto-official)
 │   ├── icons/                  # Icônes PWA (PNG 72→512)
 │   └── favicon.svg
@@ -337,6 +382,8 @@ site/
 │   ├── check-spa-fallback.mjs  # Repli SPA (dist/404.html)
 │   ├── check-precache.mjs      # Vérifie qu'aucune donnée n'est précachée (P1.3)
 │   ├── check-data.mjs          # Données générées présentes avant le build (P1.5)
+│   ├── check-seo.mjs           # Balises SEO/partage + robots.txt + sitemap.xml
+│   ├── generate-icons.js       # Génère les PNG du PWA (72→512)
 │   └── postbuild.mjs           # Génère dist/404.html
 ├── e2e/                        # Tests Playwright (parcours + audit axe-core)
 ├── src/
@@ -395,6 +442,9 @@ retournés par le moteur en état et les réapplique au filtre.
 | `/categories/:category` | Icônes d'une catégorie |
 | `/authors` | Liste des artistes avec compteurs |
 | `/authors/:artist` | Icônes d'un artiste |
+| `/sources` | Provenance, licences et attribution des icônes |
+| `/developers` | Documentation de l'API statique |
+| `/editor` | Éditeur d'icônes 16×16 (chargé à la demande) |
 
 ### Personnalisation
 
@@ -462,10 +512,12 @@ quels :
 > n'est **plus publié** : le volume total est équivalent, mais il imposait
 > d'attendre la fin du plus gros transfert avant le premier affichage.
 
-> Ces fichiers sont **générés au build** (`pnpm run build:api`), non versionnés.
-> Ils ne sont **pas précachés** par le service worker (P1.3) : la PWA les met en
-> cache à la première visite (cache runtime `catalogue-data`, réseau d'abord),
-> puis les sert hors-ligne.
+> `index.json` et `icons-by-source/*` sont **générés au build**
+> (`pnpm run build:api`) et non versionnés ; `summary.json` est également généré
+> mais **versionné** (marqueur de `catalogVersion`). Aucun de ces fichiers n'est
+> **précaché** par le service worker (P1.3) : la PWA les met en cache à la
+> première visite (cache runtime `catalogue-data`, réseau d'abord), puis les sert
+> hors-ligne.
 
 > Les métadonnées individuelles par icône (`dist/icons/{id}.json`), les shards
 > par catégorie (`dist/icons-by-category/{category}.json`), le catalogue complet
@@ -571,7 +623,7 @@ entrées `shards` listent aussi les artefacts locaux non publiés).
   "subcategory": "animal",
   "downloads": 13652,
   "date_added": "2026-10-21T08:21:25.945Z",
-  "license": "CC-BY-NC",
+  "license": "Source terms",
   "metadata": {
     "source_id": "2706",
     "content_encoding": "base64url",
@@ -621,9 +673,11 @@ L'API est conçue pour être consommée par n'importe quel client (React, Vue, v
   `merged_count`) : la canonique est publiée, les autres sont retirées du
   catalogue mais tracées (cf. `docs/analyse-id-sha256.md` §4.1)
 - Icônes officielles Yoto : pas de compteur de téléchargements (fixé à 0)
-- **yotopixels ne fournit des `tags` que pour ~49 % de ses icônes** (643/1314) :
-  la recherche full-text y est donc moins pertinente. Corriger cela demande
-  d'enrichir le scraper yotopixels, pas le build.
+- **Tags yotopixels** : les tags fournis par l'API sont conservés ; à défaut ils
+  sont **inférés depuis le titre** (`scripts/lib/inferTags.js`, correspondance par
+  mot entier). Chaque icône publiée porte donc au moins un tag ; la pertinence de
+  la recherche full-text sur cette source dépend de la qualité des titres, pas du
+  build.
 
 ## Données actuelles (dernier build)
 

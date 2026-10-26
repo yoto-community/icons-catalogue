@@ -1,26 +1,34 @@
 /**
- * Source unique de vérité des licences par source de catalogue.
+ * Source unique de vérité des licences/provenances par source de catalogue.
  *
  * Chaque icône publiée porte un champ `license`, appliqué depuis cette table au
- * moment du build. Cela remplace la valeur `CC-BY-SC` qui était codée en dur
- * dans le scraper yotopixels : ce n'est **pas** un identifiant de licence valide
- * (absent de Creative Commons comme de SPDX) et elle divergeait de l'UI de
- * l'application, qui cite `CC-BY-SA`.
+ * moment du build.
  *
- * Choix `yotopixels = CC-BY-SA` : yotopixels.com ne publie **aucune licence
- * explicite** (aucune mention sur l'accueil, la recherche, les pages d'icône, la
- * politique de confidentialité ; `/about` et `/terms` renvoient 404). En
- * l'absence de licence contraire et au vu de son intention de partage
- * communautaire (outil gratuit, icônes partagées), la valeur retenue est
- * `CC-BY-SA`, déjà citée par l'UI du catalogue. **À confirmer auprès de l'auteur
- * de yotopixels.**
+ * ⚠️ Ces valeurs **ne sont pas des identifiants SPDX/Creative Commons** : elles
+ * décrivent la **provenance et les conditions réellement déclarées** par la
+ * source. On n'affirme jamais une licence que la source n'a pas accordée.
+ *
+ * Vérification des licences réellement publiées par les sources
+ * (pages publiques consultées le 2026-10-26) :
+ *
+ * - `yotopixels` : le site ne publie **aucune** licence ni CGU (`/terms` et
+ *   `/about` renvoient 404 ; seul un *Privacy Policy* existe, sur les données
+ *   personnelles). Une licence Creative Commons ne peut donc pas être affirmée
+ *   au nom des auteurs → valeur retenue `Unspecified`.
+ * - `yotoicons` : `/terms` publie des **conditions maison** qui rendent les
+ *   icônes « available to everyone » (via yotoicons.com, l'API et yoto.space) et
+ *   **autorisent l'usage commercial** par ces services. Ce n'est **pas**
+ *   `CC-BY-NC` (qui interdirait l'usage commercial) → `Source terms`.
+ * - `yoto-official` : les icônes sont du **contenu propriétaire Yoto** (API Terms
+ *   of Service §6 : « all rights… remain with Yoto »). `Proprietary` décrit la
+ *   provenance/le régime applicable, pas une licence accordée.
  */
 
-/** Licences canoniques par source. */
+/** Provenance/conditions canoniques par source. */
 export const SOURCE_LICENSES = Object.freeze({
-  yotopixels: 'CC-BY-SA',
-  yotoicons: 'CC-BY-NC',
-  'yoto-official': 'Yoto Official',
+  yotopixels: 'Unspecified',
+  yotoicons: 'Source terms',
+  'yoto-official': 'Proprietary',
 });
 
 /** Valeur prudente pour une source non répertoriée. */

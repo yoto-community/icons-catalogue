@@ -10,7 +10,6 @@ const defaults: UseUrlSyncProps = {
   category: '',
   subcategory: '',
   source: '',
-  license: '',
   sortBy: DEFAULT_SORT,
   currentPage: 1,
 };
@@ -111,18 +110,16 @@ describe('useUrlSync', () => {
     expect(params.get('q')).toBe('lune');
   });
 
-  it('écrit source et license quand ils sont définis, les retire sinon', () => {
+  it('écrit la source quand elle est définie, la retire sinon', () => {
     const { result, rerender } = renderHook((p) => useUrlSync(p), {
-      initialProps: { ...defaults, source: 'yotoicons', license: 'CC-BY-NC' },
+      initialProps: { ...defaults, source: 'yotoicons' },
     });
 
     act(() => result.current.syncUrl());
     expect(readParams().get('source')).toBe('yotoicons');
-    expect(readParams().get('license')).toBe('CC-BY-NC');
 
     rerender(defaults);
     act(() => result.current.syncUrl());
     expect(readParams().get('source')).toBeNull();
-    expect(readParams().get('license')).toBeNull();
   });
 });

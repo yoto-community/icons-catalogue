@@ -6,16 +6,19 @@ Application React (Vite + TypeScript + PWA) pour la recherche unifiée d'icônes
 
 - **Recherche unifiée** : yotopixels + yotoicons + yoto-official sans filtre de source
 - **Recherche full-text** via Lunr.js (tags boostés ×10, artiste, titre, catégorie, sous-catégorie)
-- **Filtres** : Catégorie, Sous-catégorie (dépendante de la catégorie), Source (yotopixels / yotoicons / yoto-official), Licence (CC-BY-SA / CC-BY-NC / Yoto Official)
+- **Filtres** : Catégorie, Sous-catégorie (dépendante de la catégorie), Source (yotopixels / yotoicons / yoto-official)
 - **Tri** : Téléchargements (défaut), Titre A-Z
 - **Pagination** (48 icônes/page)
 - **Raccourcis clavier** :
   - `/` → Focus recherche
   - `Échap` → Effacer recherche / Fermer modal
 - **Synchronisation URL** : partage de liens avec filtres (`?q=moon&cat=nature&sort=downloads&page=2`)
-- **Favoris** : Persistance localStorage, page dédiée `/favorites`
+- **Favoris** : Persistance localStorage, page dédiée `/favorites`, export des icônes favorites en archive `.zip`
 - **Navigation par catégories** : `/categories` → `/categories/:category`
 - **Navigation par auteurs** : `/authors` → `/authors/:artist`
+- **Sources** : page `/sources` (menu **Communauté**) — provenance, licences et attribution des icônes
+- **Développeurs** : page `/developers` (menu **Communauté**) — documentation de l'API statique
+- **Éditeur d'icônes** : `/editor` (menu principal) — pixel art 16×16 (crayon, gomme, remplissage, pipette), palette + couleur personnalisée + opacité, import d'image, export PNG, brouillon auto-sauvegardé (localStorage), chargé à la demande (lazy)
 - **Modal détail** : Aperçu grand format, téléchargement, métadonnées complètes
 - **Mini-preview** : Panneau latéral au survol clic / icône 🔍
 - **Responsive** : mobile-first, grille adaptative (1 à 5 colonnes)
@@ -57,7 +60,7 @@ indiquant la commande `build:api` à lancer.
 site/
 ├── public/                      # Publié tel quel sous /icons-catalogue/
 │   ├── index.json               # Manifeste (sources, compteurs) — GÉNÉRÉ par build:api (non versionné)
-│   ├── summary.json             # Statistiques — GÉNÉRÉ par build:api (non versionné)
+│   ├── summary.json             # Statistiques — GÉNÉRÉ par build:api (versionné : marqueur de version)
 │   ├── icons-by-source/         # Shards par source — GÉNÉRÉ par build:api (non versionné)
 │   ├── icons/                   # Icônes PWA (PNG 72→512, pas les icônes du catalogue)
 │   └── favicon.svg
@@ -66,9 +69,11 @@ site/
 │   ├── check-i18n-keys.mjs      # Parité fr/en + clés utilisées
 │   ├── check-data.mjs           # Données générées présentes avant le build (P1.5)
 │   ├── check-precache.mjs       # Aucune donnée précachée par le SW (P1.3)
+│   ├── check-seo.mjs            # Balises SEO/partage (OG, Twitter, canonical) + robots + sitemap
+│   ├── generate-icons.js        # Génère les PNG du PWA (72→512)
 │   ├── postbuild.mjs            # Génère dist/404.html (repli SPA GitHub Pages)
 │   └── check-spa-fallback.mjs   # Vérifie que dist/404.html est présent et à jour
-├── e2e/                         # Playwright (search, filters, favorites, interactions, a11y, spa-fallback)
+├── e2e/                         # Playwright (search, filters, favorites, interactions, editor, ux, a11y, spa-fallback)
 ├── src/
 │   ├── main.tsx                 # Point d'entrée + providers + enregistrement PWA
 │   ├── App.tsx                  # Routes + état modal global
@@ -98,6 +103,8 @@ site/
 │   │   ├── ErrorBoundary.tsx    # Filet de sécurité racine (erreurs de rendu)
 │   │   ├── LoadingState.tsx     # Squelette de chargement
 │   │   ├── Footer.tsx           # Pied de page
+│   │   ├── editor/              # Éditeur 16×16 : PixelEditor, PixelGridEditor, EditorToolbar,
+│   │   │                        #   EditorPalette, EditorImportPanel, EditorPreview, EditorStatus, EditorHistoryBar
 │   │   └── FavoriteButton.tsx   # Bouton favori (cœur)
 │   ├── hooks/                   # Hooks personnalisés
 │   │   ├── useIconsBrowser.ts   # État de navigation partagé (catalogue + pages filtrées)
@@ -105,20 +112,28 @@ site/
 │   │   ├── usePagination.ts     # Pagination (48/page)
 │   │   ├── useUrlSync.ts        # Synchronisation URL <-> état
 │   │   ├── useDebouncedSearch.ts# Debounce recherche (80ms)
-│   │   └── useKeyboardShortcuts.ts # Raccourcis clavier
+│   │   ├── useKeyboardShortcuts.ts # Raccourcis clavier
+│   │   ├── usePixelEditor.ts    # Réducteur de l'éditeur (dessin, undo/redo)
+│   │   ├── useEditorDraft.ts    # Auto-sauvegarde du brouillon (localStorage)
+│   │   ├── useImageImport.ts    # Import d'image → grille 16×16
+│   │   ├── useTheme.ts          # Thème clair/sombre
+│   │   └── useFocusTrap.ts      # Piège de focus (modale)
 │   ├── pages/                   # Pages routées
 │   │   ├── FavoritesPage.tsx    # /favorites
 │   │   ├── CategoriesListPage.tsx # /categories
 │   │   ├── CategoryIconsPage.tsx  # /categories/:category
 │   │   ├── AuthorsListPage.tsx    # /authors
 │   │   ├── AuthorIconsPage.tsx    # /authors/:artist
-│   │   └── DevelopersPage.tsx     # /developers (doc API)
+│   │   ├── SourcesPage.tsx        # /sources (provenance + licences)
+│   │   ├── DevelopersPage.tsx     # /developers (doc API)
+│   │   └── EditorPage.tsx         # /editor (éditeur 16×16, chargé à la demande)
 │   ├── i18n/                    # Contexte i18n + locales fr/en (bundlées)
 │   ├── types/                   # Types + guards
 │   │   ├── index.ts             # Icon, SummaryData, SortOption, FilterState
 │   │   └── guards.ts            # assertIconArray
-│   ├── utils/                   # urlParams, windowEvents, iconUtils
-│   ├── constants/               # ICONS_PER_PAGE, DEBOUNCE_MS, CATALOGUE_BASE, catégories
+│   ├── utils/                   # urlParams, windowEvents, iconUtils, highlight, pixelEditor,
+│   │                            #   pngExport, editorStorage, editorKeyboard, imageImport, imageDecode, exportFavorites, zip
+│   ├── constants/               # ICONS_PER_PAGE, DEBOUNCE_MS, CATALOGUE_BASE, catégories, filtres, éditeur
 │   ├── context/                 # Context React
 │   │   ├── IconsDataContext.tsx # Chargement progressif (manifeste + shards) + moteur partagé
 │   │   └── FavoritesContext.tsx # Favoris localStorage + sync inter-onglets
@@ -186,7 +201,7 @@ sont chargés. Le catalogue complet `icons.json` n'est **plus publié**.
   "subcategory": "lune",
   "downloads": 123,
   "date_added": "2026-10-18T10:30:00Z",
-  "license": "CC-BY-SA",
+  "license": "Unspecified",
   "metadata": {
     "source_id": "2706",
     "content_encoding": "base64url",
@@ -264,7 +279,7 @@ Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
 
 ### `useFilteredIcons` — Filtrage + tri (mémoïsé)
 - Recherche Lunr si query + moteur prêt
-- Filtre catégorie / sous-catégorie / source / licence
+- Filtre catégorie / sous-catégorie / source
 - Tri : downloads DESC, title ASC
 
 ### `usePagination` — Pagination
@@ -272,7 +287,7 @@ Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
 - Retourne : `paginatedIcons`, `currentPage`, `totalPages`, `totalFiltered`, `handlePageChange`, `setCurrentPage`
 
 ### `useUrlSync` — Synchronisation état → URL
-- Écrit `q`, `cat`, `subcat`, `source`, `license`, `sort`, `page` à chaque changement
+- Écrit `q`, `cat`, `subcat`, `source`, `sort`, `page` à chaque changement
 - `replaceState` pour ne pas polluer l'historique
 - Lit les valeurs courantes via une ref (l'écriture étant débouncée, une closure directe resterait en retard d'un changement)
 - La restauration initiale (`URL → état`) est faite par `useIconsBrowser` au montage
@@ -294,6 +309,22 @@ Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
   enregistrés avant la bascule (anciens ids préfixés `yt-`/`yi-`/`yo-`) ne
   correspondent plus à aucune icône et apparaissent donc vides ; aucun
   re-association fiable n'est possible.
+
+### Éditeur d'icônes (`/editor`) — pixel art 16×16
+- Page **chargée à la demande** (`React.lazy` dans `App.tsx`) : le code de
+  l'éditeur part dans un chunk séparé et n'alourdit pas le bundle du catalogue.
+- État dans `usePixelEditor` (réducteur pur `editorReducer`) ; brouillon
+  auto-sauvegardé par `useEditorDraft` (`localStorage`) ; import par
+  `useImageImport` (fichier local ou URL d'une icône officielle passée par la
+  fiche). Tout vit dans `components/editor/` + `hooks/` + `utils/` dédiés.
+- Outils : crayon, gomme, remplissage, pipette (`utils/pixelEditor`) ; palette +
+  couleur personnalisée + opacité (`constants/editor`) ; historique undo/redo borné.
+- Rendu : grille DOM accessible (`PixelGridEditor`, navigation clavier flèches +
+  `Entrée`/`Espace`), aperçu (`EditorPreview`) et statut (`EditorStatus` :
+  compteur de couleurs, alertes lisibilité / « noir pur »).
+- Export : PNG 16×16 encodé en data URL (`utils/pngExport`), sans serveur.
+- Raccourcis : `p`/`g`/`f`/`b` (outils), `1`–`9` (palette), `Ctrl+Z` /
+  `Ctrl+Shift+Z` (annuler/rétablir) — `utils/editorKeyboard`.
 
 ## Personnalisation
 
@@ -406,10 +437,13 @@ pnpm run test:coverage  # Vitest + couverture (v8) + seuils
 pnpm run test:e2e       # Playwright (build + vite preview :4173 + serveur type GitHub Pages :4174 + Chromium)
 pnpm run check:bundle   # Budget de taille de bundle (gzip)
 pnpm run check:i18n     # Parité fr/en + clés utilisées
+pnpm run check:seo      # Balises SEO/partage (OG, Twitter, canonical) + robots.txt + sitemap.xml
 pnpm run check:spa      # Vérifie que dist/404.html (repli SPA) est présent et à jour
 pnpm run check:precache # Vérifie qu'aucune donnée n'est précachée par le SW
 pnpm run check:data     # Vérifie que les données générées sont présentes
-pnpm run verify         # lint + check + check:i18n + test + build + check:bundle + check:spa + check:precache
+pnpm run postbuild      # Génère dist/404.html (étape interne de build)
+pnpm run copy-data      # Copie les données servies dans dist/ (étape interne de build)
+pnpm run verify         # lint + check + check:i18n + test + build + check:bundle + check:spa + check:precache + check:seo
 ```
 
 ## Variables d'environnement

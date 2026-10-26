@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nProvider } from '../i18n';
-import { Filters, SourceFilter, LicenseFilter } from './Filters';
+import { Filters, SourceFilter } from './Filters';
 import type { SortOption } from '../types';
 
 function renderWithI18n(ui: React.ReactNode) {
@@ -31,28 +31,6 @@ describe('SourceFilter', () => {
   });
 });
 
-describe('LicenseFilter', () => {
-  beforeEach(() => localStorage.setItem('locale', 'fr'));
-
-  it('propose « toutes » puis les trois licences', () => {
-    renderWithI18n(<LicenseFilter value="" onChange={() => {}} />);
-    const options = screen.getAllByRole('option');
-    expect(options.map((o) => o.getAttribute('value'))).toEqual([
-      '',
-      'CC-BY-SA',
-      'CC-BY-NC',
-      'Yoto Official',
-    ]);
-  });
-
-  it('notifie la licence choisie', () => {
-    const onChange = vi.fn();
-    renderWithI18n(<LicenseFilter value="" onChange={onChange} />);
-    fireEvent.change(screen.getByLabelText(/licence/i), { target: { value: 'CC-BY-NC' } });
-    expect(onChange).toHaveBeenCalledWith('CC-BY-NC');
-  });
-});
-
 describe('Filters', () => {
   beforeEach(() => localStorage.setItem('locale', 'fr'));
 
@@ -60,7 +38,6 @@ describe('Filters', () => {
     category: '',
     subcategory: '',
     source: '',
-    license: '',
     sortBy: 'downloads' as SortOption,
     categories: ['nature'],
     subcategories: [],
@@ -68,29 +45,28 @@ describe('Filters', () => {
     onCategoryChange: () => {},
     onSubcategoryChange: () => {},
     onSourceChange: () => {},
-    onLicenseChange: () => {},
     onSortChange: () => {},
     onReset: () => {},
   };
 
-  it('transmet la source et la licence sélectionnées', () => {
+  it('transmet la source sélectionnée', () => {
     const onSourceChange = vi.fn();
-    const onLicenseChange = vi.fn();
-    renderWithI18n(
-      <Filters {...baseProps} onSourceChange={onSourceChange} onLicenseChange={onLicenseChange} />
-    );
+    renderWithI18n(<Filters {...baseProps} onSourceChange={onSourceChange} />);
 
     fireEvent.change(screen.getByLabelText(/source/i), { target: { value: 'yotopixels' } });
-    fireEvent.change(screen.getByLabelText(/licence/i), { target: { value: 'CC-BY-SA' } });
 
     expect(onSourceChange).toHaveBeenCalledWith('yotopixels');
-    expect(onLicenseChange).toHaveBeenCalledWith('CC-BY-SA');
   });
 
-  it('affiche les filtres source/licence même quand la catégorie est imposée', () => {
+  it('n’expose plus de filtre par provenance (doublon du filtre source)', () => {
+    renderWithI18n(<Filters {...baseProps} />);
+    expect(screen.queryByLabelText(/provenance/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/licence/i)).not.toBeInTheDocument();
+  });
+
+  it('affiche le filtre source même quand la catégorie est imposée', () => {
     renderWithI18n(<Filters {...baseProps} hideCategoryFilter />);
     expect(screen.getByLabelText(/source/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/licence/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/catégorie/i)).not.toBeInTheDocument();
   });
 

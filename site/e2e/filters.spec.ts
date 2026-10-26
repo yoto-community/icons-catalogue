@@ -12,11 +12,11 @@ import {
 
 /**
  * E2E — filtres de la page d'accueil : catégorie (nature = 32 icônes),
- * sous-catégorie (lune = 12), source, licence, tri par titre, réinitialisation.
+ * sous-catégorie (lune = 12), source, tri par titre, réinitialisation.
  *
  * La fixture : nature = lunes + arbres + soleils (12 + 10 + 10 = 32) ;
- * sources : yotopixels = 18, yotoicons = 32, yoto-official = 10 ; licence
- * unique (CC-BY-NC) — voir `fixtures/icons.small.json`.
+ * sources : yotopixels = 18, yotoicons = 32, yoto-official = 10 — voir
+ * `fixtures/icons.small.json`.
  * Tri par défaut (téléchargements décroissants) : « sunny day 10 » en tête.
  */
 
@@ -68,7 +68,7 @@ test.describe('filtres', () => {
     await expect(page.locator('.btn-reset')).toHaveCount(0);
   });
 
-  test('filtrage par source puis par licence', async ({ page }) => {
+  test('filtrage par source', async ({ page }) => {
     await openCatalogue(page);
     await expect(page.locator('.icon-card')).toHaveCount(PER_PAGE);
 
@@ -81,19 +81,12 @@ test.describe('filtres', () => {
     // Une autre source : yotoicons = 32.
     await page.locator('#source-filter').selectOption('yotoicons');
     await expect(page.locator('.icon-card')).toHaveCount(YOTOICONS_COUNT);
-
-    // Licence (unique dans la fixture) : redonne le catalogue entier.
-    await page.locator('#source-filter').selectOption('');
-    await page.locator('#license-filter').selectOption('CC-BY-NC');
-    await expect(page.locator('.icon-card')).toHaveCount(PER_PAGE);
-    await expect(page).toHaveURL(/license=CC-BY-NC/);
   });
 
-  test('source et licence restaurées depuis l’URL', async ({ page }) => {
-    await openCatalogue(page, '?source=yotopixels&license=CC-BY-NC');
+  test('source restaurée depuis l’URL', async ({ page }) => {
+    await openCatalogue(page, '?source=yotopixels');
 
     await expect(page.locator('#source-filter')).toHaveValue('yotopixels');
-    await expect(page.locator('#license-filter')).toHaveValue('CC-BY-NC');
     await expect(page.locator('.icon-card')).toHaveCount(YOTOPIXELS_COUNT);
   });
 });

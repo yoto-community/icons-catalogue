@@ -7,7 +7,6 @@ export interface UseUrlSyncProps {
   category: string;
   subcategory: string;
   source: string;
-  license: string;
   sortBy: SortOption;
   currentPage: number;
 }
@@ -33,8 +32,7 @@ export function useUrlSync(props: UseUrlSyncProps) {
   });
 
   const syncUrl = useCallback(() => {
-    const { query, category, subcategory, source, license, sortBy, currentPage } =
-      paramsRef.current;
+    const { query, category, subcategory, source, sortBy, currentPage } = paramsRef.current;
     const params = new URLSearchParams(window.location.search);
     if (query.trim()) params.set('q', query.trim());
     else params.delete('q');
@@ -44,8 +42,6 @@ export function useUrlSync(props: UseUrlSyncProps) {
     else params.delete('subcat');
     if (source) params.set('source', source);
     else params.delete('source');
-    if (license) params.set('license', license);
-    else params.delete('license');
     if (sortBy !== DEFAULT_SORT) params.set('sort', sortBy);
     else params.delete('sort');
     if (currentPage > 1) params.set('page', String(currentPage));

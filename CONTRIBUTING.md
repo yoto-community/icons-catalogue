@@ -33,9 +33,9 @@ cd site && pnpm install
 - `site/` — frontend Vite + React + TypeScript. Voir `site/README.md`.
 - `PLAN.md` — feuille de route et état d'avancement.
 
-> `site/public/summary.json`, `site/public/index.json` et
-> `site/public/icons-by-source/` sont **générés** par `pnpm run build:api` et ne
-> sont pas versionnés.
+> `site/public/index.json` et `site/public/icons-by-source/` sont **générés** par
+> `pnpm run build:api` et ne sont **pas** versionnés ; `site/public/summary.json`
+> est également généré mais **reste versionné** (marqueur de `catalogVersion`).
 
 ## Développement
 
@@ -70,7 +70,7 @@ pnpm run build:api
 cd site
 pnpm run lint
 pnpm run format:check
-pnpm run verify   # lint + tsc + i18n + tests + build + budget bundle + SPA + précache
+pnpm run verify   # lint + tsc + i18n + tests + build + budget bundle + SPA + précache + SEO
 pnpm run test:e2e
 ```
 

@@ -1,5 +1,5 @@
 import type { SortOption } from '../types';
-import { SOURCE_OPTIONS, LICENSE_OPTIONS } from '../constants/filters';
+import { SOURCE_OPTIONS } from '../constants/filters';
 
 /**
  * Options de tri valides (source unique de vérité, synchronisée avec types/SortOption).
@@ -47,16 +47,6 @@ export function toPageNumber(value: string | null | undefined): number {
  */
 export function toSourceFilter(value: string | null | undefined): string {
   return typeof value === 'string' && (SOURCE_OPTIONS as readonly string[]).includes(value)
-    ? value
-    : '';
-}
-
-/**
- * Valide une licence provenant d'une query-string (whitelist stricte).
- * Retourne une chaîne vide quand la valeur est absente ou inconnue.
- */
-export function toLicenseFilter(value: string | null | undefined): string {
-  return typeof value === 'string' && (LICENSE_OPTIONS as readonly string[]).includes(value)
     ? value
     : '';
 }
