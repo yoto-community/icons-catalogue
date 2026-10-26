@@ -1,9 +1,17 @@
 {
   "total": 1314,
   "byCategory": {
-    "objets": 1156,
-    "nature": 13,
-    "animaux": 145
+    "objets": 337,
+    "animaux": 486,
+    "fetes": 35,
+    "personnages": 178,
+    "batiments": 10,
+    "nature": 87,
+    "activites": 15,
+    "transport": 80,
+    "nourriture": 59,
+    "musique": 22,
+    "formes": 5
   },
   "byArtist": {
     "sylvain": 1,
