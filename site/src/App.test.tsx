@@ -29,10 +29,10 @@ const summaryPayload = {
   },
 };
 
-function renderApp() {
+function renderApp(path = '/') {
   return render(
     <I18nProvider defaultLocale="fr">
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[path]}>
         <IconsDataProvider>
           <FavoritesProvider>
             <App />
@@ -41,6 +41,29 @@ function renderApp() {
       </MemoryRouter>
     </I18nProvider>
   );
+}
+
+/** Stub de `fetch` : catalogue vide, pour les routes qui ne dépendent pas des données. */
+function stubEmptyCatalogue() {
+  return vi.fn(async (url: string) => {
+    if (String(url) === MANIFEST_URL) {
+      return {
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        json: async () => manifestPayload,
+      } as Response;
+    }
+    if (String(url) === sourceShardUrl('yoto-official')) {
+      return { ok: true, status: 200, statusText: 'OK', json: async () => [] } as Response;
+    }
+    return {
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: async () => summaryPayload,
+    } as Response;
+  });
 }
 
 describe('App — échec de chargement du catalogue', () => {
@@ -121,6 +144,19 @@ describe('App — échec de chargement du catalogue', () => {
     // Attend la fin du chargement du provider pour que ses mises à jour d'état
     // soient encadrées par `act` (sinon, avertissement après restauration du spy).
     await screen.findByRole('searchbox');
+
+    errorSpy.mockRestore();
+  });
+
+  it('sert l’éditeur d’icônes sur la route /editor (chargement paresseux)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.stubGlobal('fetch', stubEmptyCatalogue());
+
+    renderApp('/editor');
+
+    // Page chargée via `React.lazy` : elle apparaît après résolution du chunk.
+    expect(await screen.findByRole('heading', { name: 'Éditeur d’icônes' })).toBeInTheDocument();
+    expect(screen.getByRole('grid')).toBeInTheDocument();
 
     errorSpy.mockRestore();
   });

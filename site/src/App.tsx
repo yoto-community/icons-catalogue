@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import type { Icon } from './types';
 import { useIconsData } from './context/IconsDataContext';
@@ -22,6 +22,15 @@ import {
 import { normalizeUrl } from './utils/iconUtils';
 import { onWindowCustomEvent } from './utils/windowEvents';
 import { useI18n } from './i18n';
+
+/**
+ * Page de l'éditeur d'icônes, chargée **paresseusement** : le catalogue reste
+ * le bundle initial, le code de l'éditeur (grille DOM, palette, export PNG)
+ * part dans un chunk séparé, téléchargé à la première visite de `/editor`.
+ */
+const EditorPage = lazy(() =>
+  import('./pages/EditorPage').then((module) => ({ default: module.EditorPage }))
+);
 
 /**
  * Page catalogue : toutes les icônes, recherche et filtres libres.
@@ -182,6 +191,14 @@ function App() {
               }
             />
             <Route path="/developers" element={<DevelopersPage summary={summary} />} />
+            <Route
+              path="/editor"
+              element={
+                <Suspense fallback={<LoadingState />}>
+                  <EditorPage />
+                </Suspense>
+              }
+            />
           </Routes>
         )}
       </main>

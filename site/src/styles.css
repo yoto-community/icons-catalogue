@@ -3453,3 +3453,462 @@ a.icon-artist:hover {
   color: var(--color-primary-dark);
   text-decoration: underline;
 }
+
+/* ===== Éditeur d'icônes 16×16 (lot L2) ===== */
+
+.pixel-editor {
+  --editor-cell: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.editor-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.editor-title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  color: var(--color-text);
+}
+
+.editor-subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.editor-draft-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-primary-light);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+}
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) minmax(0, 1fr) minmax(0, 220px);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Panneau latéral gauche : outils + palette + import (empilés). */
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.editor-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.editor-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Barre d'outils — cibles ≥ 24 px (WCAG 2.5.8). */
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Barre d'historique : pleine largeur, en haut de page, au-dessus des 3 zones. */
+.editor-history {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+/* Dans le panneau gauche, les outils s'empilent verticalement. */
+.editor-panel .editor-toolbar {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.editor-panel .editor-tool {
+  justify-content: flex-start;
+}
+
+.editor-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 36px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.editor-tool:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.editor-tool.is-active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  font-weight: 600;
+}
+
+.editor-tool:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Palette */
+.editor-palette {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Dans le panneau gauche, la palette passe sous un en-tête vertical. */
+.editor-panel .editor-palette {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.editor-palette-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.editor-swatch {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.editor-swatch.is-active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-focus);
+}
+
+.editor-custom-color {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.editor-custom-color input[type='color'] {
+  width: 40px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+}
+
+/* Couleur courante : puits sur damier (l'alpha reste perceptible) et curseur
+   d'opacité qui règle le canal alpha de la couleur active. */
+.editor-color-current {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.editor-color-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.editor-color-well {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-image:
+    linear-gradient(45deg, #d7d7d7 25%, transparent 25%),
+    linear-gradient(-45deg, #d7d7d7 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d7d7d7 75%),
+    linear-gradient(-45deg, transparent 75%, #d7d7d7 75%);
+  background-size: 8px 8px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0;
+}
+
+.editor-color-well-fill {
+  position: absolute;
+  inset: 0;
+}
+
+.editor-color-opacity-value {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.editor-color-opacity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.editor-color-opacity input[type='range'] {
+  flex: 1;
+  min-width: 80px;
+  cursor: pointer;
+}
+
+/* Grille de dessin : damier de transparence perceptible sous les pixels. */
+.pixel-grid {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-image:
+    linear-gradient(45deg, #d7d7d7 25%, transparent 25%),
+    linear-gradient(-45deg, #d7d7d7 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d7d7d7 75%),
+    linear-gradient(-45deg, transparent 75%, #d7d7d7 75%);
+  background-size: 8px 8px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0;
+  touch-action: none;
+  user-select: none;
+}
+
+/* Les lignes sont de vrais conteneurs : surtout pas `display: contents`, qui les
+   retirerait de l'arbre d'accessibilité et casserait l'exposition des cellules. */
+.pixel-grid-row {
+  display: grid;
+  grid-template-columns: repeat(16, var(--editor-cell));
+  grid-auto-rows: var(--editor-cell);
+}
+
+.pixel-grid-cell {
+  outline: 0.5px solid rgba(0, 0, 0, 0.06);
+}
+
+.pixel-grid-cell:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: -2px;
+}
+
+/* Curseur selon l'outil actif : glyphe 1-bit dessiné (contour blanc +
+   cœur sombre) pour rester visible sur tout fond, repli `crosshair` si le
+   navigateur ne peut pas charger l'image de curseur. */
+.pixel-grid[data-tool='pencil'] {
+  cursor:
+    url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20fill%3D%22%23ffffff%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2213%22%20y%3D%223%22%20width%3D%226%22%20height%3D%2216%22%20rx%3D%221%22%2F%3E%0A%20%20%20%20%20%20%3Cpolygon%20points%3D%2213%2C19%2019%2C19%2016%2C26.5%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2213%22%20y%3D%223%22%20width%3D%226%22%20height%3D%223.5%22%20rx%3D%221%22%20fill%3D%22%23ffffff%22%20stroke%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%231a1a1a%22%20stroke%3D%22%231a1a1a%22%20stroke-width%3D%221.2%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2213%22%20y%3D%223%22%20width%3D%226%22%20height%3D%2216%22%20rx%3D%221%22%2F%3E%0A%20%20%20%20%20%20%3Cpolygon%20points%3D%2213%2C19%2019%2C19%2016%2C26.5%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2213%22%20y%3D%223%22%20width%3D%226%22%20height%3D%223.5%22%20rx%3D%221%22%20fill%3D%22%23ffffff%22%20stroke%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')
+      8 24,
+    crosshair;
+}
+
+.pixel-grid[data-tool='eraser'] {
+  cursor:
+    url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20fill%3D%22%23ffffff%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cg%20transform%3D%22rotate%28-30%2016%2016%29%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%226.5%22%20y%3D%229.5%22%20width%3D%2219%22%20height%3D%226.5%22%20rx%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%226.5%22%20y%3D%2216%22%20width%3D%2219%22%20height%3D%226.5%22%20rx%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%231a1a1a%22%20stroke%3D%22%231a1a1a%22%20stroke-width%3D%221.2%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cg%20transform%3D%22rotate%28-30%2016%2016%29%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%226.5%22%20y%3D%229.5%22%20width%3D%2219%22%20height%3D%226.5%22%20rx%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%226.5%22%20y%3D%2216%22%20width%3D%2219%22%20height%3D%226.5%22%20rx%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')
+      16 16,
+    crosshair;
+}
+
+.pixel-grid[data-tool='fill'] {
+  cursor:
+    url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20fill%3D%22%23ffffff%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cpolygon%20points%3D%228%2C12%2023%2C12%2020%2C27%2011%2C27%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M10%2012%20Q15.5%205%2021%2012%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M26%2011%20q2.4%203%200%204.2%20q-2.4%20-1.2%200%20-4.2%20z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%231a1a1a%22%20stroke%3D%22%231a1a1a%22%20stroke-width%3D%221.2%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cpolygon%20points%3D%228%2C12%2023%2C12%2020%2C27%2011%2C27%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M10%2012%20Q15.5%205%2021%2012%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M26%2011%20q2.4%203%200%204.2%20q-2.4%20-1.2%200%20-4.2%20z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E')
+      26 14,
+    crosshair;
+}
+
+.pixel-grid[data-tool='picker'] {
+  cursor:
+    url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20fill%3D%22%23ffffff%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2212%22%20y%3D%223%22%20width%3D%228%22%20height%3D%227%22%20rx%3D%222.5%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2214.6%22%20y%3D%2210%22%20width%3D%222.8%22%20height%3D%2211%22%2F%3E%0A%20%20%20%20%20%20%3Cpolygon%20points%3D%2214.6%2C21%2017.4%2C21%2016%2C26.5%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%231a1a1a%22%20stroke%3D%22%231a1a1a%22%20stroke-width%3D%221.2%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%0A%20%20%20%20%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2212%22%20y%3D%223%22%20width%3D%228%22%20height%3D%227%22%20rx%3D%222.5%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2214.6%22%20y%3D%2210%22%20width%3D%222.8%22%20height%3D%2211%22%2F%3E%0A%20%20%20%20%20%20%3Cpolygon%20points%3D%2214.6%2C21%2017.4%2C21%2016%2C26.5%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')
+      9 23,
+    crosshair;
+}
+/* Aperçu */
+.editor-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.editor-preview-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.editor-preview-frame {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-image:
+    linear-gradient(45deg, #d7d7d7 25%, transparent 25%),
+    linear-gradient(-45deg, #d7d7d7 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d7d7d7 75%),
+    linear-gradient(-45deg, transparent 75%, #d7d7d7 75%);
+  background-size: 8px 8px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0;
+}
+
+.editor-preview-frame img {
+  image-rendering: pixelated;
+}
+
+/* Statut */
+.editor-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.editor-status-warning {
+  color: var(--color-primary-dark);
+}
+
+/* Actions */
+.editor-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.editor-button {
+  min-height: 36px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editor-button:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.editor-button-primary {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.editor-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .editor-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Sur une seule colonne, le panneau redevient horizontal (gain de hauteur). */
+  .editor-panel .editor-toolbar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .editor-panel .editor-tool {
+    justify-content: center;
+  }
+
+  .editor-panel .editor-palette {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 768px) {
+  .pixel-editor {
+    --editor-cell: 24px;
+  }
+}
+
+/* --- Panneau « Partir d'une icône » (lot L4) --- */
+.editor-import {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.editor-import-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.editor-import-hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.editor-import-loading {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.editor-import-error {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}

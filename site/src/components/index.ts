@@ -19,3 +19,4 @@ export * from './SettingsMenu';
 export * from './IconsBrowser';
 export * from './BackLink';
 export * from './CodeBlock';
+export * from './editor';

@@ -13,6 +13,7 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { path: '/', labelKey: 'header.navCatalogue' },
   { path: '/categories', labelKey: 'header.navCategories' },
+  { path: '/editor', labelKey: 'header.navEditor' },
 ];
 
 const communityNavItems: NavItem[] = [

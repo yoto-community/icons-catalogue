@@ -67,4 +67,9 @@ describe('Header', () => {
     const { container } = renderHeader();
     expect(container.querySelector('.nav-count')).toBeNull();
   });
+
+  it('expose un lien vers l’éditeur d’icônes', () => {
+    renderHeader();
+    expect(screen.getByRole('link', { name: 'Éditeur' })).toHaveAttribute('href', '/editor');
+  });
 });

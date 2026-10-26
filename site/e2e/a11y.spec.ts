@@ -84,4 +84,27 @@ test.describe('accessibilité (axe-core)', () => {
     await expect(page.locator('.author-page-name')).toHaveText('@e2e-sun');
     await scan(page, 'page auteur');
   });
+
+  test('éditeur d’icônes 16×16', async ({ page }) => {
+    await openCatalogue(page);
+    await page.goto('/icons-catalogue/editor');
+    await expect(page.locator('.pixel-grid')).toBeVisible();
+    await scan(page, 'éditeur 16×16');
+  });
+
+  test('éditeur — peinture au clavier (flèche + Entrée)', async ({ page }) => {
+    await openCatalogue(page);
+    await page.goto('/icons-catalogue/editor');
+
+    // Locators structurels : le libellé dépend de la langue du navigateur.
+    const firstCell = page.locator('.pixel-grid-cell').first();
+    await firstCell.focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('Enter');
+
+    const nextCell = page.locator('.pixel-grid-cell').nth(1);
+    await expect(nextCell).toBeFocused();
+    await expect(nextCell).toHaveAttribute('aria-label', /#000000/);
+    await expect(page.locator('.editor-status')).toContainText(/couleur|colour/);
+  });
 });

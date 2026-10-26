@@ -50,7 +50,8 @@
     "navFavorites": "Favoris",
     "navDevelopers": "Développeurs",
     "navCommunity": "Communauté",
-    "favoritesCount": "{{count}} favori{{count > 1 ? 's' : ''}}"
+    "favoritesCount": "{{count}} favori{{count > 1 ? 's' : ''}}",
+    "navEditor": "Éditeur"
   },
   "search": {
     "placeholder": "Rechercher par mot-clé (moon, share, heart, étoile…)",
@@ -111,7 +112,8 @@
     "byArtist": "par <strong>@{{artist}}</strong>",
     "downloads": "Téléchargements",
     "addedOn": "Collectée le",
-    "tags": "Tags"
+    "tags": "Tags",
+    "editInEditor": "Retoucher dans l’éditeur"
   },
   "pagination": {
     "previousAria": "Page précédente",
@@ -299,5 +301,65 @@
     "resourceReportBug": "Signaler un problème",
     "resourceReportBugDesc": "issues GitHub du dépôt",
     "resourceLiveManifest": "summary.json en direct"
+  },
+  "editor": {
+    "title": "Éditeur d’icônes",
+    "subtitle": "Dessinez une icône 16×16 pour le Yoto Player, puis téléchargez-la en PNG.",
+    "panel": {
+      "ariaLabel": "Panneau des outils"
+    },
+    "tools": {
+      "ariaLabel": "Outils de dessin",
+      "pencil": "Crayon",
+      "eraser": "Gomme",
+      "fill": "Remplissage",
+      "picker": "Pipette",
+      "undo": "Annuler",
+      "redo": "Rétablir",
+      "clear": "Effacer tout"
+    },
+    "palette": {
+      "ariaLabel": "Palette de couleurs",
+      "customLabel": "Couleur personnalisée",
+      "current": "Couleur courante",
+      "opacity": "Opacité"
+    },
+    "grid": {
+      "ariaLabel": "Grille de dessin 16 × 16",
+      "cellAria": "Ligne {{row}}, colonne {{col}}, {{color}}"
+    },
+    "color": {
+      "empty": "vide"
+    },
+    "preview": {
+      "ariaLabel": "Aperçu de l’icône",
+      "title": "Aperçu"
+    },
+    "status": {
+      "ariaLabel": "État de l’icône",
+      "colors": "{{count}} couleur{{count > 1 ? 's' : ''}}",
+      "empty": "Icône vide : aucun pixel dessiné.",
+      "pureBlack": "Noir pur détecté : invisible sur le fond noir du Player.",
+      "tooManyColors": "Plus de {{count}} couleurs : le rendu peut manquer de lisibilité."
+    },
+    "actions": {
+      "download": "Télécharger le PNG",
+      "newIcon": "Nouvelle icône"
+    },
+    "draft": {
+      "restored": "Brouillon restauré.",
+      "discard": "Repartir de zéro"
+    },
+    "import": {
+      "ariaLabel": "Partir d’une icône",
+      "fileLabel": "Fichier image",
+      "fileHint": "PNG, JPEG… converti automatiquement en 16×16.",
+      "loading": "Import en cours…",
+      "errorDecode": "Image illisible. Essaie un autre fichier.",
+      "errorFetch": "Téléchargement impossible (le site source ne l’autorise pas)."
+    },
+    "history": {
+      "ariaLabel": "Historique"
+    }
   }
 }

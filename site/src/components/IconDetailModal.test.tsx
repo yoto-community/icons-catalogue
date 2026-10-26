@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import type { Icon } from '../types';
 import { I18nProvider } from '../i18n';
@@ -59,6 +59,50 @@ describe('IconDetailModal', () => {
   it("n'affiche pas de lien auteur quand l'auteur est absent", () => {
     const { container } = renderModal(makeIcon({ artist: '' }));
     expect(container.querySelector('.modal-artist-link')).toBeNull();
+  });
+});
+
+describe('IconDetailModal — « Retoucher dans l’éditeur » (L4, option B)', () => {
+  beforeEach(() => localStorage.setItem('locale', 'fr'));
+
+  function StateProbe() {
+    const location = useLocation();
+    return <span data-testid="location-state">{JSON.stringify(location.state)}</span>;
+  }
+
+  function renderOfficial(icon: Icon) {
+    render(
+      <I18nProvider defaultLocale="fr">
+        <MemoryRouter>
+          <IconDetailModal icon={icon} onClose={vi.fn()} onDownload={vi.fn()} />
+          <StateProbe />
+        </MemoryRouter>
+      </I18nProvider>
+    );
+  }
+
+  it('propose le bouton uniquement pour une icône officielle', () => {
+    const { unmount } = renderModal(makeIcon());
+    expect(screen.queryByRole('link', { name: 'Retoucher dans l’éditeur' })).toBeNull();
+    unmount();
+
+    renderOfficial(makeIcon({ source: 'yoto-official' }));
+    expect(screen.getByRole('link', { name: 'Retoucher dans l’éditeur' })).toHaveAttribute(
+      'href',
+      '/editor'
+    );
+  });
+
+  it('transmet l’URL de l’image à l’éditeur via l’état de navigation', () => {
+    renderOfficial(
+      makeIcon({ source: 'yoto-official', preview_image: 'https://cdn.test/officielle.png' })
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: 'Retoucher dans l’éditeur' }));
+
+    expect(screen.getByTestId('location-state')).toHaveTextContent(
+      'https://cdn.test/officielle.png'
+    );
   });
 });
 

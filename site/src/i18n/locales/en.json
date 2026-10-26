@@ -50,7 +50,8 @@
     "navFavorites": "Favorites",
     "navDevelopers": "Developers",
     "navCommunity": "Community",
-    "favoritesCount": "{{count}} favorite{{count > 1 ? 's' : ''}}"
+    "favoritesCount": "{{count}} favorite{{count > 1 ? 's' : ''}}",
+    "navEditor": "Editor"
   },
   "search": {
     "placeholder": "Search by keyword (moon, share, heart, star…)",
@@ -111,7 +112,8 @@
     "byArtist": "by <strong>@{{artist}}</strong>",
     "downloads": "Downloads",
     "addedOn": "Collected on",
-    "tags": "Tags"
+    "tags": "Tags",
+    "editInEditor": "Edit in editor"
   },
   "pagination": {
     "previousAria": "Previous page",
@@ -299,5 +301,65 @@
     "resourceReportBug": "Report an issue",
     "resourceReportBugDesc": "repository GitHub issues",
     "resourceLiveManifest": "live summary.json"
+  },
+  "editor": {
+    "title": "Icon editor",
+    "subtitle": "Draw a 16×16 icon for the Yoto Player, then download it as a PNG.",
+    "panel": {
+      "ariaLabel": "Tools panel"
+    },
+    "tools": {
+      "ariaLabel": "Drawing tools",
+      "pencil": "Pencil",
+      "eraser": "Eraser",
+      "fill": "Fill",
+      "picker": "Colour picker",
+      "undo": "Undo",
+      "redo": "Redo",
+      "clear": "Clear all"
+    },
+    "palette": {
+      "ariaLabel": "Colour palette",
+      "customLabel": "Custom colour",
+      "current": "Current colour",
+      "opacity": "Opacity"
+    },
+    "grid": {
+      "ariaLabel": "Drawing grid 16 × 16",
+      "cellAria": "Row {{row}}, column {{col}}, {{color}}"
+    },
+    "color": {
+      "empty": "empty"
+    },
+    "preview": {
+      "ariaLabel": "Icon preview",
+      "title": "Preview"
+    },
+    "status": {
+      "ariaLabel": "Icon status",
+      "colors": "{{count}} colour{{count > 1 ? 's' : ''}}",
+      "empty": "Empty icon: no pixel drawn.",
+      "pureBlack": "Pure black detected: invisible on the Player’s black background.",
+      "tooManyColors": "More than {{count}} colours: rendering may be less legible."
+    },
+    "actions": {
+      "download": "Download PNG",
+      "newIcon": "New icon"
+    },
+    "draft": {
+      "restored": "Draft restored.",
+      "discard": "Start over"
+    },
+    "import": {
+      "ariaLabel": "Start from an icon",
+      "fileLabel": "Image file",
+      "fileHint": "PNG, JPEG… automatically converted to 16×16.",
+      "loading": "Importing…",
+      "errorDecode": "Unreadable image. Try another file.",
+      "errorFetch": "Download failed (the source site does not allow it)."
+    },
+    "history": {
+      "ariaLabel": "History"
+    }
   }
 }
