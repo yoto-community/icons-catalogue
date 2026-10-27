@@ -22,6 +22,12 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: 'chore(deps)'
+    ignore:
+      # typescript-eslint 8 exige `typescript <6.1.0` : la majeure 7 n'est pas
+      # supportée (cf. « montée majeure de l'outillage »). Les mises à jour
+      # mineures/patchs de la branche 5.9.x restent proposées.
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
     groups:
       npm-site:
         patterns: ['*']
