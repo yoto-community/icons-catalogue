@@ -20,8 +20,11 @@ test('CATEGORIES reste synchronisé avec CATEGORY_LABELS (UI)', () => {
     new URL('../../site/src/constants/categories.ts', import.meta.url),
     'utf8'
   );
-  const block = source.split('CATEGORY_LABELS')[1].split('};')[0];
-  const uiCategories = [...block.matchAll(/^\s*([a-z]+):\s*'/gm)].map((m) => m[1]);
+  // On ancre sur la déclaration `export const CATEGORY_LABELS` : un simple
+  // split sur le nom serait piégé par l'en-tête de doc qui le mentionne.
+  const block = source.match(/export const CATEGORY_LABELS[^{]*\{([\s\S]*?)\};/);
+  assert.ok(block, 'bloc CATEGORY_LABELS introuvable dans categories.ts');
+  const uiCategories = [...block[1].matchAll(/^\s*([a-z]+):\s*'/gm)].map((m) => m[1]);
 
   assert.deepEqual(
     [...uiCategories].sort(),

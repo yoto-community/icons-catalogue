@@ -13,7 +13,7 @@
     "update:all": "pnpm run scrape:yotopixels && pnpm run scrape:yotoicons && pnpm run scrape:yoto-official && pnpm run build:api",
     "update:readme": "node scripts/update-readme-data.js",
     "check:readme": "node scripts/check-readme-data.js",
-    "test": "node --test scripts/lib/"
+    "test": "node --test \"scripts/lib/*.test.js\""
   },
   "repository": {
     "type": "git",
