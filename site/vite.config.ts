@@ -17,8 +17,8 @@ export default defineConfig({
         short_name: 'Yoto Icons',
         description:
           "Catalogue unifié d'icônes 16×16 pour Yoto Player — Recherche dans yotopixels, yotoicons et yoto-official",
-        theme_color: '#e94560',
-        background_color: '#f8f9fa',
+        theme_color: '#006d41',
+        background_color: '#f7f3e9',
         display: 'standalone',
         orientation: 'portrait-primary',
         scope: '/icons-catalogue/',

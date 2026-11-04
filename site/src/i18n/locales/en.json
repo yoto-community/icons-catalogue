@@ -58,7 +58,7 @@
     "placeholder": "Search by keyword (moon, share, heart, star…)",
     "placeholderCategory": "Search in {{category}}…",
     "placeholderAuthor": "Search in {{artist}}…",
-    "hint": "Shortcut: <kbd>/</kbd> to focus · <kbd>Esc</kbd> to clear · Real-time results",
+    "hint": "Shortcut: / to search · Esc to clear · Real-time results",
     "label": "Search for an icon"
   },
   "filters": {

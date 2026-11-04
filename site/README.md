@@ -362,25 +362,26 @@ Les valeurs de `category` / `subcategory` sont des **slugs ASCII canoniques**
 
 ### Couleurs (CSS variables dans `src/styles.css`)
 
+La palette, la typographie (Nunito) et les rayons reprennent le design system
+de [yoto-community.github.io](https://yoto-community.github.io) (Awesome Yoto).
+Le thème sombre est appliqué via `[data-theme='dark']`.
+
 ```css
 :root {
-  --color-primary: #e94560;        /* Couleur principale */
-  --color-primary-dark: #c0392b;   /* Survol boutons */
-  --color-primary-light: #ff6b7a;  /* Focus */
-  --color-background: #f8f9fa;     /* Fond page */
-  --color-surface: #ffffff;        /* Cartes, modals */
-  --color-surface-hover: #f1f3f5;  /* Hover cartes */
-  --color-text: #212529;           /* Texte principal */
-  --color-text-muted: #6c757d;     /* Texte secondaire */
-  --color-border: #dee2e6;         /* Bordures */
-  --color-focus: #e94560;          /* Anneau focus */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-  --shadow-md: 0 4px 6px rgba(0,0,0,.07);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,.1);
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --transition: 150ms ease;
+  --color-primary: #006d41;        /* Vert forêt (accent) */
+  --color-primary-dark: #00512f;   /* Survol / liens */
+  --color-primary-light: #e3f0e7;  /* Fonds doux */
+  --color-secondary: #af294e;      /* Framboise (anneau de focus) */
+  --color-background: #f7f3e9;     /* Fond crème */
+  --color-surface: #fffdf7;        /* Cartes, modals */
+  --color-surface-muted: #efe9da;  /* Badges, champs */
+  --color-text: #1f2a24;           /* Texte principal */
+  --color-text-muted: #5a665f;     /* Texte secondaire */
+  --color-border: #ded6c4;         /* Bordures */
+  --radius: 20px;                  /* Cartes, panneaux */
+  --radius-sm: 12px;               /* Champs, menus */
+  --radius-full: 999px;            /* Boutons et badges */
+  --shadow: 0 1px 2px rgb(31 42 36 / 6%), 0 12px 32px rgb(31 42 36 / 8%);
 }
 ```
 

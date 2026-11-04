@@ -472,12 +472,25 @@ applique la même normalisation (`normalizeForSearch`).
 ### Personnalisation
 
 **Couleurs (CSS variables dans `src/styles.css`)**
+
+La palette, la typographie (Nunito) et les rayons reprennent le design system
+de [yoto-community.github.io](https://yoto-community.github.io) (Awesome Yoto).
+Le thème sombre est appliqué via `[data-theme='dark']`.
+
 ```css
 :root {
-  --color-primary: #e94560;
-  --color-primary-dark: #c0392b;
-  --color-background: #f8f9fa;
-  --color-surface: #ffffff;
+  --color-primary: #006d41;        /* Vert forêt (accent) */
+  --color-primary-dark: #00512f;   /* Survol / liens */
+  --color-primary-light: #e3f0e7;  /* Fonds doux */
+  --color-secondary: #af294e;      /* Framboise (anneau de focus) */
+  --color-background: #f7f3e9;     /* Crème */
+  --color-surface: #fffdf7;        /* Cartes, modals */
+  --color-surface-muted: #efe9da;  /* Badges, champs */
+  --color-text: #1f2a24;
+  --color-text-muted: #5a665f;
+  --color-border: #ded6c4;
+  --radius: 20px;
+  --radius-sm: 12px;
   /* ... */
 }
 ```

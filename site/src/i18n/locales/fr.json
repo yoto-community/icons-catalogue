@@ -58,7 +58,7 @@
     "placeholder": "Rechercher par mot-clé (moon, share, heart, étoile…)",
     "placeholderCategory": "Rechercher dans {{category}}…",
     "placeholderAuthor": "Rechercher dans {{artist}}…",
-    "hint": "Raccourci : <kbd>/</kbd> pour focus · <kbd>Échap</kbd> pour effacer · Résultats en temps réel",
+    "hint": "Raccourci : / pour chercher · Échap pour effacer · Résultats en temps réel",
     "label": "Rechercher une icône"
   },
   "filters": {

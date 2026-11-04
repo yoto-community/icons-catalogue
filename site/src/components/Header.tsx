@@ -39,9 +39,21 @@ export function Header() {
       <div className="header-content">
         <div className="header-brand">
           <h1 className="logo">
-            <span className="logo-icon" aria-hidden="true">
-              🔍
-            </span>
+            <svg
+              className="logo-icon"
+              width="34"
+              height="34"
+              viewBox="0 0 34 34"
+              aria-hidden="true"
+            >
+              <rect x="2" y="2" width="30" height="30" rx="10" fill="var(--color-primary)" />
+              <g fill="var(--color-background)">
+                <rect x="10" y="10" width="6" height="6" rx="1.5" />
+                <rect x="18" y="10" width="6" height="6" rx="1.5" />
+                <rect x="10" y="18" width="6" height="6" rx="1.5" />
+                <rect x="18" y="18" width="6" height="6" rx="1.5" />
+              </g>
+            </svg>
             {t('header.appName')}
           </h1>
         </div>
