@@ -1,0 +1,67 @@
+name: Publish Packages to GitHub Registry
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-publish:
+    name: Build and Publish Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build:packages
+
+      - name: Configure npm for GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          # `always-auth` was removed from npm and now makes `npm config set` fail.
+          # A scoped auth token is enough to publish to GitHub Packages.
+          npm config set registry https://npm.pkg.github.com/
+          npm config set //npm.pkg.github.com/:_authToken "${NODE_AUTH_TOKEN}"
+
+      - name: Publish packages
+        run: |
+          pnpm changeset version
+          # Publish all packages to GitHub Package Registry.
+          # --no-git-checks is required because `changeset version` leaves the
+          # working tree dirty and CI runs on a detached HEAD.
+          pnpm --filter './packages/*' publish --access public --no-git-checks
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Create Git tag (on tag push)
+        if: github.event_name == 'push'
+        run: |
+          # The tag was already pushed; just confirm
+          git fetch --tags
+          echo "Tag ${{ github.ref_name }} published successfully"
+
+      - name: Create Git tag (on workflow dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Use: git tag v1.0.0 && git push origin v1.0.0 to trigger a tagged publish"
