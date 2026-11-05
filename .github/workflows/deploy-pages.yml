@@ -29,19 +29,21 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
+      # Installation unique à la racine : couvre le workspace (site + packages/*).
       - name: Install dependencies
-        working-directory: site
         run: pnpm install --frozen-lockfile
 
-      # P1.5 : les données volumineuses ne sont plus versionnées ; on les
-      # régénère depuis les sources `data/` avant de construire le site.
-      - name: Install root dependencies
-        run: pnpm install --frozen-lockfile
+      # Défense en profondeur : ne pas dépendre du `postinstall` racine.
+      - name: Build workspace packages
+        run: pnpm run build:packages
 
       - name: Snapshot versioned summary
         run: cp site/public/summary.json /tmp/summary.committed.json
 
+      # P1.5 : les données volumineuses ne sont plus versionnées ; on les
+      # régénère depuis les sources `data/` avant de construire le site.
       - name: Generate catalogue data
         run: pnpm run build:api
 
@@ -49,8 +51,7 @@ jobs:
         run: node scripts/check-summary-sync.js /tmp/summary.committed.json site/public/summary.json
 
       - name: Build site
-        working-directory: site
-        run: pnpm run build
+        run: pnpm --filter site run build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

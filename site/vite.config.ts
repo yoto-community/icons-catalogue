@@ -256,71 +256,10 @@ export default defineConfig({
           functions: 100,
           lines: 100,
         },
-        // Éditeur d'icônes (lot L1) : cœur pur et persistance verrouillés.
-        '**/src/utils/pixelEditor.ts': {
-          statements: 100,
-          branches: 100,
-          functions: 100,
-          lines: 100,
-        },
-        '**/src/utils/pngExport.ts': {
-          statements: 100,
-          branches: 100,
-          functions: 100,
-          lines: 100,
-        },
-        '**/src/utils/editorStorage.ts': {
-          statements: 100,
-          branches: 100,
-          functions: 100,
-          lines: 100,
-        },
-        '**/src/utils/editorKeyboard.ts': {
-          statements: 100,
-          branches: 100,
-          functions: 100,
-          lines: 100,
-        },
-        // Import d'image & socle (lot L4). Les branches restantes sont des
-        // gardes défensives (données/navigateur irréguliers), d'où le seuil 90.
-        '**/src/utils/imageImport.ts': {
-          statements: 95,
-          branches: 90,
-          functions: 100,
-          lines: 100,
-        },
-        '**/src/utils/imageDecode.ts': {
-          statements: 93,
-          branches: 85,
-          functions: 100,
-          lines: 100,
-        },
-        '**/src/hooks/useImageImport.ts': {
-          statements: 100,
-          branches: 90,
-          functions: 100,
-          lines: 100,
-        },
+        // Éditeur d'icônes : la page reste dans le site, le reste (cœur,
+        // hooks, composants) vit dans `packages/pixel-editor-*` et a ses
+        // propres seuils dans leurs configurations Vitest respectives.
         '**/src/pages/EditorPage.tsx': {
-          statements: 100,
-          branches: 100,
-          functions: 100,
-          lines: 100,
-        },
-        // Interface de l'éditeur (lot L2) : composants présentationnels.
-        '**/src/components/editor/**': {
-          statements: 95,
-          branches: 85,
-          functions: 80,
-          lines: 95,
-        },
-        '**/src/hooks/usePixelEditor.ts': {
-          statements: 100,
-          branches: 100,
-          functions: 100,
-          lines: 100,
-        },
-        '**/src/hooks/useEditorDraft.ts': {
           statements: 100,
           branches: 100,
           functions: 100,

@@ -1,31 +1,34 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import type * as PixelEditorReact from '@yoto-community/pixel-editor-react';
+import { en, fr, type PixelEditorProps } from '@yoto-community/pixel-editor-react';
 import { I18nProvider } from '../i18n';
-import { useImageImport, type UseImageImportResult } from '../hooks/useImageImport';
 import { EditorPage } from './EditorPage';
 
-// L'import est testé isolément ; on vérifie ici le seul rôle de la page :
-// router l'URL éventuellement passée par la fiche d'icône vers l'éditeur.
-vi.mock('../hooks/useImageImport', () => ({ useImageImport: vi.fn() }));
+// L'éditeur lui-même est testé dans son paquet ; la page ne fait que le câbler.
+// On l'espionne donc pour vérifier les props transmises (locale, brouillon,
+// option B) sans dépendre de son rendu interne.
+const { receivedProps } = vi.hoisted(() => ({ receivedProps: [] as PixelEditorProps[] }));
 
-const importHook = vi.mocked(useImageImport);
-
-function mockImport(overrides: Partial<UseImageImportResult> = {}): UseImageImportResult {
-  const value: UseImageImportResult = {
-    isLoading: false,
-    error: null,
-    importBlob: vi.fn(async () => null),
-    importUrl: vi.fn(async () => null),
-    ...overrides,
+vi.mock('@yoto-community/pixel-editor-react', async (importOriginal) => {
+  const actual = await importOriginal<typeof PixelEditorReact>();
+  return {
+    ...actual,
+    PixelEditor: (props: PixelEditorProps) => {
+      receivedProps.push(props);
+      return null;
+    },
   };
-  importHook.mockReturnValue(value);
-  return value;
-}
+});
 
-function renderPage(entries: Parameters<typeof MemoryRouter>[0]['initialEntries'] = ['/editor']) {
+function renderPage(
+  entries: Parameters<typeof MemoryRouter>[0]['initialEntries'] = ['/editor'],
+  locale: 'fr' | 'en' = 'fr'
+) {
+  localStorage.setItem('locale', locale);
   return render(
-    <I18nProvider defaultLocale="fr">
+    <I18nProvider defaultLocale={locale}>
       <MemoryRouter initialEntries={entries}>
         <EditorPage />
       </MemoryRouter>
@@ -35,26 +38,36 @@ function renderPage(entries: Parameters<typeof MemoryRouter>[0]['initialEntries'
 
 describe('EditorPage', () => {
   beforeEach(() => {
+    receivedProps.length = 0;
     localStorage.clear();
-    localStorage.setItem('locale', 'fr');
-    mockImport();
   });
 
-  it('affiche l’éditeur d’icônes', () => {
+  it('transmet au paquet les messages de la locale du catalogue', () => {
+    const { container, unmount } = renderPage(['/editor'], 'fr');
+
+    expect(receivedProps[receivedProps.length - 1]?.messages).toBe(fr);
+    // Le conteneur porte le thème du site (mapping des jetons `--pe-*`).
+    expect(container.querySelector('.pe-theme-yoto')).toBeInTheDocument();
+
+    unmount();
+    receivedProps.length = 0;
+    renderPage(['/editor'], 'en');
+    expect(receivedProps[receivedProps.length - 1]?.messages).toBe(en);
+  });
+
+  it('conserve la clé de brouillon historique', () => {
     renderPage();
 
-    expect(screen.getByRole('heading', { name: 'Éditeur d’icônes' })).toBeInTheDocument();
-    expect(screen.getByRole('grid')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Télécharger le PNG' })).toBeInTheDocument();
+    expect(receivedProps[receivedProps.length - 1]?.storageKey).toBe('yoto-icons-editor-draft');
   });
 
   it('transmet à l’éditeur l’URL reçue via l’état de navigation (option B)', () => {
-    const { importUrl } = mockImport();
-
     renderPage([
       { pathname: '/editor', state: { initialImageUrl: 'https://cdn.test/officielle.png' } },
     ]);
 
-    expect(importUrl).toHaveBeenCalledWith('https://cdn.test/officielle.png');
+    expect(receivedProps[receivedProps.length - 1]?.initialImageUrl).toBe(
+      'https://cdn.test/officielle.png'
+    );
   });
 });

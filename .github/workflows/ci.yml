@@ -18,9 +18,6 @@ jobs:
     name: Lint, typecheck & tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: site
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -33,68 +30,66 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: site/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
+      # Installation unique à la racine : couvre le workspace (site + packages/*).
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Défense en profondeur : le `postinstall` racine construit déjà les
+      # packages, mais les gates ci-dessous ne doivent pas en dépendre.
+      - name: Build workspace packages
+        run: pnpm run build:packages
+
       - name: ESLint
-        run: pnpm run lint
+        run: pnpm --filter site run lint
 
       - name: Format check (Prettier)
-        run: pnpm run format:check
+        run: pnpm --filter site run format:check
 
       - name: Typecheck (tsc --noEmit)
-        run: pnpm run check
+        run: pnpm --filter site run check
 
       - name: i18n keys consistency
-        run: pnpm run check:i18n
+        run: pnpm --filter site run check:i18n
 
       - name: Unit tests (Vitest + seuils de couverture)
-        run: pnpm run test:coverage
-
-      # P1.5 : les données volumineuses (icons.json) ne sont
-      # plus versionnées ; on les régénère depuis `data/` avant le build.
-      - name: Install root dependencies
-        working-directory: .
-        run: pnpm install --frozen-lockfile
+        run: pnpm --filter site run test:coverage
 
       # P2.6 : `summary.json` reste versionné ; on photographie sa version
       # committée avant régénération pour détecter une dérive « data/ modifié
       # sans régénérer les compteurs » (les artefacts volumineux, eux, ne sont
       # plus suivis depuis P1.5).
       - name: Snapshot versioned summary
-        working-directory: .
         run: cp site/public/summary.json /tmp/summary.committed.json
 
+      # P1.5 : les données volumineuses (icons.json) ne sont
+      # plus versionnées ; on les régénère depuis `data/` avant le build.
       - name: Generate catalogue data
-        working-directory: .
         run: pnpm run build:api
 
       - name: Check data ↔ summary.json coherence
-        working-directory: .
         run: node scripts/check-summary-sync.js /tmp/summary.committed.json site/public/summary.json
 
       # P0.5 : `build:api` régénère la section « Données actuelles » du README
       # depuis le résumé ; ce garde-fou détecte une édition manuelle divergente.
       - name: Check README data section coherence
-        working-directory: .
         run: node scripts/check-readme-data.js
 
       - name: Production build
-        run: pnpm run build
+        run: pnpm --filter site run build
 
       - name: Bundle size budget
-        run: pnpm run check:bundle
+        run: pnpm --filter site run check:bundle
 
       - name: Repli SPA (dist/404.html)
-        run: pnpm run check:spa
+        run: pnpm --filter site run check:spa
 
       - name: Précache PWA (pas de données précachées)
-        run: pnpm run check:precache
+        run: pnpm --filter site run check:precache
 
       - name: SEO / partage (OG, Twitter, robots, sitemap)
-        run: pnpm run check:seo
+        run: pnpm --filter site run check:seo
 
   # Les scripts Node (scrapers + build API) ne sont pas couverts par Vitest
   # (frontend) : on valide au moins leur syntaxe avant déploiement.
@@ -134,9 +129,6 @@ jobs:
     name: E2E search flow (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: site
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -149,31 +141,30 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: site/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Défense en profondeur : ne pas dépendre du `postinstall` racine.
+      - name: Build workspace packages
+        run: pnpm run build:packages
 
       - name: Cache Playwright browsers
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('site/pnpm-lock.yaml') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install Chromium (+ dépendances système)
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm --filter site exec playwright install --with-deps chromium
 
       # P1.5 : les données du catalogue (`index.json`, `icons-by-source/`) ne
       # sont plus versionnées. Le `webServer` de Playwright sert la build de
       # production, qui requiert ces fichiers (check-data.mjs) : on les
       # régénère depuis `data/` comme dans le job `quality`.
-      - name: Install root dependencies
-        working-directory: .
-        run: pnpm install --frozen-lockfile
-
       - name: Generate catalogue data
-        working-directory: .
         run: pnpm run build:api
 
       - name: E2E (build de production + vite preview inclus)
-        run: pnpm run test:e2e
+        run: pnpm --filter site run test:e2e

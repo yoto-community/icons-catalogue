@@ -1,0 +1,40 @@
+/**
+ * Thème du catalogue pour l'éditeur extrait dans
+ * `@yoto-community/pixel-editor-react`.
+ *
+ * Le paquet expose ses couleurs, espacements et typographie en jetons `--pe-*`
+ * et pose ses valeurs par défaut sur `.pixel-editor`. On mappe donc ces jetons
+ * sur ceux de `src/styles.css`, à la fois sur le conteneur (`pe-theme-yoto`)
+ * et sur l'élément éditeur lui-même : sans ce second sélecteur, les défauts du
+ * paquet l'emporteraient et le thème sombre du site serait ignoré.
+ */
+
+.pe-theme-yoto,
+.pe-theme-yoto .pixel-editor {
+  --pe-color-text: var(--color-text);
+  --pe-color-text-muted: var(--color-text-muted);
+  --pe-color-text-secondary: var(--color-text-secondary);
+  --pe-color-text-inverse: var(--color-text-inverse);
+  --pe-color-border: var(--color-border);
+  --pe-color-border-focus: var(--color-border-focus);
+  --pe-color-surface: var(--color-surface);
+  --pe-color-surface-muted: var(--color-surface-muted);
+  --pe-color-primary: var(--color-primary);
+  --pe-color-primary-dark: var(--color-primary-dark);
+  --pe-color-primary-light: var(--color-primary-light);
+  --pe-color-primary-focus: var(--color-primary-focus);
+  --pe-checker-a: var(--checker-a);
+  --pe-checker-b: var(--checker-b);
+  --pe-space-1: var(--space-1);
+  --pe-space-2: var(--space-2);
+  --pe-space-3: var(--space-3);
+  --pe-space-4: var(--space-4);
+  --pe-space-5: var(--space-5);
+  --pe-space-6: var(--space-6);
+  --pe-radius: var(--radius);
+  --pe-radius-sm: var(--radius-sm);
+  --pe-text-xs: var(--text-xs);
+  --pe-text-sm: var(--text-sm);
+  --pe-text-2xl: var(--text-2xl);
+  --pe-transition-fast: var(--transition-fast);
+}

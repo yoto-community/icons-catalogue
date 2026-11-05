@@ -1,5 +1,5 @@
 {
-  "name": "yoto-icons-catalogue-search",
+  "name": "site",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -31,6 +31,8 @@
     "verify": "pnpm run lint && pnpm run check && pnpm run check:i18n && pnpm run test && pnpm run build && pnpm run check:bundle && pnpm run check:spa && pnpm run check:precache && pnpm run check:seo"
   },
   "dependencies": {
+    "@yoto-community/pixel-editor-core": "workspace:*",
+    "@yoto-community/pixel-editor-react": "workspace:*",
     "lunr": "^2.3.9",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

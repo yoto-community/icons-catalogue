@@ -1,0 +1,44 @@
+{
+  "name": "@yoto-community/pixel-editor-core",
+  "version": "0.1.0",
+  "description": "Cœur pur TypeScript de l'éditeur d'icônes 16×16 : grille RGBA, historique, import d'images et encodage PNG.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yoto-community/icons-catalogue.git",
+    "directory": "packages/pixel-editor-core"
+  },
+  "keywords": [
+    "yoto",
+    "icons",
+    "16x16",
+    "pixel-editor",
+    "pixel-art",
+    "typescript"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser/index.d.ts",
+      "import": "./dist/browser/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.3",
+    "typescript": "^5.6.3",
+    "vitest": "^5.1.0"
+  }
+}

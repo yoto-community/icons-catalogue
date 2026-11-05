@@ -1,6 +1,9 @@
 **/dist/*
 **/node_modules/*
 
+# Tarballs produits par `pnpm pack` (artefacts de release, jamais versionnés).
+*.tgz
+
 # Gros artefacts générés (P1.5). Régénérés via `pnpm run build:api` (racine) avant
 # chaque build/déploiement : les committer à chaque mise à jour hebdomadaire
 # faisait croître l'historique Git de façon durable (~47 Mo par run).

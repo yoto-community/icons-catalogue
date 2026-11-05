@@ -89,6 +89,19 @@ describe('Header', () => {
     );
   });
 
+  it('referme le menu communauté après un clic sur le portail externe', () => {
+    renderHeader();
+    const toggle = screen.getByRole('button', { name: 'Communauté' });
+    fireEvent.click(toggle);
+
+    const portal = screen.getByRole('menuitem', { name: /Awesome Yoto/ });
+    // Empêche la navigation jsdom tout en laissant le handler React s'exécuter.
+    portal.addEventListener('click', (event) => event.preventDefault(), { once: true });
+    fireEvent.click(portal);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('affiche le compteur de favoris quand il est non nul', () => {
     localStorage.setItem(FAV_KEY, JSON.stringify(['a', 'b']));
     const { container } = renderHeader();

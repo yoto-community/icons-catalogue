@@ -94,6 +94,7 @@ ce catalogue est sous licence MIT (voir [Licence](#licence)).
 
 ```
 icons-catalogue/
+├── pnpm-workspace.yaml             # Workspace pnpm : site + packages/*
 ├── data/                           # Données brutes (committées)
 │   ├── yotopixels-icons.json       # ~1 310 icônes
 │   ├── yotoicons-icons.json        # ~25 630 icônes
@@ -161,20 +162,25 @@ icons-catalogue/
 ## Installation
 
 ```bash
-# Racine (scrapers + build)
+# À la racine du dépôt — installe tout le workspace (racine + site)
 cd icons-catalogue
 pnpm install
-
-# Frontend
-cd site
-pnpm install
 ```
+
+> **Packages du workspace** : `pnpm install` déclenche le script `postinstall`
+> racine, qui compile automatiquement les packages de `packages/*`
+> (`pnpm --filter './packages/*' build`, soit `pnpm run build:packages`). Leur
+> `dist/` n'est pas versionné : sans cette compilation,
+> `pnpm --filter site run check` échouerait sur les imports `@yoto-community/*`.
+> Après une modification du code d'un package, relancez
+> `pnpm run build:packages` (pnpm n'exécute `postinstall` que lorsque
+> l'installation a réellement du travail à faire).
 
 > **Données générées** : `site/public/index.json` et
 > `site/public/icons-by-source/` sont produits par `pnpm run build:api` (racine)
 > et ne sont plus committés (cf. `.gitignore`) ; `site/public/summary.json`, lui,
 > **reste versionné** (marqueur de `catalogVersion`). Lancez `build:api`
-> **avant** le build du site (`cd site && pnpm run build`), sinon le build échoue
+> **avant** le build du site (`pnpm --filter site run build`), sinon le build échoue
 > avec un message explicite (`pnpm run check:data`).
 
 ## Scripts (scraping & build)
@@ -296,9 +302,7 @@ Application React 19 + TypeScript + Vite 8 avec PWA (Workbox).
 ### Développement
 
 ```bash
-cd site
-pnpm install
-pnpm run dev
+pnpm --filter site run dev
 # http://localhost:5173/icons-catalogue/
 ```
 
@@ -307,27 +311,25 @@ pnpm run dev
 La CI (`.github/workflows/ci.yml`) exécute ces mêmes commandes sur chaque PR :
 
 ```bash
-cd site
+pnpm --filter site run lint          # ESLint (config flat, règles TypeScript strictes)
+pnpm --filter site run lint:fix      # Correction automatique
+pnpm --filter site run format        # Prettier --write
+pnpm --filter site run format:check  # Prettier --check (sans écriture)
+pnpm --filter site run check         # tsc --noEmit (typage uniquement)
+pnpm --filter site run check:i18n    # Parité fr/en + clés utilisées (scripts/check-i18n-keys.mjs)
+pnpm --filter site run check:data    # Données du catalogue présentes (non versionnées, cf. P1.5)
+pnpm --filter site run test          # Vitest (unit + intégration, environnement jsdom)
+pnpm --filter site run test:watch    # Vitest en mode observation
+pnpm --filter site run test:coverage # Couverture (v8) + seuils : échoue si la couverture régresse
+pnpm --filter site run test:e2e      # Playwright : parcours complets + audit a11y (Chromium, build de prod)
 
-pnpm run lint          # ESLint (config flat, règles TypeScript strictes)
-pnpm run lint:fix      # Correction automatique
-pnpm run format        # Prettier --write
-pnpm run format:check  # Prettier --check (sans écriture)
-pnpm run check         # tsc --noEmit (typage uniquement)
-pnpm run check:i18n    # Parité fr/en + clés utilisées (scripts/check-i18n-keys.mjs)
-pnpm run check:data    # Données du catalogue présentes (non versionnées, cf. P1.5)
-pnpm run test          # Vitest (unit + intégration, environnement jsdom)
-pnpm run test:watch    # Vitest en mode observation
-pnpm run test:coverage # Couverture (v8) + seuils : échoue si la couverture régresse
-pnpm run test:e2e      # Playwright : parcours complets + audit a11y (Chromium, build de prod)
+pnpm --filter site run check:bundle   # Budget de taille de bundle (gzip)
+pnpm --filter site run check:spa      # Repli SPA (dist/404.html présent et à jour)
+pnpm --filter site run check:precache # Aucune donnée précachée par le service worker
+pnpm --filter site run check:seo      # OG/Twitter/canonical + robots.txt + sitemap généré + prerender
 
-pnpm run check:bundle   # Budget de taille de bundle (gzip)
-pnpm run check:spa      # Repli SPA (dist/404.html présent et à jour)
-pnpm run check:precache # Aucune donnée précachée par le service worker
-pnpm run check:seo      # OG/Twitter/canonical + robots.txt + sitemap généré + prerender
-
-pnpm run verify        # Tout en séquence : lint + check + check:i18n + test + build
-                       #   + budget bundle + repli SPA + précache PWA + SEO
+pnpm --filter site run verify         # Tout en séquence : lint + check + check:i18n + test + build
+                                      #   + budget bundle + repli SPA + précache PWA + SEO
 ```
 
 > **Ordre recommandé** : `eslint --fix` puis `prettier --write`. ESLint applique
@@ -356,9 +358,9 @@ pnpm run verify        # Tout en séquence : lint + check + check:i18n + test + 
 
 ```bash
 # Prérequis (racine) — les données ne sont plus versionnées :
-cd .. && pnpm install && pnpm run build:api && cd site
+pnpm install && pnpm run build:api
 
-pnpm run build
+pnpm --filter site run build
 # Sortie dans dist/
 ```
 
