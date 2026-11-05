@@ -51,6 +51,11 @@
     "navDevelopers": "Développeurs",
     "navSources": "Sources",
     "navCommunity": "Communauté",
+    "navPortal": "Awesome Yoto",
+    "navPodcasts": "Catalogue de podcasts",
+    "navContribute": "Contribuer",
+    "navGitHub": "GitHub",
+    "externalLink": "(nouvel onglet)",
     "favoritesCount": "{{count}} favori{{count > 1 ? 's' : ''}}",
     "navEditor": "Éditeur"
   },
@@ -124,7 +129,8 @@
     "updatedWeekly": "Données mises à jour automatiquement chaque semaine",
     "sources": "Sources:",
     "aboutSources": "À propos des sources",
-    "github": "GitHub"
+    "github": "GitHub",
+    "community": "Fait partie de la <a href=\"https://yoto-community.github.io/\">communauté Yoto</a> — <a href=\"https://yoto-community.github.io/myo/\">créez votre première carte MYO</a>."
   },
   "loading": {
     "indexLoading": "Chargement de l'index des icônes…",

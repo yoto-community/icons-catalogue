@@ -62,6 +62,33 @@ describe('Header', () => {
     expect(screen.getByRole('menuitem', { name: 'Sources' })).toHaveAttribute('href', '/sources');
   });
 
+  it('expose le portail Awesome Yoto dans le menu communauté', () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: 'Communauté' }));
+
+    const portal = screen.getByRole('menuitem', { name: /Awesome Yoto/ });
+    expect(portal).toHaveAttribute('href', 'https://yoto-community.github.io/');
+    expect(portal).toHaveAttribute('target', '_blank');
+  });
+
+  it('expose les autres sites, la contribution et le dépôt GitHub', () => {
+    renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: 'Communauté' }));
+
+    expect(screen.getByRole('menuitem', { name: /Catalogue de podcasts/ })).toHaveAttribute(
+      'href',
+      'https://yoto-community.github.io/podcast-catalogue/'
+    );
+    expect(screen.getByRole('menuitem', { name: /Contribuer/ })).toHaveAttribute(
+      'href',
+      'https://github.com/yoto-community/icons-catalogue/blob/main/CONTRIBUTING.md'
+    );
+    expect(screen.getByRole('menuitem', { name: /GitHub/ })).toHaveAttribute(
+      'href',
+      'https://github.com/yoto-community/icons-catalogue'
+    );
+  });
+
   it('affiche le compteur de favoris quand il est non nul', () => {
     localStorage.setItem(FAV_KEY, JSON.stringify(['a', 'b']));
     const { container } = renderHeader();

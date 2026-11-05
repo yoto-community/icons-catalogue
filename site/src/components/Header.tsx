@@ -8,6 +8,7 @@ interface NavItem {
   path: string;
   labelKey: string;
   count?: number;
+  external?: boolean;
 }
 
 const mainNavItems: NavItem[] = [
@@ -16,10 +17,31 @@ const mainNavItems: NavItem[] = [
   { path: '/editor', labelKey: 'header.navEditor' },
 ];
 
+const REPOSITORY_URL = 'https://github.com/yoto-community/icons-catalogue';
+const PORTAL_URL = 'https://yoto-community.github.io/';
+const PODCASTS_URL = 'https://yoto-community.github.io/podcast-catalogue/';
+
+/** Liens propres au catalogue d'icônes. */
 const communityNavItems: NavItem[] = [
   { path: '/authors', labelKey: 'header.navAuthors' },
   { path: '/sources', labelKey: 'header.navSources' },
   { path: '/developers', labelKey: 'header.navDevelopers' },
+];
+
+/** Liens vers les autres sites de la communauté Yoto. */
+const ecosystemNavItems: NavItem[] = [
+  { path: PORTAL_URL, labelKey: 'header.navPortal', external: true },
+  { path: PODCASTS_URL, labelKey: 'header.navPodcasts', external: true },
+];
+
+/** Contribution et code source, communs à tous les sites. */
+const projectNavItems: NavItem[] = [
+  {
+    path: `${REPOSITORY_URL}/blob/main/CONTRIBUTING.md`,
+    labelKey: 'header.navContribute',
+    external: true,
+  },
+  { path: REPOSITORY_URL, labelKey: 'header.navGitHub', external: true },
 ];
 
 export function Header() {
@@ -33,6 +55,41 @@ export function Header() {
     labelKey: 'header.navFavorites',
     count: favorites.size,
   };
+
+  const renderCommunityItem = (item: NavItem) => (
+    <li key={item.path} role="none">
+      {item.external ? (
+        <a
+          href={item.path}
+          className="nav-dropdown-item"
+          role="menuitem"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setIsCommunityOpen(false)}
+        >
+          {t(item.labelKey)}
+          <span className="nav-dropdown-external" aria-hidden="true">
+            ↗
+          </span>
+          <span className="sr-only">{t('header.externalLink')}</span>
+        </a>
+      ) : (
+        <Link
+          to={item.path}
+          className={`nav-dropdown-item ${location.pathname === item.path ? 'is-active' : ''}`}
+          role="menuitem"
+          aria-current={location.pathname === item.path ? 'page' : undefined}
+          onClick={() => setIsCommunityOpen(false)}
+        >
+          {t(item.labelKey)}
+        </Link>
+      )}
+    </li>
+  );
+
+  const communitySeparator = (key: string) => (
+    <li key={key} className="nav-dropdown-separator" role="separator" aria-hidden="true" />
+  );
 
   return (
     <header className="header">
@@ -83,19 +140,11 @@ export function Header() {
                   {t('header.navCommunity')}
                 </button>
                 <ul className="nav-dropdown-menu" role="menu" aria-label={t('header.navCommunity')}>
-                  {communityNavItems.map((item) => (
-                    <li key={item.path} role="none">
-                      <Link
-                        to={item.path}
-                        className={`nav-dropdown-item ${location.pathname === item.path ? 'is-active' : ''}`}
-                        role="menuitem"
-                        aria-current={location.pathname === item.path ? 'page' : undefined}
-                        onClick={() => setIsCommunityOpen(false)}
-                      >
-                        {t(item.labelKey)}
-                      </Link>
-                    </li>
-                  ))}
+                  {communityNavItems.map(renderCommunityItem)}
+                  {communitySeparator('ecosystem-links')}
+                  {ecosystemNavItems.map(renderCommunityItem)}
+                  {communitySeparator('project-links')}
+                  {projectNavItems.map(renderCommunityItem)}
                 </ul>
               </li>
               <li>

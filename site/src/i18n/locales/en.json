@@ -51,6 +51,11 @@
     "navDevelopers": "Developers",
     "navSources": "Sources",
     "navCommunity": "Community",
+    "navPortal": "Awesome Yoto",
+    "navPodcasts": "Podcasts catalogue",
+    "navContribute": "Contribute",
+    "navGitHub": "GitHub",
+    "externalLink": "(opens in a new tab)",
     "favoritesCount": "{{count}} favorite{{count > 1 ? 's' : ''}}",
     "navEditor": "Editor"
   },
@@ -124,7 +129,8 @@
     "updatedWeekly": "Data automatically updated weekly",
     "sources": "Sources:",
     "aboutSources": "About the sources",
-    "github": "GitHub"
+    "github": "GitHub",
+    "community": "Part of the <a href=\"https://yoto-community.github.io/\">Yoto Community</a> — <a href=\"https://yoto-community.github.io/myo/\">build your first MYO card</a>."
   },
   "loading": {
     "indexLoading": "Loading icon index…",

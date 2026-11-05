@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
 
 export function Footer() {
-  const { t } = useI18n();
+  const { t, tRich } = useI18n();
 
   return (
     <footer className="footer">
@@ -24,6 +24,7 @@ export function Footer() {
           {t('footer.github')}
         </a>
       </p>
+      <p className="footer-community">{tRich('footer.community')}</p>
     </footer>
   );
 }
