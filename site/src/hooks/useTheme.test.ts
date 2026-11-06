@@ -1,5 +1,8 @@
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { PREFS_KEY } from '../lib/sharedStorage';
 import { useTheme, THEME_KEY, resolveTheme, type ThemePreference } from './useTheme';
 
 /**
@@ -53,6 +56,7 @@ describe('useTheme', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it('préfère « system » par défaut et résout en clair', () => {
@@ -141,6 +145,94 @@ describe('useTheme', () => {
 
     expect(result.current.resolvedTheme).toBe('light');
     expect(document.documentElement.dataset.theme).toBe('light');
+  });
+
+  it('suit une préférence partagée modifiée dans un autre onglet', () => {
+    stubMatchMedia(false);
+    const { result } = renderHook(() => useTheme());
+
+    act(() => {
+      localStorage.setItem(PREFS_KEY, JSON.stringify({ version: 1, theme: 'dark' }));
+      window.dispatchEvent(new StorageEvent('storage', { key: PREFS_KEY }));
+    });
+
+    expect(result.current.preference).toBe('dark');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+  });
+
+  it('suit la clé de thème historique modifiée dans un autre onglet', () => {
+    stubMatchMedia(false);
+    const { result } = renderHook(() => useTheme());
+
+    act(() => {
+      localStorage.setItem(THEME_KEY, 'dark');
+      window.dispatchEvent(new StorageEvent('storage', { key: THEME_KEY }));
+    });
+
+    expect(result.current.preference).toBe('dark');
+  });
+
+  it('ignore les événements de stockage sans rapport', () => {
+    stubMatchMedia(false);
+    const { result } = renderHook(() => useTheme());
+    localStorage.setItem(THEME_KEY, 'dark');
+
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: 'unrelated-key' }));
+    });
+
+    expect(result.current.preference).toBe('system');
+  });
+
+  it('retombe sur « system » quand le stockage est illisible', () => {
+    stubMatchMedia(false);
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('storage unavailable');
+    });
+
+    const { result } = renderHook(() => useTheme());
+
+    expect(result.current.preference).toBe('system');
+  });
+
+  it('lit la clé de thème historique si les préférences partagées sont illisibles', () => {
+    stubMatchMedia(false);
+    const getItem = Storage.prototype.getItem;
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(function (
+      this: Storage,
+      key: string
+    ) {
+      if (key === PREFS_KEY) throw new Error('shared prefs unavailable');
+      return getItem.call(this, key);
+    });
+    localStorage.setItem(THEME_KEY, 'dark');
+
+    const { result } = renderHook(() => useTheme());
+
+    expect(result.current.preference).toBe('dark');
+  });
+
+  it('met à jour l’état même si la persistance échoue', () => {
+    stubMatchMedia(false);
+    const { result } = renderHook(() => useTheme());
+
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('storage full');
+    });
+
+    expect(() => act(() => result.current.setPreference('dark'))).not.toThrow();
+    expect(result.current.preference).toBe('dark');
+  });
+
+  it('fonctionne sans window (rendu serveur)', () => {
+    vi.stubGlobal('window', undefined);
+
+    function Probe() {
+      const theme = useTheme();
+      return createElement('span', null, `${theme.preference}:${theme.resolvedTheme}`);
+    }
+
+    expect(renderToString(createElement(Probe))).toContain('system:light');
   });
 
   it('retire l’écoute système au démontage', () => {
