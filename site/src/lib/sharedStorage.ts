@@ -220,7 +220,18 @@ export function readToolkitWithLegacy(
   if (!storage) return { version: TOOLKIT_VERSION, items: [] };
 
   const raw = readKey(storage, TOOLKIT_KEY);
-  if (raw !== null) return parseToolkit(raw, fallbackDate);
+  if (raw !== null) {
+    const toolkit = parseToolkit(raw, fallbackDate);
+    // Même fenêtre de transition que `readIconFavorites` : une trousse créée
+    // par un autre site peut ne pas encore contenir la slice `icon`.
+    if (toolkit.items.some((item) => item.type === 'icon')) return toolkit;
+
+    const known = new Set(toolkit.items.map((item) => `${item.type}:${item.id}`));
+    const icons = readStringArray(storage, 'yoto-icons-favorites')
+      .filter((id) => !known.has(`icon:${id}`))
+      .map((id) => ({ type: 'icon' as const, id, title: id, addedAt: fallbackDate }));
+    return icons.length === 0 ? toolkit : { ...toolkit, items: [...toolkit.items, ...icons] };
+  }
 
   const items: ToolkitItem[] = [];
   for (const legacy of LEGACY_FAVORITES) {
@@ -238,13 +249,19 @@ export function readToolkitWithLegacy(
 export function readIconFavorites(storage: SharedStorage | null = safeStorage()): string[] {
   if (!storage) return [];
 
+  const legacy = readStringArray(storage, 'yoto-icons-favorites');
   const raw = readKey(storage, TOOLKIT_KEY);
-  if (raw !== null) {
-    return parseToolkit(raw)
-      .items.filter((item) => item.type === 'icon')
-      .map((item) => item.id);
-  }
-  return readStringArray(storage, 'yoto-icons-favorites');
+  if (raw === null) return legacy;
+
+  const icons = parseToolkit(raw)
+    .items.filter((item) => item.type === 'icon')
+    .map((item) => item.id);
+
+  // Fenêtre de transition : un autre site (le portail) peut avoir créé la
+  // trousse pour y ranger un projet avant que le catalogue n'y ait migré ses
+  // icônes. Tant que la slice `icon` est vide, les anciens favoris restent la
+  // source ; le premier `syncIconFavorites` les recopie dans la trousse.
+  return icons.length === 0 ? legacy : icons;
 }
 
 /**

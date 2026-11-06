@@ -108,6 +108,37 @@ describe('toolkit', () => {
     expect(readIconFavorites(storage)).toEqual(['icon-b']);
   });
 
+  it('keeps historical icons while a toolkit created elsewhere has no icon slice', () => {
+    const storage = memoryStorage({
+      [TOOLKIT_KEY]: JSON.stringify({
+        version: 1,
+        items: [{ type: 'project', id: 'louis', title: 'Louis', addedAt: DATE }],
+      }),
+      'yoto-icons-favorites': JSON.stringify(['icon-a', 'icon-b']),
+    });
+
+    expect(readIconFavorites(storage)).toEqual(['icon-a', 'icon-b']);
+    expect(readToolkitWithLegacy(storage, DATE).items).toEqual([
+      { type: 'project', id: 'louis', title: 'Louis', addedAt: DATE },
+      { type: 'icon', id: 'icon-a', title: 'icon-a', addedAt: DATE },
+      { type: 'icon', id: 'icon-b', title: 'icon-b', addedAt: DATE },
+    ]);
+  });
+
+  it('does not resurrect historical icons once the toolkit holds icons', () => {
+    const storage = memoryStorage({
+      [TOOLKIT_KEY]: JSON.stringify({
+        version: 1,
+        items: [{ type: 'icon', id: 'icon-b', title: 'B', addedAt: DATE }],
+      }),
+      'yoto-icons-favorites': JSON.stringify(['icon-a']),
+    });
+
+    expect(readToolkitWithLegacy(storage, DATE).items).toEqual([
+      { type: 'icon', id: 'icon-b', title: 'B', addedAt: DATE },
+    ]);
+  });
+
   it('falls back to the historical key before the toolkit exists', () => {
     const storage = memoryStorage({
       'yoto-icons-favorites': JSON.stringify(['icon-a']),
