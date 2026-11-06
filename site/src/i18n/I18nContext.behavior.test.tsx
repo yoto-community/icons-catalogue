@@ -90,6 +90,29 @@ describe('i18n — comportement du provider', () => {
     expect(screen.getByTestId('locale').textContent).toBe('en');
   });
 
+  it('lit et écrit la langue partagée entre les sites', () => {
+    localStorage.setItem(
+      'yoto-community:prefs:v1',
+      JSON.stringify({ version: 1, theme: 'dark', locale: 'fr' })
+    );
+    render(
+      <I18nProvider defaultLocale="fr">
+        <LocaleProbe />
+      </I18nProvider>
+    );
+    expect(screen.getByTestId('locale').textContent).toBe('fr');
+
+    act(() => {
+      screen.getByRole('button', { name: 'switch' }).click();
+    });
+
+    expect(JSON.parse(localStorage.getItem('yoto-community:prefs:v1') ?? '{}')).toMatchObject({
+      version: 1,
+      theme: 'dark',
+      locale: 'en',
+    });
+  });
+
   it('useI18n lève une erreur en dehors du provider', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<MissingKeyProbe />)).toThrow(

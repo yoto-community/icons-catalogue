@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { FavoritesProvider, useFavorites } from './FavoritesContext';
+import { TOOLKIT_KEY, parseToolkit } from '../lib/sharedStorage';
 
 const FAV_KEY = 'yoto-icons-favorites';
 
@@ -89,6 +90,54 @@ describe('FavoritesContext', () => {
     });
 
     expect(result.current.favorites.has('z')).toBe(true);
+  });
+
+  it('écrit les favoris dans la trousse partagée avec leur titre', () => {
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+
+    act(() => result.current.toggleFavorite('icon-1', 'Moon'));
+
+    const toolkit = parseToolkit(localStorage.getItem(TOOLKIT_KEY));
+    expect(toolkit.items).toEqual([
+      expect.objectContaining({ type: 'icon', id: 'icon-1', title: 'Moon' }),
+    ]);
+  });
+
+  it('relit les icônes de la trousse même sans ancienne clé', () => {
+    localStorage.setItem(
+      TOOLKIT_KEY,
+      JSON.stringify({
+        version: 1,
+        items: [{ type: 'icon', id: 'from-toolkit', title: 'Toolkit icon', addedAt: '2026-11-06' }],
+      })
+    );
+
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+
+    expect(result.current.favorites.has('from-toolkit')).toBe(true);
+  });
+
+  it('met à jour les favoris quand la trousse change dans un autre onglet', () => {
+    const { result } = renderHook(() => useFavorites(), { wrapper });
+
+    act(() => {
+      localStorage.setItem(
+        TOOLKIT_KEY,
+        JSON.stringify({
+          version: 1,
+          items: [{ type: 'icon', id: 'remote', title: 'Remote', addedAt: '2026-11-06' }],
+        })
+      );
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: TOOLKIT_KEY,
+          oldValue: '[]',
+          newValue: localStorage.getItem(TOOLKIT_KEY),
+        })
+      );
+    });
+
+    expect(result.current.favorites.has('remote')).toBe(true);
   });
 
   it('lève une erreur hors du provider', () => {

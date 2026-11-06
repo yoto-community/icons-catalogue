@@ -134,7 +134,7 @@ export function IconCard({
               <circle cx="12" cy="12" r="3" />
             </svg>
           </button>
-          <FavoriteButton id={icon.id} size="sm" variant="icon" />
+          <FavoriteButton id={icon.id} title={icon.title} size="sm" variant="icon" />
         </div>
       </div>
     </article>

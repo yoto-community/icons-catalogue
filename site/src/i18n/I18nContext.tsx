@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { PREFS_KEY, readPrefs, writePrefs } from '../lib/sharedStorage';
 
 // Traductions embarquées : Vite les inclut dans le bundle. Source unique de
 // vérité (il n'y a plus de fetch de `public/locales/`, qui divergeait
@@ -172,10 +173,17 @@ export function I18nProvider({
   defaultLocale?: Locale;
 }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
-    // Check localStorage first
+    // Shared preference first, then the historical catalogue key.
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('locale');
-      if (stored === 'fr' || stored === 'en') return stored;
+      const shared = readPrefs().locale;
+      if (shared === 'fr' || shared === 'en') return shared;
+
+      try {
+        const stored = localStorage.getItem('locale');
+        if (stored === 'fr' || stored === 'en') return stored;
+      } catch {
+        /* stockage indisponible */
+      }
 
       // Check browser language
       const browserLang = navigator.language.split('-')[0];
@@ -189,7 +197,12 @@ export function I18nProvider({
   // Persist locale and update document language
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);
-    localStorage.setItem('locale', newLocale);
+    writePrefs({ locale: newLocale });
+    try {
+      localStorage.setItem('locale', newLocale);
+    } catch {
+      /* stockage indisponible : writePrefs a déjà tenté sa propre écriture */
+    }
     document.documentElement.lang = newLocale;
   }, []);
 
@@ -197,6 +210,21 @@ export function I18nProvider({
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
+
+  // Suit la langue choisie dans un autre onglet ou sur un autre site.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === PREFS_KEY || event.key === 'locale') {
+        const shared = readPrefs().locale;
+        if (shared === 'fr' || shared === 'en') setLocaleState(shared);
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {

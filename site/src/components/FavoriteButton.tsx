@@ -3,6 +3,8 @@ import { useI18n } from '../i18n';
 
 interface FavoriteButtonProps {
   id: string;
+  /** Libellé lisible recopié dans la trousse partagée. */
+  title?: string;
   size?: 'sm' | 'normal';
   variant?: 'icon' | 'icon-text';
   onToggle?: (isFavorite: boolean) => void;
@@ -10,6 +12,7 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({
   id,
+  title,
   size = 'normal',
   variant = 'icon',
   onToggle,
@@ -20,7 +23,7 @@ export function FavoriteButton({
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent parent click handlers (like opening detail modal)
-    const added = toggleFavorite(id);
+    const added = toggleFavorite(id, title);
     onToggle?.(added);
   };
 

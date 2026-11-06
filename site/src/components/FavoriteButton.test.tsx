@@ -54,11 +54,11 @@ describe('FavoriteButton', () => {
 
   it('bascule le favori au clic et remonte le nouvel état', () => {
     const onToggle = vi.fn();
-    renderButton({ onToggle });
+    renderButton({ title: 'Moon', onToggle });
 
     fireEvent.click(screen.getByRole('button'));
 
-    expect(fav.toggleFavorite).toHaveBeenCalledWith('icon-1');
+    expect(fav.toggleFavorite).toHaveBeenCalledWith('icon-1', 'Moon');
     expect(onToggle).toHaveBeenCalledWith(true);
   });
 

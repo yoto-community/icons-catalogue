@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { PREFS_KEY, readPrefs, writePrefs } from '../lib/sharedStorage';
 
 /** Préférence de thème : explicite (clair/sombre) ou alignée sur le système. */
 export type ThemePreference = 'light' | 'dark' | 'system';
@@ -18,10 +19,18 @@ export function resolveTheme(preference: ThemePreference, prefersDark: boolean):
 
 function readStoredPreference(): ThemePreference {
   if (typeof window === 'undefined') return 'system';
-  const stored = localStorage.getItem(THEME_KEY);
-  return VALID_PREFERENCES.includes(stored as ThemePreference)
-    ? (stored as ThemePreference)
-    : 'system';
+
+  const shared = readPrefs().theme;
+  if (shared && VALID_PREFERENCES.includes(shared)) return shared;
+
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    return VALID_PREFERENCES.includes(stored as ThemePreference)
+      ? (stored as ThemePreference)
+      : 'system';
+  } catch {
+    return 'system';
+  }
 }
 
 function prefersDarkNow(): boolean {
@@ -58,9 +67,29 @@ export function useTheme() {
     document.documentElement.dataset.theme = resolvedTheme;
   }, [resolvedTheme]);
 
+  // Suit les changements de préférence faits dans un autre onglet ou sur un
+  // autre site de la même origine.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === PREFS_KEY || event.key === THEME_KEY) {
+        setPreferenceState(readStoredPreference());
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   const setPreference = useCallback((next: ThemePreference) => {
     setPreferenceState(next);
-    localStorage.setItem(THEME_KEY, next);
+    writePrefs({ theme: next });
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      /* stockage indisponible : writePrefs a déjà tenté sa propre écriture */
+    }
   }, []);
 
   return { preference, resolvedTheme, setPreference };

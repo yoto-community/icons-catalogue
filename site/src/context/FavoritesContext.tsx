@@ -1,50 +1,69 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  type ReactNode,
+} from 'react';
+import {
+  TOOLKIT_KEY,
+  readIconFavorites,
+  readToolkitWithLegacy,
+  syncIconFavorites,
+} from '../lib/sharedStorage';
 
 const FAV_KEY = 'yoto-icons-favorites';
 
 interface FavoritesContextType {
   favorites: Set<string>;
   isFavorite: (id: string) => boolean;
-  toggleFavorite: (id: string) => boolean;
-  addFavorite: (id: string) => void;
+  toggleFavorite: (id: string, title?: string) => boolean;
+  addFavorite: (id: string, title?: string) => void;
   removeFavorite: (id: string) => void;
   clearFavorites: () => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | null>(null);
 
-/** Extrait la liste d'ids valide d'une valeur brute de localStorage. */
-function parseFavorites(raw: string | null): string[] {
-  if (!raw) return [];
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((s): s is string => typeof s === 'string') : [];
-  } catch {
-    // Stockage corrompu : on ignore plutôt que de planter l'application.
-    return [];
-  }
-}
-
 export function FavoritesProvider({ children }: { children: ReactNode }) {
+  // Titres connus par le catalogue : ils sont recopiés dans la trousse pour
+  // que le portail affiche « Moon » plutôt que l'identifiant opaque.
+  const titlesRef = useRef<Record<string, string>>({});
+
   // Lecture SYNCHRONE au montage (initialiseur paresseux) : l'état initial vaut
   // déjà les favoris stockés, ce qui supprime le rendu en cascade d'un effet de
   // chargement et le risque d'écraser le stockage avec un état vide.
-  const [favorites, setFavorites] = useState<Set<string>>(
-    () => new Set(parseFavorites(localStorage.getItem(FAV_KEY)))
-  );
+  const [favorites, setFavorites] = useState<Set<string>>(() => new Set(readIconFavorites()));
 
-  // Persiste à chaque changement. Le premier passage réécrit la valeur déjà
-  // chargée : sans effet de bord observable.
+  // Persiste à chaque changement : l'ancienne clé reste la source du catalogue,
+  // la trousse partagée reçoit la même liste avec les titres connus.
   useEffect(() => {
-    localStorage.setItem(FAV_KEY, JSON.stringify([...favorites]));
+    try {
+      localStorage.setItem(FAV_KEY, JSON.stringify([...favorites]));
+    } catch {
+      /* stockage indisponible : la trousse tentera elle aussi sans casser la page */
+    }
+    syncIconFavorites(favorites, titlesRef.current);
   }, [favorites]);
 
   // Synchronisation inter-onglets : `storage` ne se déclenche que dans les
   // AUTRES onglets, il n'y a donc pas de boucle à éviter côté émetteur.
   useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === FAV_KEY && e.newValue !== e.oldValue) {
-        setFavorites(new Set(parseFavorites(localStorage.getItem(FAV_KEY))));
+      if (e.key === TOOLKIT_KEY) {
+        // La trousse est la source de vérité dès qu'elle existe : un retrait
+        // fait depuis le portail doit aussi retirer le favori ici.
+        setFavorites(
+          new Set(
+            readToolkitWithLegacy()
+              .items.filter((item) => item.type === 'icon')
+              .map((item) => item.id)
+          )
+        );
+      } else if (e.key === FAV_KEY && e.newValue !== e.oldValue) {
+        setFavorites(new Set(readIconFavorites()));
       }
     };
 
@@ -55,7 +74,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const isFavorite = useCallback((id: string) => favorites.has(id), [favorites]);
 
   const toggleFavorite = useCallback(
-    (id: string): boolean => {
+    (id: string, title?: string): boolean => {
+      if (title) titlesRef.current[id] = title;
       setFavorites((prev) => {
         const next = new Set(prev);
         if (next.has(id)) {
@@ -70,7 +90,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     [favorites]
   );
 
-  const addFavorite = useCallback((id: string) => {
+  const addFavorite = useCallback((id: string, title?: string) => {
+    if (title) titlesRef.current[id] = title;
     setFavorites((prev) => {
       if (prev.has(id)) return prev;
       const next = new Set(prev);
@@ -89,6 +110,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clearFavorites = useCallback(() => {
+    titlesRef.current = {};
     setFavorites(new Set());
   }, []);
 

@@ -93,6 +93,25 @@ describe('useTheme', () => {
     expect(document.documentElement.dataset.theme).toBe('dark');
   });
 
+  it('lit et écrit la préférence partagée entre les sites', () => {
+    localStorage.setItem(
+      'yoto-community:prefs:v1',
+      JSON.stringify({ version: 1, theme: 'dark', locale: 'fr' })
+    );
+    stubMatchMedia(false);
+    const { result } = renderHook(() => useTheme());
+
+    expect(result.current.preference).toBe('dark');
+
+    act(() => result.current.setPreference('light'));
+
+    expect(JSON.parse(localStorage.getItem('yoto-community:prefs:v1') ?? '{}')).toMatchObject({
+      version: 1,
+      theme: 'light',
+      locale: 'fr',
+    });
+  });
+
   it('ignore une préférence persistée invalide', () => {
     localStorage.setItem(THEME_KEY, 'sepia');
     stubMatchMedia(false);

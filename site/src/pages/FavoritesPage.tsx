@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFavorites } from '../context/FavoritesContext';
+import { syncIconFavorites } from '../lib/sharedStorage';
 import { IconsGrid } from '../components/IconsGrid';
 import { EmptyState } from '../components/EmptyState';
 import type { Icon } from '../types';
@@ -17,6 +18,17 @@ export function FavoritesPage({ allIcons }: { allIcons: Icon[] }) {
     () => allIcons.filter((icon) => favorites.has(icon.id)),
     [allIcons, favorites]
   );
+
+  // La page connaît les titres de tous les favoris affichés : on en profite
+  // pour compléter la trousse partagée, y compris pour d'anciens favoris
+  // importés avant l'arrivée des titres.
+  useEffect(() => {
+    if (favoriteIcons.length === 0) return;
+    syncIconFavorites(
+      favorites,
+      Object.fromEntries(favoriteIcons.map((icon) => [icon.id, icon.title]))
+    );
+  }, [favoriteIcons, favorites]);
 
   // Le modal et l'aperçu vivent dans `App` : la page publie des événements
   // typés plutôt que de dupliquer cet état.

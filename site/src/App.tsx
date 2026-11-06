@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import type { Icon } from './types';
 import { useIconsData } from './context/IconsDataContext';
+import { useFavorites } from './context/FavoritesContext';
+import { syncIconFavorites } from './lib/sharedStorage';
 import { useKeyboardShortcuts } from './hooks';
 import {
   Header,
@@ -86,6 +88,18 @@ function App() {
   // Le rendu n'attend plus la construction de l'index Lunr (~1,1 s) :
   // celle-ci se fait désormais dans un Web Worker, en arrière-plan.
   const { icons, summary, error, reload } = useIconsData();
+  const { favorites } = useFavorites();
+
+  // Dès que le catalogue est disponible, complète la trousse partagée avec les
+  // vrais titres des favoris existants (y compris ceux importés avant 2026).
+  useEffect(() => {
+    if (icons.length === 0 || favorites.size === 0) return;
+    const titles: Record<string, string> = {};
+    for (const icon of icons) {
+      if (favorites.has(icon.id)) titles[icon.id] = icon.title;
+    }
+    syncIconFavorites(favorites, titles);
+  }, [icons, favorites]);
 
   // Modal state
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
