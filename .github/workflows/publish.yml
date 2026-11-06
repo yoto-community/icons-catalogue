@@ -45,11 +45,16 @@ jobs:
 
       - name: Publish packages
         run: |
-          pnpm changeset version
-          # Publish all packages to GitHub Package Registry.
-          # --no-git-checks is required because `changeset version` leaves the
-          # working tree dirty and CI runs on a detached HEAD.
-          pnpm --filter './packages/*' publish --access public --no-git-checks
+          # `changeset version` exits 1 when there is nothing to release, so
+          # only consume changesets when some are actually pending.
+          if compgen -G ".changeset/*.md" > /dev/null; then
+            pnpm changeset version
+          else
+            echo "No pending changesets, publishing current versions."
+          fi
+          # `changeset publish` runs `pnpm publish --no-git-checks` for each
+          # package and skips versions already present in the registry.
+          pnpm changeset publish
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
