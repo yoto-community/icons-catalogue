@@ -6,8 +6,8 @@
  * composant `PixelGridEditor` ne fait que projeter le résultat sur le focus.
  */
 
-import { GRID_SIZE } from './constants';
-import type { EditorTool } from './pixel-editor';
+import { GRID_SIZE } from './constants.js';
+import type { EditorTool } from './pixel-editor.js';
 
 /** Position d'une cellule dans la grille (0-indexée). */
 export interface FocusPosition {

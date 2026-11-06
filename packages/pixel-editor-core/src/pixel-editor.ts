@@ -19,7 +19,7 @@ import {
   GRID_SIZE,
   HISTORY_LIMIT,
   PIXEL_COUNT,
-} from './constants';
+} from './constants.js';
 
 /** Couleur RGBA, composantes 0–255. */
 export type Rgba = [number, number, number, number];

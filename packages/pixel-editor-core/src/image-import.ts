@@ -14,8 +14,8 @@
  *   ré-échantillonnage), pour « partir d'une icône » sans la dégrader.
  */
 
-import { GRID_SIZE } from './constants';
-import type { PixelGrid } from './pixel-editor';
+import { GRID_SIZE } from './constants.js';
+import type { PixelGrid } from './pixel-editor.js';
 
 /** Sous-ensemble d'`ImageData` (évite de dépendre du DOM dans la logique pure). */
 export interface ImageDataLike {

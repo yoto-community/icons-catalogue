@@ -1,6 +1,6 @@
 {
   "name": "@yoto-community/pixel-editor-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Composant React accessible de l'éditeur d'icônes 16×16 Yoto.",
   "type": "module",
   "license": "MIT",

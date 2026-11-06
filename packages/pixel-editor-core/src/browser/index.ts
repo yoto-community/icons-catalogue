@@ -1,1 +1,1 @@
-export * from './image-decode';
+export * from './image-decode.js';

@@ -11,8 +11,8 @@
  * fidèlement (aucune mise à l'échelle).
  */
 
-import { fitAnalysisSize, imageDataToGrid } from '../image-import';
-import type { PixelGrid } from '../pixel-editor';
+import { fitAnalysisSize, imageDataToGrid } from '../image-import.js';
+import type { PixelGrid } from '../pixel-editor.js';
 
 /** Décodage natif indisponible (navigateur ancien, contexte 2D manquant…). */
 export class ImageDecodeError extends Error {

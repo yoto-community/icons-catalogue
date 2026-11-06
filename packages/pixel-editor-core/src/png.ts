@@ -13,9 +13,9 @@
  * tous les décodeurs (vérifié avec ImageMagick/PIL).
  */
 
-import { BYTES_PER_PIXEL, GRID_SIZE } from './constants';
-import type { PixelGrid } from './pixel-editor';
-import { crc32 } from './crc32';
+import { BYTES_PER_PIXEL, GRID_SIZE } from './constants.js';
+import type { PixelGrid } from './pixel-editor.js';
+import { crc32 } from './crc32.js';
 
 const PNG_SIGNATURE = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 

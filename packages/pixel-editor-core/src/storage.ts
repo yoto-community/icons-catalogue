@@ -14,8 +14,8 @@
  * (`false` / `null`) plutôt que de casser l'éditeur — cf. étude §6.5 et §8.
  */
 
-import { DRAFT_SCHEMA_VERSION, DRAFT_STORAGE_KEY } from './constants';
-import { decodeGrid, encodeGrid, type PixelGrid } from './pixel-editor';
+import { DRAFT_SCHEMA_VERSION, DRAFT_STORAGE_KEY } from './constants.js';
+import { decodeGrid, encodeGrid, type PixelGrid } from './pixel-editor.js';
 
 /** Forme sérialisée du brouillon (`v` = version, `g` = grille base64, `t` = date). */
 interface StoredDraft {

@@ -1,6 +1,6 @@
 {
   "name": "@yoto-community/pixel-editor-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Cœur pur TypeScript de l'éditeur d'icônes 16×16 : grille RGBA, historique, import d'images et encodage PNG.",
   "type": "module",
   "license": "MIT",
