@@ -10,4 +10,7 @@
 site/public/icons.json
 site/public/index.json
 site/public/icons-by-source/
+# Métadonnées individuelles générées par `build:api` (les PNG de la PWA,
+# eux, restent versionnés).
+site/public/icons/*.json
 site/public/lunr-index.bin

@@ -203,8 +203,10 @@ const index = lunr(function () {
 const indexJSON = index.toJSON();
 const indexContent = JSON.stringify(indexJSON);
 
-// 3. Créer les dossiers
+// 3. Créer les dossiers. `dist/icons` est purgé : sans cela, les métadonnées
+// des icônes retirées du catalogue resteraient publiées indéfiniment.
 ensureDir(DIST_DIR);
+fs.rmSync(path.join(DIST_DIR, 'icons'), { recursive: true, force: true });
 ensureDir(path.join(DIST_DIR, 'icons'));
 ensureDir(path.join(DIST_DIR, 'icons-by-source'));
 ensureDir(path.join(DIST_DIR, 'icons-by-category'));
@@ -460,6 +462,20 @@ for (const entry of fs.readdirSync(path.join(DIST_DIR, 'icons-by-source'))) {
   );
 }
 
+// P1.6 : publier les métadonnées individuelles (`icons/{id}.json`) pour que
+// les autres sites de l'organisation (le portail) puissent afficher une icône
+// favorite sans télécharger un shard de plusieurs mégaoctets. Les PNG de la
+// PWA vivent dans le même dossier et ne doivent pas être touchés.
+const siteIconDir = path.join(SITE_PUBLIC, 'icons');
+ensureDir(siteIconDir);
+for (const entry of fs.readdirSync(siteIconDir)) {
+  if (entry.endsWith('.json')) fs.rmSync(path.join(siteIconDir, entry), { force: true });
+}
+for (const entry of fs.readdirSync(path.join(DIST_DIR, 'icons'))) {
+  if (!entry.endsWith('.json')) continue;
+  fs.copyFileSync(path.join(DIST_DIR, 'icons', entry), path.join(siteIconDir, entry));
+}
+
 // Résidus d'anciennes publications : ne pas les laisser dans `public/` (Vite
 // recopie tout `public/` dans `dist/`, donc ils seraient redéployés).
 fs.rmSync(path.join(SITE_PUBLIC, 'icons.json'), { force: true });
@@ -508,13 +524,14 @@ const testHtml = `<!DOCTYPE html>
   <li><code>GET summary.json</code> - Statistiques</li>
   <li><code>GET index.json</code> - Manifeste (sources, compteurs)</li>
   <li><code>GET icons-by-source/{source}.json</code> - Shards par source</li>
+  <li><code>GET icons/{id}.json</code> - Métadonnées d'une icône</li>
 </ul>
 <p>Le dossier <code>dist/</code> local expose en plus <code>icons.json</code>
-(catalogue complet), <code>search-index.json</code>, les shards par catégorie
-<code>icons-by-category/{category}.json</code>, et les métadonnées individuelles
-<code>icons/{id}.json</code> — mais ces fichiers <strong>ne sont pas publiés</strong>
-sur GitHub Pages (seuls <code>summary.json</code>, <code>index.json</code> et
-<code>icons-by-source/*.json</code> le sont).</p>
+(catalogue complet), <code>search-index.json</code> et les shards par catégorie
+<code>icons-by-category/{category}.json</code> — mais ces fichiers
+<strong>ne sont pas publiés</strong> sur GitHub Pages (seuls
+<code>summary.json</code>, <code>index.json</code>,
+<code>icons-by-source/*.json</code> et <code>icons/{id}.json</code> le sont).</p>
 </body></html>`;
 
 fs.writeFileSync(path.join(DIST_DIR, 'test-index.html'), testHtml);
@@ -528,5 +545,7 @@ console.log(`   - Shards par catégorie: ${categoryShards.length}`);
 console.log('   - Manifeste: dist/index.json');
 console.log('   - Index recherche: dist/search-index.json');
 console.log('   - Résumé: dist/summary.json');
-console.log('   - Publiés (site/public): summary.json, index.json, icons-by-source/*');
+console.log(
+  '   - Publiés (site/public): summary.json, index.json, icons-by-source/*, icons/{id}.json'
+);
 console.log('   - Compatibilité site: OK');
