@@ -1,7 +1,7 @@
 {
-  "total": 1314,
+  "total": 1317,
   "byCategory": {
-    "objets": 337,
+    "objets": 340,
     "animaux": 486,
     "fetes": 35,
     "personnages": 178,
@@ -14,6 +14,7 @@
     "formes": 5
   },
   "byArtist": {
+    "CozyZebra6254": 3,
     "sylvain": 1,
     "CozyFrog9012": 13,
     "MerryButton6219": 1,
