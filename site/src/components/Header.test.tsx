@@ -25,14 +25,31 @@ describe('Header', () => {
     localStorage.setItem('locale', 'fr');
   });
 
-  it('affiche la navigation principale et le menu « Réglages »', () => {
-    renderHeader();
+  it('affiche la navigation principale et le menu « Réglages » sur une seule barre', () => {
+    const { container } = renderHeader();
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Catalogue');
+    expect(container.querySelectorAll('.yc-header__inner')).toHaveLength(1);
+    expect(container.querySelector('.app-bar')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Yoto Community' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Catégories' })).toHaveAttribute('href', '/categories');
     expect(screen.getByRole('button', { name: 'Réglages' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Changer de langue' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Changer de thème' })).toBeInTheDocument();
+  });
+
+  it('regroupe la navigation locale dans le menu mobile', () => {
+    const { container } = renderHeader();
+    const toggle = screen.getByRole('button', { name: 'Menu' });
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(container.querySelector('#mobile-nav')).toBeNull();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    const mobileNav = container.querySelector('#mobile-nav') as HTMLElement;
+    expect(mobileNav).not.toBeNull();
+    expect(mobileNav.querySelector('a[href="/categories"]')).not.toBeNull();
   });
 
   it('marque le lien courant comme actif', () => {
@@ -62,23 +79,29 @@ describe('Header', () => {
     expect(screen.getByRole('menuitem', { name: 'Sources' })).toHaveAttribute('href', '/sources');
   });
 
-  it('expose le portail Awesome Yoto dans le menu communauté', () => {
+  it('expose le portail et l’annuaire de podcasts dans la barre communauté, sans nouvel onglet', () => {
     renderHeader();
-    fireEvent.click(screen.getByRole('button', { name: 'Communauté' }));
 
-    const portal = screen.getByRole('menuitem', { name: /Awesome Yoto/ });
-    expect(portal).toHaveAttribute('href', 'https://yoto-community.github.io/');
-    expect(portal).toHaveAttribute('target', '_blank');
+    const portal = screen.getByRole('link', { name: /Awesome Yoto/ });
+    expect(portal).toHaveAttribute('href', 'https://yoto-community.github.io/fr/');
+    expect(portal).not.toHaveAttribute('target');
+
+    const podcasts = screen.getByRole('link', { name: /Annuaire de podcasts/ });
+    expect(podcasts).toHaveAttribute(
+      'href',
+      'https://yoto-community.github.io/podcast-catalogue/fr/'
+    );
+    expect(podcasts).not.toHaveAttribute('target');
+
+    const icons = screen.getByRole('link', { name: /Catalogue d’icônes/ });
+    expect(icons).toHaveAttribute('href', '/');
+    expect(icons).toHaveAttribute('aria-current', 'page');
   });
 
-  it('expose les autres sites, la contribution et le dépôt GitHub', () => {
+  it('garde la contribution et le dépôt GitHub dans le menu communauté', () => {
     renderHeader();
     fireEvent.click(screen.getByRole('button', { name: 'Communauté' }));
 
-    expect(screen.getByRole('menuitem', { name: /Catalogue de podcasts/ })).toHaveAttribute(
-      'href',
-      'https://yoto-community.github.io/podcast-catalogue/'
-    );
     expect(screen.getByRole('menuitem', { name: /Contribuer/ })).toHaveAttribute(
       'href',
       'https://github.com/yoto-community/icons-catalogue/blob/main/CONTRIBUTING.md'
@@ -89,17 +112,12 @@ describe('Header', () => {
     );
   });
 
-  it('referme le menu communauté après un clic sur le portail externe', () => {
+  it('ne duplique pas les sites frères dans le menu communauté', () => {
     renderHeader();
-    const toggle = screen.getByRole('button', { name: 'Communauté' });
-    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole('button', { name: 'Communauté' }));
 
-    const portal = screen.getByRole('menuitem', { name: /Awesome Yoto/ });
-    // Empêche la navigation jsdom tout en laissant le handler React s'exécuter.
-    portal.addEventListener('click', (event) => event.preventDefault(), { once: true });
-    fireEvent.click(portal);
-
-    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('menuitem', { name: /Awesome Yoto/ })).toBeNull();
+    expect(screen.queryByRole('menuitem', { name: /Annuaire de podcasts/ })).toBeNull();
   });
 
   it('affiche le compteur de favoris quand il est non nul', () => {

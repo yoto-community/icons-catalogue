@@ -38,7 +38,7 @@ test.describe('repli SPA (GitHub Pages)', () => {
 
     const response = await page.goto(`${FALLBACK_BASE}/chemin/inexistant`);
     expect(response?.status()).toBe(404);
-    await expect(page.locator('.header')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('.yc-header')).toBeVisible({ timeout: 15_000 });
   });
 
   test('un fichier réellement présent est servi avec un statut 200', async ({ page }) => {

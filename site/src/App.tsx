@@ -53,6 +53,7 @@ function CataloguePage({
   previewedIcon: Icon | null;
 }) {
   const { icons, isLoading, categories, subcategories, subcategoriesByCategory } = useIconsData();
+  const { t } = useI18n();
 
   // Sans catégorie sélectionnée, toutes les sous-catégories sont proposées.
   const getSubcategories = useCallback(
@@ -70,15 +71,19 @@ function CataloguePage({
   }
 
   return (
-    <IconsBrowser
-      icons={icons}
-      categories={categories}
-      getSubcategories={getSubcategories}
-      showBackgroundColorSelector
-      onOpenDetail={onOpenDetail}
-      onPreview={onPreview}
-      previewedIcon={previewedIcon}
-    />
+    <>
+      {/* Le titre de l'en-tête est devenu visuel : la page d'accueil garde un h1. */}
+      <h1 className="sr-only">{t('header.appName')}</h1>
+      <IconsBrowser
+        icons={icons}
+        categories={categories}
+        getSubcategories={getSubcategories}
+        showBackgroundColorSelector
+        onOpenDetail={onOpenDetail}
+        onPreview={onPreview}
+        previewedIcon={previewedIcon}
+      />
+    </>
   );
 }
 

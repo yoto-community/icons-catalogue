@@ -43,7 +43,7 @@
     "iconsCount": "{{count}} icône{{count > 1 ? 's' : ''}}"
   },
   "header": {
-    "appName": "Yoto Icons Catalogue",
+    "appName": "Catalogue d’icônes",
     "navCatalogue": "Catalogue",
     "navCategories": "Catégories",
     "navAuthors": "Auteurs",
@@ -51,8 +51,11 @@
     "navDevelopers": "Développeurs",
     "navSources": "Sources",
     "navCommunity": "Communauté",
+    "navCommunitySites": "Sites de la communauté",
+    "navMain": "Navigation principale",
     "navPortal": "Awesome Yoto",
-    "navPodcasts": "Catalogue de podcasts",
+    "navIcons": "Catalogue d’icônes",
+    "navPodcasts": "Annuaire de podcasts",
     "navContribute": "Contribuer",
     "navGitHub": "GitHub",
     "externalLink": "(nouvel onglet)",
