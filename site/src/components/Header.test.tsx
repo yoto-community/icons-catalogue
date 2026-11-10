@@ -136,4 +136,81 @@ describe('Header', () => {
     renderHeader();
     expect(screen.getByRole('link', { name: 'Éditeur' })).toHaveAttribute('href', '/editor');
   });
+
+  it('utilise les URL anglaises quand la locale est en', () => {
+    localStorage.setItem('locale', 'en');
+    renderHeader();
+
+    expect(screen.getByRole('link', { name: /Awesome Yoto/ })).toHaveAttribute(
+      'href',
+      'https://yoto-community.github.io/'
+    );
+    expect(screen.getByRole('link', { name: /Podcast directory/ })).toHaveAttribute(
+      'href',
+      'https://yoto-community.github.io/podcast-catalogue/en/'
+    );
+  });
+
+  it('marque le lien favoris comme actif', () => {
+    renderHeader('/favorites');
+
+    const link = screen.getByRole('link', { name: 'Favoris' });
+    expect(link.classList.contains('is-active')).toBe(true);
+    expect(link).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('referme le menu communauté après un clic sur un lien externe', () => {
+    renderHeader();
+    const toggle = screen.getByRole('button', { name: 'Communauté' });
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.click(screen.getByRole('menuitem', { name: /Contribuer/ }));
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('referme le menu mobile après un clic sur chaque lien', () => {
+    const { container } = renderHeader('/favorites');
+    const openMenu = () => fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+
+    const selectors = [
+      '.mobile-group--ecosystem a[href="https://yoto-community.github.io/fr/"]',
+      '.mobile-group--ecosystem a[href="/"]',
+      '.mobile-group--ecosystem a[href*="podcast-catalogue"]',
+      '.mobile-nav-list a[href="/categories"]',
+      '.mobile-nav-list a[href="/favorites"]',
+      '.mobile-group:not(.mobile-group--ecosystem) a[href="/sources"]',
+      '.mobile-group:not(.mobile-group--ecosystem) a[href*="CONTRIBUTING"]',
+    ];
+
+    for (const selector of selectors) {
+      openMenu();
+      const panel = container.querySelector('#mobile-nav') as HTMLElement;
+      const link = panel.querySelector(selector) as HTMLElement;
+      expect(link).not.toBeNull();
+      // jsdom ne gère pas la navigation document : on neutralise l'action par défaut.
+      link.addEventListener('click', (event) => event.preventDefault(), { once: true });
+
+      fireEvent.click(link);
+      expect(container.querySelector('#mobile-nav')).toBeNull();
+    }
+  });
+
+  it('marque le lien communauté courant comme actif dans le menu mobile', () => {
+    const { container } = renderHeader('/sources');
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+
+    const link = container.querySelector('#mobile-nav a[href="/sources"]') as HTMLElement;
+    expect(link).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('affiche le compteur de favoris dans le menu mobile', () => {
+    localStorage.setItem(FAV_KEY, JSON.stringify(['a', 'b']));
+    const { container } = renderHeader();
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+
+    const mobileNav = container.querySelector('#mobile-nav') as HTMLElement;
+    expect(mobileNav.querySelector('.nav-count')?.textContent).toBe('2');
+  });
 });
