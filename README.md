@@ -1,5 +1,10 @@
 # Yoto Icons Catalogue
 
+| Badge | Description | Link |
+|-------|-------------|------|
+| [![CI](https://img.shields.io/github.com/yoto-community/icons-catalogue/actions/workflows/ci.yml?style=for-the-badge&logo=githubactions&logoColor=white)](https://yoto-community.github.io/icons-catalogue) | État CI | https://yoto-community.github.io/icons-catalogue |
+| [![License](https://img.shields.io/badge/license-MIT-yellow.svg?style=for-the-badge)](https://github.com/yoto-community/icons-catalogue/blob/main/LICENSE) | Licence MIT | https://github.com/yoto-community/icons-catalogue/blob/main/LICENSE |
+
 Catalogue unifié de **~27 150 icônes 16×16 pour Yoto Player**, réunissant trois
 sources (yotopixels, yotoicons et les icônes officielles Yoto) dans une seule
 interface : recherche full-text, filtres, favoris, téléchargement et un
