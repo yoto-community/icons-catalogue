@@ -63,7 +63,7 @@
     "navEditor": "Éditeur"
   },
   "search": {
-    "placeholder": "Rechercher par mot-clé (moon, share, heart, étoile…)",
+    "placeholder": "Rechercher par mot-clé (moon, heart, étoile, chat, chien…) — fonctionne en français et en anglais",
     "placeholderCategory": "Rechercher dans {{category}}…",
     "placeholderAuthor": "Rechercher dans {{artist}}…",
     "hint": "Raccourci : / pour chercher · Échap pour effacer · Résultats en temps réel",

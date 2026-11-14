@@ -63,7 +63,7 @@
     "navEditor": "Editor"
   },
   "search": {
-    "placeholder": "Search by keyword (moon, share, heart, star…)",
+    "placeholder": "Search by keyword (moon, heart, star, cat, dog…) — works in French and English",
     "placeholderCategory": "Search in {{category}}…",
     "placeholderAuthor": "Search in {{artist}}…",
     "hint": "Shortcut: / to search · Esc to clear · Real-time results",

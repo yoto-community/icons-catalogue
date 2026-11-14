@@ -70,8 +70,10 @@ export function buildSearchIndex(icons: SearchableIcon[]): lunr.Index {
     }
 
     // Accents ignorés de part et d'autre (index + requêtes).
-    // NB : AVANT le `trimmer`, qui supprime les caractères non-ASCII en fin de
-    // mot (« café » → « caf ») et rendrait l'accentuation incohérente.
+    // Le stripDiacritics normalise les accents (é → e, à → a, etc.)
+    // tant à l'indexation qu'à la recherche. Le stemmer par défaut de Lunr
+    // est en anglais ; il ne gêne pas la recherche avec des mots français
+    // lorsque l'indexation et la requête suivent le même pipeline normalisé.
     this.pipeline.before(lunr.trimmer, stripDiacritics);
     this.searchPipeline.before(lunr.stemmer, stripDiacritics);
 
