@@ -32,4 +32,17 @@ describe('Footer', () => {
       'https://yoto-community.github.io/myo/'
     );
   });
+
+  it('expose un lien « Soutenir le projet » vers le parrainage GitHub', () => {
+    renderFooter();
+
+    expect(screen.getByRole('link', { name: 'Soutenir le projet' })).toHaveAttribute(
+      'href',
+      'https://github.com/sponsors/yoto-community'
+    );
+    expect(screen.getByRole('link', { name: 'Soutenir le projet' })).toHaveAttribute(
+      'target',
+      '_blank'
+    );
+  });
 });

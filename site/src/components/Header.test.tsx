@@ -151,6 +151,14 @@ describe('Header', () => {
     );
   });
 
+  it('expose un bouton « Soutenir » / « Sponsor » vers le parrainage GitHub', () => {
+    renderHeader();
+
+    const btn = screen.getByRole('link', { name: /Soutenir/ });
+    expect(btn).toHaveAttribute('href', 'https://github.com/sponsors/yoto-community');
+    expect(btn).toHaveAttribute('target', '_blank');
+  });
+
   it('marque le lien favoris comme actif', () => {
     renderHeader('/favorites');
 

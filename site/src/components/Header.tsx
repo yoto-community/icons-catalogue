@@ -192,6 +192,19 @@ export function Header() {
         </nav>
 
         <div className="yc-actions">
+          <a
+            className="sponsor-btn"
+            href="https://github.com/sponsors/yoto-community"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            {t('header.navSponsor')}
+            <span className="nav-dropdown-external" aria-hidden="true">
+              ↗
+            </span>
+            <span className="sr-only">{t('header.externalLink')}</span>
+          </a>
           <SettingsMenu />
         </div>
 

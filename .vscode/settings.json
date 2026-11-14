@@ -1,0 +1,22 @@
+{
+  // Exclut les fichiers d'icônes générés (non versionnés, régénérés par `pnpm run build:api`)
+  // afin d'éviter d'épuiser la limite inotify (ENOSPC) avec les ~27k fichiers JSON.
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/site/public/icons/**": true,
+    "**/site/public/icons-by-source/**": true,
+    "**/site/public/index.json": true,
+    "**/site/public/icons.json": true,
+    "**/site/public/lunr-index.bin": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/dist": true,
+    "**/site/public/icons": true,
+    "**/site/public/icons-by-source": true
+  }
+}

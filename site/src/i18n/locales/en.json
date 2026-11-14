@@ -60,7 +60,8 @@
     "navGitHub": "GitHub",
     "externalLink": "(opens in a new tab)",
     "favoritesCount": "{{count}} favorite{{count > 1 ? 's' : ''}}",
-    "navEditor": "Editor"
+    "navEditor": "Editor",
+    "navSponsor": "Sponsor"
   },
   "search": {
     "placeholder": "Search by keyword (moon, heart, star, cat, dog…) — works in French and English",
@@ -133,6 +134,7 @@
     "sources": "Sources:",
     "aboutSources": "About the sources",
     "github": "GitHub",
+    "sponsor": "Sponsor the project",
     "community": "Part of the <a href=\"https://yoto-community.github.io/\">Yoto Community</a> — <a href=\"https://yoto-community.github.io/myo/\">build your first MYO card</a>."
   },
   "loading": {

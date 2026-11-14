@@ -125,6 +125,15 @@ export default defineConfig({
     }),
   ],
   base: '/icons-catalogue/',
+  // Exclut les icônes générées (~27k JSON non versionnés) du watcher de dev
+  // pour éviter d'épuiser la limite inotify (ENOSPC) au lancement de `pnpm run dev:site`.
+  server: {
+    watch: {
+      // Icônes générées (~27k JSON non versionnés) exclues du watcher de dev
+      // pour éviter l'épuisement de la limite inotify (ENOSPC).
+      ignored: ['**/public/icons/**', '**/public/icons-by-source/**'],
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

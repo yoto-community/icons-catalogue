@@ -22,6 +22,14 @@ export function Footer() {
           rel="noopener noreferrer"
         >
           {t('footer.github')}
+        </a>{' '}
+        ·{' '}
+        <a
+          href="https://github.com/sponsors/yoto-community"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {t('footer.sponsor')}
         </a>
       </p>
       <p className="footer-community">{tRich('footer.community')}</p>
