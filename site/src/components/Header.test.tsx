@@ -159,6 +159,15 @@ describe('Header', () => {
     expect(btn).toHaveAttribute('target', '_blank');
   });
 
+  it('referme le menu mobile après un clic sur le bouton Soutenir', () => {
+    const { container } = renderHeader('/favorites');
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    expect(container.querySelector('#mobile-nav')).not.toBeNull();
+
+    fireEvent.click(screen.getByRole('link', { name: /Soutenir/ }));
+    expect(container.querySelector('#mobile-nav')).toBeNull();
+  });
+
   it('marque le lien favoris comme actif', () => {
     renderHeader('/favorites');
 
