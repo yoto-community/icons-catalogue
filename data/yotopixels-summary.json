@@ -1,24 +1,24 @@
 {
-  "total": 1317,
+  "total": 1320,
   "byCategory": {
-    "objets": 340,
-    "animaux": 486,
+    "animaux": 491,
+    "objets": 339,
     "fetes": 35,
     "personnages": 178,
     "batiments": 10,
     "nature": 87,
     "activites": 15,
     "transport": 80,
-    "nourriture": 59,
+    "nourriture": 58,
     "musique": 22,
     "formes": 5
   },
   "byArtist": {
+    "GooseGang": 6,
     "CozyZebra6254": 3,
     "sylvain": 1,
     "CozyFrog9012": 13,
     "MerryButton6219": 1,
-    "GooseGang": 1,
-    "YotoPixels": 1298
+    "YotoPixels": 1296
   }
 }

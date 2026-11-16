@@ -726,22 +726,22 @@ L'API est conçue pour être consommée par n'importe quel client (React, Vue, v
 
 ## Données actuelles (dernier build)
 
-- **Total** : 27 483 icônes
-- **yotopixels** : 1 315
-- **yotoicons** : 25 649
+- **Total** : 27 641 icônes
+- **yotopixels** : 1 319
+- **yotoicons** : 25 803
 - **yoto-official** : 519
-- **Doublons inter-sources** : 46 groupes / 46 icônes marquées
-- **Doublons de contenu fusionnés** : 410 groupes / 421 icônes retirées
+- **Doublons inter-sources** : 47 groupes / 47 icônes marquées
+- **Doublons de contenu fusionnés** : 409 groupes / 420 icônes retirées
 
 ### Catégories principales
-- `objets` : 7 373
-- `animaux` : 6 726
-- `personnages` : 6 573
-- `nature` : 2 072
-- `formes` : 1 922
+- `objets` : 7 447
+- `animaux` : 6 753
+- `personnages` : 6 601
+- `nature` : 2 079
+- `formes` : 1 936
 - `transport` : 1 252
-- `nourriture` : 1 031
-- `batiments` : 399
+- `nourriture` : 1 034
+- `batiments` : 404
 - `fetes` : 49
 - `musique` : 43
 - `activites` : 28
